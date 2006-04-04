@@ -43,7 +43,7 @@ setup(name='zope.proxy',
 
       namespace_packages=['zope',],
       tests_require = ['zope.testing'],
-      install_requires=['zope.deprecation'],
+      install_requires=['zope.interface'],
       include_package_data = True,
 
       zip_safe = False,
