@@ -1,5 +1,5 @@
-zope.XXX Package Readme
-=======================
+zope.proxy Package Readme
+=========================
 
 Overview
 --------
@@ -22,16 +22,16 @@ Developer Resources
 
 - Subversion browser:
 
-  http://svn.zope.org/zope.XXX/
+  http://svn.zope.org/zope.proxy/
 
 - Read-only Subversion checkout:
 
-  $ svn co svn://svn.zope.org/repos/main/zope.XXX/trunk
+  $ svn co svn://svn.zope.org/repos/main/zope.proxy/trunk
 
 - Writable Subversion checkout:
 
-  $ svn co svn://svn.zope.org/repos/main/zope.XXX/trunk
+  $ svn co svn://svn.zope.org/repos/main/zope.proxy/trunk
 
-- Note that the 'src/zope/XXX' package is acutally a 'svn:externals' link
+- Note that the 'src/zope/proxy' package is acutally a 'svn:externals' link
   to the corresponding package in the Zope3 trunk (or to a specific tag,
   for released versions of the package).
