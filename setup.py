@@ -30,7 +30,12 @@ setup(name='zope.proxy',
       description='Zope Proxies',
       author='Zope Corporation and Contributors',
       author_email='zope3-dev@zope.org',
-      long_description='',
+      long_description="In Zope3, proxies are special objects which serve as "
+                       "mostly-transparent wrappers around another object, "
+                       "intervening in the apparent behavior of the wrapped "
+                       "object only when necessary to apply the policy "
+                       "(e.g., access checking, location brokering, etc.) "
+                       "for which the proxy is responsible.",
       
       packages=['zope', 'zope.proxy'],
       package_dir = {'': os.path.join(os.path.dirname(__file__), 'src')},

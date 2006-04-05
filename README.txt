@@ -4,7 +4,13 @@ zope.proxy Package Readme
 Overview
 --------
 
-Lorem ipsum delorem.
+In Zope3, proxies are special objects which serve as mostly-transparent
+wrappers around another object, intervening in the apparent behavior of
+the wrapped object only when necessary to apply the policy (e.g., access
+checking, location brokering, etc.) for which the proxy is responsible.
+Zope 2 uses acquisition wrappers liberally, to impose a policy that
+attribute lookups which failed on the "self" instance could be delegated
+to the "parent" instance.
 
 Changes
 -------
