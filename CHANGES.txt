@@ -1,7 +1,12 @@
 zope.proxy Package Changelog
 ============================
 
-zope.proxy version 3.2.0.1 (2006/04/04)
+zope.proxy version 3.2.0.3 (2006/04/15)
+---------------------------------------
+
+- Fix packaging bug:  'package_dir' must be a *relative* path.
+
+zope.proxy version 3.2.0.2 (2006/04/14)
 ---------------------------------------
 
 - Packaging change:  suppress inclusion of 'setup.cfg' in 'sdist' builds.
