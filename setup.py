@@ -24,7 +24,7 @@ except ImportError, e:
     from distutils.core import setup, Extension
 
 setup(name='zope.proxy',
-      version='1.0',
+      version='3.3-dev',
       url='http://svn.zope.org/zope.proxy',
       license='ZPL 2.1',
       description='Zope Proxies',
@@ -38,7 +38,7 @@ setup(name='zope.proxy',
                        "for which the proxy is responsible.",
       
       packages=['zope', 'zope.proxy'],
-      package_dir = {'': os.path.join(os.path.dirname(__file__), 'src')},
+      package_dir = {'': 'src'},
 
       headers=[os.path.join('src', 'zope', 'proxy', 'proxy.h')],
       ext_modules=[Extension("zope.proxy._zope_proxy_proxy",
