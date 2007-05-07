@@ -18,10 +18,7 @@ $Id$
 
 import os
 
-try:
-    from setuptools import setup, Extension
-except ImportError, e:
-    from distutils.core import setup, Extension
+from setuptools import setup, Extension
 
 setup(name='zope.proxy',
       version = '3.4.0b1',
