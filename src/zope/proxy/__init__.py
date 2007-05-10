@@ -17,7 +17,6 @@ $Id$
 """
 from zope.interface import moduleProvides
 from zope.proxy.interfaces import IProxyIntrospection
-from types import ClassType
 from zope.proxy._zope_proxy_proxy import *
 from zope.proxy._zope_proxy_proxy import _CAPI
 
