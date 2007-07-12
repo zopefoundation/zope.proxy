@@ -1,43 +1,47 @@
-zope.proxy Package Readme
-=========================
+***************************
+Generic Transparent Proxies
+***************************
 
-Overview
---------
-
-In Zope3, proxies are special objects which serve as mostly-transparent
+Proxies are special objects which serve as mostly-transparent
 wrappers around another object, intervening in the apparent behavior of
 the wrapped object only when necessary to apply the policy (e.g., access
 checking, location brokering, etc.) for which the proxy is responsible.
-Zope 2 uses acquisition wrappers liberally, to impose a policy that
-attribute lookups which failed on the "self" instance could be delegated
-to the "parent" instance.
+
+Editorial note:
+
+   Unfortunately, we don't have separate documentation for zope.proxy
+   at this time.  This is a shame because the are generically useful.
+   We are publishing this release without documentation mainly because
+   it is a dependency of other releases.
 
 Changes
--------
+*******
 
-See CHANGES.txt.
+3.4.0 (2007/07/12)
+==================
 
-Installation
+New Features
 ------------
 
-See INSTALL.txt.
+Added a decorator module that supports declaring interfaces on proxies
+that get blended with the interfaces of the things they proxy.
+
+3.3.0 (2006/12/20)
+==================
+
+Corresponds to the verison of the zope.proxy package shipped as part of
+the Zope 3.3.0 release.
 
 
-Developer Resources
--------------------
+3.2.0 (2006/01/05)
+==================
 
-- Subversion browser:
+Corresponds to the verison of the zope.proxy package shipped as part of
+the Zope 3.2.0 release.
 
-  http://svn.zope.org/zope.proxy/
 
-- Read-only Subversion checkout:
+3.0.0 (2004/11/07)
+==================
 
-  $ svn co svn://svn.zope.org/repos/main/zope.proxy/trunk
-
-- Writable Subversion checkout:
-
-  $ svn co svn://svn.zope.org/repos/main/zope.proxy/trunk
-
-- Note that the 'src/zope/proxy' package is acutally a 'svn:externals' link
-  to the corresponding package in the Zope3 trunk (or to a specific tag,
-  for released versions of the package).
+Corresponds to the verison of the zope.proxy package shipped as part of
+the Zope X3.0.0 release.

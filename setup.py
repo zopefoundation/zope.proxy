@@ -20,19 +20,31 @@ import os
 
 from setuptools import setup, Extension
 
-setup(name='zope.proxy',
-      version = '3.4.0b1',
-      url='http://svn.zope.org/zope.proxy',
+def read(*rnames):
+    return open(os.path.join(os.path.dirname(__file__), *rnames)).read()
+
+long_description=(
+        read('README.txt')
+        + '\n' +
+# Waaa  'Detailed Documentation\n'
+#       '**********************\n'
+#       + '\n' +
+#       + '\n' +
+        'Download\n'
+        '**********************\n'
+        )
+
+open('doc.txt', 'w').write(long_description)
+
+name = 'zope.proxy'
+setup(name=name,
+      version = '3.4.0',
+      url='http://www.python.org/pypi/'+name,
       license='ZPL 2.1',
-      description='Zope Proxies',
+      description='Generic Transpatent Proxies',
       author='Zope Corporation and Contributors',
       author_email='zope3-dev@zope.org',
-      long_description="In Zope3, proxies are special objects which serve as "
-                       "mostly-transparent wrappers around another object, "
-                       "intervening in the apparent behavior of the wrapped "
-                       "object only when necessary to apply the policy "
-                       "(e.g., access checking, location brokering, etc.) "
-                       "for which the proxy is responsible.",
+      long_description=long_description,
       
       packages=['zope', 'zope.proxy'],
       package_dir = {'': 'src'},
