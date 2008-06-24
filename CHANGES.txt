@@ -1,0 +1,39 @@
+=======
+CHANGES
+=======
+
+3.4.1 (2008/06/24)
+------------------
+
+- Bug: Updated `setup.py` script to conform to common layout. Also updated
+  some of the fields.
+
+- Bug: The behavior of tuples and lists in the `__getslice__()` and
+  `__setslice__()` method were incorrect by not honoring the pre-cooked
+  indices. See http://docs.python.org/ref/sequence-methods.html.
+
+3.4.0 (2007/07/12)
+------------------
+
+- Feature: Added a decorator module that supports declaring interfaces on
+  proxies that get blended with the interfaces of the things they proxy.
+
+3.3.0 (2006/12/20)
+------------------
+
+- Corresponds to the verison of the `zope.proxy` package shipped as part of
+  the Zope 3.3.0 release.
+
+
+3.2.0 (2006/01/05)
+------------------
+
+- Corresponds to the verison of the zope.proxy package shipped as part of
+  the Zope 3.2.0 release.
+
+
+3.0.0 (2004/11/07)
+------------------
+
+- Corresponds to the verison of the zope.proxy package shipped as part of
+  the Zope X3.0.0 release.

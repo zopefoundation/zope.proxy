@@ -340,6 +340,72 @@ class ProxyTestCase(unittest.TestCase):
         self.failUnless(a.__class__ is float, a.__class__)
         self.failUnless(b is y)
 
+    def test_getslice(self):
+        # Lists have special slicing bahvior.
+        pList = self.new_proxy([1, 2])
+        self.assertEqual(pList[-1:], [2])
+        self.assertEqual(pList[-2:], [1, 2])
+        self.assertEqual(pList[-3:], [1, 2])
+
+        # Tuples also have special slicing behavior.
+        pTuple = self.new_proxy((1, 2))
+        self.assertEqual(pTuple[-1:], (2,))
+        self.assertEqual(pTuple[-2:], (1, 2))
+        self.assertEqual(pTuple[-3:], (1, 2))
+
+        # This behavior should be true for all list- and tuple-derived classes.
+        class DerivedList(list):
+
+            def __getslice__(self, start, end, step=None):
+                return (start, end, step)
+
+        pList = self.new_proxy(DerivedList([1, 2]))
+        self.assertEqual(pList[-1:], [2])
+        self.assertEqual(pList[-2:], [1, 2])
+        self.assertEqual(pList[-3:], [1, 2])
+
+        # Another sort of sequence has a different slicing interpretation.
+        class Slicer(object):
+
+            def __len__(self):
+                return 2
+
+            def __getslice__(self, start, end, step=None):
+                return (start, end, step)
+
+        pSlicer = self.new_proxy(Slicer())
+        self.assertEqual(pSlicer[-1:][0], 1)
+        self.assertEqual(pSlicer[-2:][0], 0)
+        # Note that for non-lists and non-tuples the slice is computed
+        # differently
+        self.assertEqual(pSlicer[-3:][0], 1)
+
+    def test_setslice(self):
+        # Lists have special slicing bahvior for assignment as well.
+        pList = self.new_proxy([1, 2])
+        pList[-1:] = [3, 4]
+        self.assertEqual(pList, [1, 3, 4])
+        pList = self.new_proxy([1, 2])
+        pList[-2:] = [3, 4]
+        self.assertEqual(pList, [3, 4])
+        pList = self.new_proxy([1, 2])
+        pList[-3:] = [3, 4]
+        self.assertEqual(pList, [3, 4])
+
+        # This behavior should be true for all list-derived classes.
+        class DerivedList(list):
+            pass
+
+        pList = self.new_proxy(DerivedList([1, 2]))
+        pList[-1:] = [3, 4]
+        self.assertEqual(pList, [1, 3, 4])
+        pList = self.new_proxy(DerivedList([1, 2]))
+        pList[-2:] = [3, 4]
+        self.assertEqual(pList, [3, 4])
+        pList = self.new_proxy(DerivedList([1, 2]))
+        pList[-3:] = [3, 4]
+        self.assertEqual(pList, [3, 4])
+
 
 def test_isProxy():
     """

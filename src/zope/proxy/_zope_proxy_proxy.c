@@ -629,13 +629,28 @@ wrap_length(PyObject *self)
 static PyObject *
 wrap_slice(PyObject *self, int start, int end)
 {
-    return PySequence_GetSlice(Proxy_GET_OBJECT(self), start, end);
+    PyObject *obj = Proxy_GET_OBJECT(self);
+    if (PyList_Check(obj)) {
+        return PyList_GetSlice(obj, start, end);
+    }
+    else if (PyTuple_Check(obj)) {
+        return PyTuple_GetSlice(obj, start, end);
+    }
+    else {
+        return PySequence_GetSlice(obj, start, end);
+    }
 }
 
 static int
 wrap_ass_slice(PyObject *self, int i, int j, PyObject *value)
 {
-    return PySequence_SetSlice(Proxy_GET_OBJECT(self), i, j, value);
+    PyObject *obj = Proxy_GET_OBJECT(self);
+    if (PyList_Check(obj)) {
+        return PyList_SetSlice(obj, i, j, value);
+    }
+    else {
+        return PySequence_SetSlice(obj, i, j, value);
+    }
 }
 
 static int
