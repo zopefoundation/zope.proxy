@@ -38,7 +38,7 @@ open('doc.txt', 'w').write(long_description)
 
 name = 'zope.proxy'
 setup(name=name,
-      version = '3.4.0',
+      version = '3.4.2',
       url='http://www.python.org/pypi/'+name,
       license='ZPL 2.1',
       description='Generic Transpatent Proxies',
