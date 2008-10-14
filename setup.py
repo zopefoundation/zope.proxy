@@ -59,6 +59,7 @@ setup(name='zope.proxy',
           test=['zope.testing']),
       tests_require = [
           'zope.testing'],
+      test_suite = 'zope.proxy',
       install_requires=[
           'zope.interface',
           'setuptools'],
