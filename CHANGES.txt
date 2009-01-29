@@ -6,6 +6,7 @@ CHANGES
 ------------------
 
 - Added support to bootstrap on Jython.
+- Use zope.container instead of zope.app.container.
 
 3.4.2 (2008/07/27)
 ------------------

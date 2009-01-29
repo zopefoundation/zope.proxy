@@ -14,8 +14,8 @@
 
 /*
  *   This file is also used as a really extensive macro in
- *   ../app/container/_zope_app_container_contained.c.  If you need to
- *   change this file, you need to "svn copy" it to ../app/container/.
+ *   ../container/_zope_container_contained.c.  If you need to
+ *   change this file, you need to "svn copy" it to ../container/.
  *
  *   This approach is taken to allow the sources for the two packages
  *   to be compilable when the relative locations of these aren't
