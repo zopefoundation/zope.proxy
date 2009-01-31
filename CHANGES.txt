@@ -2,7 +2,7 @@
 CHANGES
 =======
 
-3.5.0 (unreleased)
+3.5.0 (2008/01/31)
 ------------------
 
 - Added support to bootstrap on Jython.
