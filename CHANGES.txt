@@ -5,7 +5,7 @@ CHANGES
 3.5.1 (unreleased)
 ------------------
 
-- ...
+- Removed use of 'zope.testing.doctestunit' in favor of stdlib's 'doctest.
 
 3.5.0 (2009/01/31)
 ------------------

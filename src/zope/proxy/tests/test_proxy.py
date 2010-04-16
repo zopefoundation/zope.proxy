@@ -15,11 +15,11 @@
 
 $Id$
 """
+from doctest import DocTestSuite
 import pickle
 import sys
 import unittest
 
-from zope.testing.doctestunit import DocTestSuite
 from zope.proxy import ProxyBase
 import zope.proxy
 

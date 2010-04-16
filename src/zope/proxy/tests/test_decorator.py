@@ -15,7 +15,7 @@
 
 $Id: tests.py 66343 2006-04-03 04:59:49Z philikon $
 """
-from zope.testing.doctestunit import DocTestSuite
+from doctest import DocTestSuite
 
 
 def test_suite():
