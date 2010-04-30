@@ -2,8 +2,10 @@
 CHANGES
 =======
 
-3.5.1 (unreleased)
+3.6.0 (unreleased)
 ------------------
+
+- Removed test extra and the remaining dependency on zope.testing.
 
 - Removed use of 'zope.testing.doctestunit' in favor of stdlib's 'doctest.
 
