@@ -1,6 +1,6 @@
 ##############################################################################
 #
-# Copyright (c) 2003 Zope Corporation and Contributors.
+# Copyright (c) 2003 Zope Foundation and Contributors.
 # All Rights Reserved.
 #
 # This software is subject to the provisions of the Zope Public License,
@@ -13,7 +13,7 @@
 ##############################################################################
 """Test Harness
 
-$Id: tests.py 66343 2006-04-03 04:59:49Z philikon $
+$Id$
 """
 from doctest import DocTestSuite
 

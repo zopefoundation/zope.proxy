@@ -1,6 +1,6 @@
 ##############################################################################
 #
-# Copyright (c) 2006-2008 Zope Corporation and Contributors.
+# Copyright (c) 2006-2008 Zope Foundation and Contributors.
 # All Rights Reserved.
 #
 # This software is subject to the provisions of the Zope Public License,
@@ -28,7 +28,7 @@ def read(*rnames):
 
 setup(name='zope.proxy',
       version = '3.6.1dev',
-      author='Zope Corporation and Contributors',
+      author='Zope Foundation and Contributors',
       author_email='zope-dev@zope.org',
       description='Generic Transparent Proxies',
       long_description=(

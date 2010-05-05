@@ -1,6 +1,6 @@
 ##############################################################################
 #
-# Copyright (c) 2003 Zope Corporation and Contributors.
+# Copyright (c) 2003 Zope Foundation and Contributors.
 # All Rights Reserved.
 #
 # This software is subject to the provisions of the Zope Public License,
@@ -16,7 +16,7 @@
 Decorators are proxies that are mostly transparent but that may provide
 additional features.
 
-$Id: __init__.py 66343 2006-04-03 04:59:49Z philikon $
+$Id$
 """
 __docformat__ = "reStructuredText"
 
