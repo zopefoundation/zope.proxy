@@ -12,8 +12,6 @@
 #
 ##############################################################################
 """More convenience functions for dealing with proxies.
-
-$Id$
 """
 from zope.interface import moduleProvides
 from zope.proxy.interfaces import IProxyIntrospection

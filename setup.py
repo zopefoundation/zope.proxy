@@ -17,8 +17,6 @@
 # Zope Toolkit policies as described by this documentation.
 ##############################################################################
 """Setup for zope.proxy package
-
-$Id$
 """
 import os
 from setuptools import setup, Extension

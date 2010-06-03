@@ -12,8 +12,6 @@
 #
 ##############################################################################
 """Test base proxy class.
-
-$Id$
 """
 from doctest import DocTestSuite
 import pickle
