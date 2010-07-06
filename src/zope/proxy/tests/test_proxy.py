@@ -704,10 +704,13 @@ def test_setProxiedObject():
     The first argument  to `setProxiedObject()` must be a proxy; other objects
     cause it to raise an exception:
 
-    >>> setProxiedObject(c1, None)
-    Traceback (most recent call last):
-    TypeError: setProxiedObject() argument 1 must be zope.proxy.ProxyBase, not C
-
+    >>> try:
+    ...     setProxiedObject(c1, None)
+    ... except TypeError:
+    ...     print "TypeError raised"
+    ... else:
+    ...     print "Excpected TypeError not raised"
+    TypeError raised
     """
 
 def test_suite():

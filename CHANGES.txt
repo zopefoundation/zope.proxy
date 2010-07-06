@@ -5,6 +5,7 @@ CHANGES
 3.6.1 (unreleased)
 ------------------
 
+- Make tests compatible with Python 2.7.
 
 3.6.0 (2010-04-30)
 ------------------
