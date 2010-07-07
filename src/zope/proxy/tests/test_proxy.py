@@ -507,7 +507,7 @@ def test_queryProxy():
     1
     >>> int(queryProxy(p2, ProxyBase) is p2)
     1
-    
+
     """
 
 def test_queryInnerProxy():
@@ -544,7 +544,7 @@ def test_queryInnerProxy():
     1
     >>> int(queryInnerProxy(p3, P2) is p2)
     1
-    
+
     """
 
 def test_sameProxiedObjects():
@@ -599,7 +599,7 @@ def test_subclassing_proxies():
     >>> p = MyProxy(l)
 
     I can use attributes defined by the class, including slots:
-    
+
     >>> p.x = 'x'
     >>> p.x
     'x'
@@ -607,14 +607,14 @@ def test_subclassing_proxies():
     'x'
 
     I can also use attributes of the proxied object:
-    
+
     >>> p
     [1, 2, 3]
     >>> p.pop()
     3
     >>> p
     [1, 2]
-    
+
     """
 
 def test_get_descriptors_in_proxy_class():
@@ -646,7 +646,7 @@ def test_get_descriptors_in_proxy_class():
     >>> p.z = 1
     >>> o.z, p.z
     (1, 1)
-    
+
     """
 
 def test_non_overridable():
@@ -659,7 +659,7 @@ def test_non_overridable():
     defined in proxy classes take precedence over functions defined
     in proxied objects.
 
-    
+
     >>> class MyProxy(ProxyBase):
     ...    __slots__ = ()
     ...
@@ -675,7 +675,7 @@ def test_non_overridable():
     >>> p = MyProxy(o)
     >>> p.foo()
     'MyProxy foo'
-    
+
     """
 
 def test_setProxiedObject():
@@ -709,7 +709,7 @@ def test_setProxiedObject():
     ... except TypeError:
     ...     print "TypeError raised"
     ... else:
-    ...     print "Excpected TypeError not raised"
+    ...     print "Expected TypeError not raised"
     TypeError raised
     """
 
