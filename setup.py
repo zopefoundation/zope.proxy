@@ -18,8 +18,17 @@
 ##############################################################################
 """Setup for zope.proxy package
 """
-import os
+import os, sys
 from setuptools import setup, Extension
+
+if sys.version_info >= (3,):
+    extra = dict(use_2to3 = True,
+                 convert_2to3_doctests = [
+                     'src/zope/i18nmessageid/messages.txt',
+                     ],
+                 )
+else:
+    extra = {}
 
 def read(*rnames):
     return open(os.path.join(os.path.dirname(__file__), *rnames)).read()
@@ -61,4 +70,5 @@ setup(name='zope.proxy',
           'setuptools'],
       include_package_data = True,
       zip_safe = False,
+      **extra
       )

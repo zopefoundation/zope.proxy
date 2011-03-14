@@ -120,6 +120,10 @@ class ProxyTestCase(unittest.TestCase):
         self.assert_(w.__class__ is o.__class__)
 
     def test_pickle_prevention(self):
+        # Proxies of old-style classes can't be pickled.
+        if sys.version > '3':
+            # No old-style classes in Python 3.
+            return
         w = self.new_proxy(Thing())
         self.assertRaises(pickle.PicklingError,
                           pickle.dumps, w)
@@ -162,8 +166,9 @@ class ProxyTestCase(unittest.TestCase):
         self.assert_(w2 <= o2)
 
     def test_proxy_callable(self):
-        w = self.new_proxy({}.get)
-        self.assert_(callable(w))
+        if sys.version < '3': # Gone in Python 3:
+            w = self.new_proxy({}.get)
+            self.assert_(callable(w))
 
     def test_proxy_item_protocol(self):
         w = self.new_proxy({})
@@ -220,8 +225,10 @@ class ProxyTestCase(unittest.TestCase):
 
     unops = [
         "-x", "+x", "abs(x)", "~x",
-        "int(x)", "long(x)", "float(x)",
+        "int(x)", "float(x)",
         ]
+    if sys.version < '3': # long is gone in Python 3
+        unops.append("long(x)") 
 
     def test_unops(self):
         P = self.new_proxy
@@ -236,7 +243,10 @@ class ProxyTestCase(unittest.TestCase):
     def test_odd_unops(self):
         # unops that don't return a proxy
         P = self.new_proxy
-        for func in hex, oct, lambda x: not x:
+        funcs = (lambda x: not x,)
+        if sys.version < '3':
+            funcs += (oct, hex)
+        for func in funcs:
             self.assertEqual(func(P(100)), func(100))
 
     binops = [
@@ -276,6 +286,9 @@ class ProxyTestCase(unittest.TestCase):
         self.assertEqual(pa, 4)
 
     def test_coerce(self):
+        if sys.version > '3':
+            # No coercion in Python 3
+            return
         P = self.new_proxy
 
         # Before 2.3, coerce() of two proxies returns them unchanged
@@ -339,7 +352,11 @@ class ProxyTestCase(unittest.TestCase):
         self.failUnless(b is y)
 
     def test_getslice(self):
-        # Lists have special slicing bahvior.
+        # These tests are moot under Python 3 as __slice__ isn't supported.
+        if sys.version > '3':
+            return
+        
+        # Lists have special slicing behavior.
         pList = self.new_proxy([1, 2])
         self.assertEqual(pList[-1:], [2])
         self.assertEqual(pList[-2:], [1, 2])
