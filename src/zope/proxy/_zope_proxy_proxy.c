@@ -53,9 +53,12 @@ empty_tuple = NULL;
   #define MOD_DEF(ob, name, doc, methods) \
           ob = Py_InitModule3(name, methods, doc);
 
+  #define PyCapsule_New(pointer, name, destr) \
+          PyCObject_FromVoidPtr(pointer, destr)
+
 #else
 
-#define IS_STRING PyUnicode_Check
+  #define IS_STRING PyUnicode_Check
 
   #define MAKE_STRING(name) PyBytes_AS_STRING( \
           PyUnicode_AsUTF8String(name))
@@ -71,6 +74,7 @@ empty_tuple = NULL;
 	    PyModuleDef_HEAD_INIT, name, doc, -1, methods, }; \
 	  ob = PyModule_Create(&moduledef);
 #endif
+
 
 
 /*
@@ -924,7 +928,7 @@ ProxyType = {
     wrap_init,				/* tp_init */
     0,                   		/* tp_alloc */
     wrap_new,				/* tp_new */
-    0, /*_PyObject_GC_Del,*/		/* tp_free */
+    0, /*PyObject_GC_Del,*/		/* tp_free */
 };
 
 static PyObject *
@@ -1217,7 +1221,7 @@ MOD_INIT(_zope_proxy_proxy)
     if (empty_tuple == NULL)
         empty_tuple = PyTuple_New(0);
 
-    ProxyType.tp_free = _PyObject_GC_Del;
+    ProxyType.tp_free = PyObject_GC_Del;
 
     if (PyType_Ready(&ProxyType) < 0)
         return MOD_ERROR_VAL;
@@ -1226,7 +1230,7 @@ MOD_INIT(_zope_proxy_proxy)
     PyModule_AddObject(m, "ProxyBase", (PyObject *)&ProxyType);
 
     if (api_object == NULL) {
-        api_object = PyCObject_FromVoidPtr(&wrapper_capi, NULL);
+        api_object = PyCapsule_New(&wrapper_capi, NULL, NULL);
         if (api_object == NULL)
         return MOD_ERROR_VAL;
     }
