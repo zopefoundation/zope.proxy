@@ -27,7 +27,9 @@ from zope.interface import providedBy
 class DecoratorSpecificationDescriptor(ObjectSpecificationDescriptor):
     """Support for interface declarations on decorators
 
-    >>> from zope.interface import *
+    >>> from zope.interface import Interface
+    >>> from zope.interface import directlyProvides
+    >>> from zope.interface import implementer
     >>> class I1(Interface):
     ...     pass
     >>> class I2(Interface):
@@ -37,15 +39,18 @@ class DecoratorSpecificationDescriptor(ObjectSpecificationDescriptor):
     >>> class I4(Interface):
     ...     pass
 
-    >>> class D1(SpecificationDecoratorBase):
-    ...   implements(I1)
+    >>> @implementer(I1)
+    ... class D1(SpecificationDecoratorBase):
+    ...   pass
 
 
-    >>> class D2(SpecificationDecoratorBase):
-    ...   implements(I2)
+    >>> @implementer(I2)
+    ... class D2(SpecificationDecoratorBase):
+    ...   pass
 
-    >>> class X(object):
-    ...   implements(I3)
+    >>> @implementer(I3)
+    ... class X(object):
+    ...   pass
 
     >>> x = X()
     >>> directlyProvides(x, I4)
@@ -67,8 +72,9 @@ class DecoratorSpecificationDescriptor(ObjectSpecificationDescriptor):
 
     SpecificationDecorators also work with old-style classes:
 
-    >>> class X:
-    ...   implements(I3)
+    >>> @implementer(I3)
+    ... class X:
+    ...   pass
 
     >>> x = X()
     >>> directlyProvides(x, I4)
