@@ -791,82 +791,82 @@ wrap_reduce(PyObject *self)
 
 static PyNumberMethods
 wrap_as_number = {
-    wrap_add,                                /* nb_add */
-    wrap_sub,                                /* nb_subtract */
-    wrap_mul,                                /* nb_multiply */
+    wrap_add,                               /* nb_add */
+    wrap_sub,                               /* nb_subtract */
+    wrap_mul,                               /* nb_multiply */
 #if PY_MAJOR_VERSION < 3
-    wrap_div,                                /* nb_divide */
+    wrap_div,                               /* nb_divide */
 #endif
-    wrap_mod,                                /* nb_remainder */
-    wrap_divmod,                        /* nb_divmod */
-    wrap_pow,                                /* nb_power */
-    wrap_neg,                                /* nb_negative */
-    wrap_pos,                                /* nb_positive */
-    wrap_abs,                                /* nb_absolute */
-    wrap_nonzero,                        /* nb_nonzero */
-    wrap_invert,                        /* nb_invert */
-    wrap_lshift,                        /* nb_lshift */
-    wrap_rshift,                        /* nb_rshift */
-    wrap_and,                                /* nb_and */
-    wrap_xor,                                /* nb_xor */
+    wrap_mod,                               /* nb_remainder */
+    wrap_divmod,                            /* nb_divmod */
+    wrap_pow,                               /* nb_power */
+    wrap_neg,                               /* nb_negative */
+    wrap_pos,                               /* nb_positive */
+    wrap_abs,                               /* nb_absolute */
+    wrap_nonzero,                           /* nb_nonzero */
+    wrap_invert,                            /* nb_invert */
+    wrap_lshift,                            /* nb_lshift */
+    wrap_rshift,                            /* nb_rshift */
+    wrap_and,                               /* nb_and */
+    wrap_xor,                               /* nb_xor */
     wrap_or,                                /* nb_or */
 #if PY_MAJOR_VERSION < 3
-    wrap_coerce,                        /* nb_coerce */
+    wrap_coerce,                            /* nb_coerce */
 #endif
-    wrap_int,                                /* nb_int */
+    wrap_int,                               /* nb_int */
 #if PY_MAJOR_VERSION < 3
-    wrap_long,                                /* nb_long */
+    wrap_long,                              /* nb_long */
 #else
-    0,                                  /* The slot formerly known as nb_long */
+    0,                                      /* formerly known as nb_long */
 #endif
-    wrap_float,                                /* nb_float */
+    wrap_float,                             /* nb_float */
 #if PY_MAJOR_VERSION < 3
-    wrap_oct,                                /* nb_oct */
-    wrap_hex,                                /* nb_hex */
+    wrap_oct,                               /* nb_oct */
+    wrap_hex,                               /* nb_hex */
 #endif
 
     /* Added in release 2.0 */
     /* These require the Py_TPFLAGS_HAVE_INPLACEOPS flag */
-    wrap_iadd,                                /* nb_inplace_add */
-    wrap_isub,                                /* nb_inplace_subtract */
-    wrap_imul,                                /* nb_inplace_multiply */
+    wrap_iadd,                              /* nb_inplace_add */
+    wrap_isub,                              /* nb_inplace_subtract */
+    wrap_imul,                              /* nb_inplace_multiply */
 #if PY_MAJOR_VERSION < 3
-    wrap_idiv,                                /* nb_inplace_divide */
+    wrap_idiv,                              /* nb_inplace_divide */
 #endif
-    wrap_imod,                                /* nb_inplace_remainder */
-    (ternaryfunc)wrap_ipow,                /* nb_inplace_power */
-    wrap_ilshift,                        /* nb_inplace_lshift */
-    wrap_irshift,                        /* nb_inplace_rshift */
-    wrap_iand,                                /* nb_inplace_and */
-    wrap_ixor,                                /* nb_inplace_xor */
-    wrap_ior,                                /* nb_inplace_or */
+    wrap_imod,                              /* nb_inplace_remainder */
+    (ternaryfunc)wrap_ipow,                 /* nb_inplace_power */
+    wrap_ilshift,                           /* nb_inplace_lshift */
+    wrap_irshift,                           /* nb_inplace_rshift */
+    wrap_iand,                              /* nb_inplace_and */
+    wrap_ixor,                              /* nb_inplace_xor */
+    wrap_ior,                               /* nb_inplace_or */
 
     /* Added in release 2.2 */
     /* These require the Py_TPFLAGS_HAVE_CLASS flag */
-    wrap_floordiv,                        /* nb_floor_divide */
-    wrap_truediv,                        /* nb_true_divide */
-    wrap_ifloordiv,                        /* nb_inplace_floor_divide */
-    wrap_itruediv,                        /* nb_inplace_true_divide */
-    wrap_index,                            /* nb_index */
+    wrap_floordiv,                          /* nb_floor_divide */
+    wrap_truediv,                           /* nb_true_divide */
+    wrap_ifloordiv,                         /* nb_inplace_floor_divide */
+    wrap_itruediv,                          /* nb_inplace_true_divide */
+    wrap_index,                             /* nb_index */
 };
 
 static PySequenceMethods
 wrap_as_sequence = {
-    wrap_length,                        /* sq_length */
-    0,                                        /* sq_concat */
-    0,                                        /* sq_repeat */
-    0,                                        /* sq_item */
-    wrap_slice,                                /* sq_slice */
-    0,                                        /* sq_ass_item */
-    wrap_ass_slice,                        /* sq_ass_slice */
-    wrap_contains,                        /* sq_contains */
+    wrap_length,                            /* sq_length */
+    0,                                      /* sq_concat */
+    0,                                      /* sq_repeat */
+    0,                                      /* sq_item */
+    wrap_slice,                             /* sq_slice */
+    0,                                      /* sq_ass_item */
+    wrap_ass_slice,                         /* sq_ass_slice */
+    wrap_contains,                          /* sq_contains */
 };
 
 static PyMappingMethods
 wrap_as_mapping = {
-    wrap_length,                        /* mp_length */
-    wrap_getitem,                        /* mp_subscript */
-    wrap_setitem,                        /* mp_ass_subscript */
+    wrap_length,                            /* mp_length */
+    wrap_getitem,                           /* mp_subscript */
+    wrap_setitem,                           /* mp_ass_subscript */
 };
 
 static PyMethodDef
@@ -892,51 +892,54 @@ ProxyType = {
     "zope.proxy.ProxyBase",
     sizeof(ProxyObject),
     0,
-    wrap_dealloc,                        /* tp_dealloc */
-    wrap_print,                                /* tp_print */
-    0,                                        /* tp_getattr */
-    0,                                        /* tp_setattr */
+    wrap_dealloc,                           /* tp_dealloc */
+    wrap_print,                             /* tp_print */
+    0,                                      /* tp_getattr */
+    0,                                      /* tp_setattr */
 #if PY_MAJOR_VERSION < 3
-    wrap_compare,                        /* tp_compare */
+    wrap_compare,                           /* tp_compare */
 #else
-    0,                                        /* tp_reserved */
+    0,                                      /* tp_reserved */
 #endif
-    wrap_repr,                                /* tp_repr */
+    wrap_repr,                              /* tp_repr */
     &wrap_as_number,                        /* tp_as_number */
-    &wrap_as_sequence,                        /* tp_as_sequence */
-    &wrap_as_mapping,                        /* tp_as_mapping */
-    wrap_hash,                                /* tp_hash */
-    wrap_call,                                /* tp_call */
-    wrap_str,                                /* tp_str */
-    wrap_getattro,                        /* tp_getattro */
-    wrap_setattro,                        /* tp_setattro */
-    0,                                        /* tp_as_buffer */
+    &wrap_as_sequence,                      /* tp_as_sequence */
+    &wrap_as_mapping,                       /* tp_as_mapping */
+    wrap_hash,                              /* tp_hash */
+    wrap_call,                              /* tp_call */
+    wrap_str,                               /* tp_str */
+    wrap_getattro,                          /* tp_getattro */
+    wrap_setattro,                          /* tp_setattro */
+    0,                                      /* tp_as_buffer */
 #if PY_MAJOR_VERSION < 3
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC
-        | Py_TPFLAGS_CHECKTYPES | Py_TPFLAGS_BASETYPE, /* tp_flags */
+    Py_TPFLAGS_DEFAULT |
+    Py_TPFLAGS_HAVE_GC |
+    Py_TPFLAGS_CHECKTYPES |
+    Py_TPFLAGS_BASETYPE,                    /* tp_flags */
 #else // Py_TPFLAGS_CHECKTYPES is always true in Python 3 and removed.
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC
-        | Py_TPFLAGS_BASETYPE, /* tp_flags */
+    Py_TPFLAGS_DEFAULT |
+    Py_TPFLAGS_HAVE_GC |
+    Py_TPFLAGS_BASETYPE,                    /* tp_flags */
 #endif
-    0,                                        /* tp_doc */
-    wrap_traverse,                        /* tp_traverse */
-    wrap_clear,                                /* tp_clear */
-    wrap_richcompare,                        /* tp_richcompare */
-    0,                                        /* tp_weaklistoffset */
-    wrap_iter,                                /* tp_iter */
-    wrap_iternext,                        /* tp_iternext */
-    wrap_methods,                        /* tp_methods */
-    0,                                        /* tp_members */
-    0,                                        /* tp_getset */
-    0,                                        /* tp_base */
-    0,                                        /* tp_dict */
-    0,                                        /* tp_descr_get */
-    0,                                        /* tp_descr_set */
-    0,                                        /* tp_dictoffset */
-    wrap_init,                                /* tp_init */
-    0,                                   /* tp_alloc */
-    wrap_new,                                /* tp_new */
-    0, /*PyObject_GC_Del,*/                /* tp_free */
+    0,                                      /* tp_doc */
+    wrap_traverse,                          /* tp_traverse */
+    wrap_clear,                             /* tp_clear */
+    wrap_richcompare,                       /* tp_richcompare */
+    0,                                      /* tp_weaklistoffset */
+    wrap_iter,                              /* tp_iter */
+    wrap_iternext,                          /* tp_iternext */
+    wrap_methods,                           /* tp_methods */
+    0,                                      /* tp_members */
+    0,                                      /* tp_getset */
+    0,                                      /* tp_base */
+    0,                                      /* tp_dict */
+    0,                                      /* tp_descr_get */
+    0,                                      /* tp_descr_set */
+    0,                                      /* tp_dictoffset */
+    wrap_init,                              /* tp_init */
+    0,                                      /* tp_alloc */
+    wrap_new,                               /* tp_new */
+    0, /*PyObject_GC_Del,*/                 /* tp_free */
 };
 
 static PyObject *
