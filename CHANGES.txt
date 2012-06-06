@@ -7,8 +7,16 @@ CHANGES
 
 - Added support for PyPy.
 
-- Added a pure-Python fallback implementations of ``zope.proxy.ProxyBase``
-  and the proxy module API functions.
+  N.B.:  the C extension is *not* built under PyPy.
+
+- Added a pure-Python reference / fallback implementations of
+  ``zope.proxy.ProxyBase`` and the proxy module API functions.  
+
+  N.B.:  the pure-Python proxy implements all regular features of
+  ``ProxyBase``;  however, it does not exclude access to the wrapped object
+  in the same way that the C version does.  If you need that information
+  hiding (e.g., to implement security sandboxing), you still need to use
+  the C version.
 
 - Added support for continuous integration using ``tox`` and ``jenkins``.
 
