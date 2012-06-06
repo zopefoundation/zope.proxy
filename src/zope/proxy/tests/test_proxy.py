@@ -51,8 +51,8 @@ class ProxyBaseTestCase(unittest.TestCase):
         o2 = object()
         o = MyProxy((o1, o2))
 
-        self.assertEquals(o1, o[0])
-        self.assertEquals(o2, o[1])
+        self.assertEqual(o1, o[0])
+        self.assertEqual(o2, o[1])
 
         self.assertRaises(TypeError, MyProxy, o1, o2)
         self.assertRaises(TypeError, MyProxy, o1, key='value')
@@ -65,7 +65,7 @@ class ProxyBaseTestCase(unittest.TestCase):
                 return super(MyProxy2, cls).__new__(cls, 'value')
 
         p = MyProxy2('splat!')
-        self.assertEquals(list(p), list('splat!'))
+        self.assertEqual(list(p), list('splat!'))
 
         class MyProxy3(MyProxy2):
             def __init__(self, arg):
@@ -74,7 +74,7 @@ class ProxyBaseTestCase(unittest.TestCase):
                 super(MyProxy3, self).__init__('another')
 
         p = MyProxy3('notused')
-        self.assertEquals(list(p), list('another'))
+        self.assertEqual(list(p), list('another'))
 
     def test_proxy_attributes(self):
         class Thing:
@@ -82,12 +82,12 @@ class ProxyBaseTestCase(unittest.TestCase):
         o = Thing()
         o.foo = 1
         w = self.new_proxy(o)
-        self.assert_(w.foo == 1)
+        self.assertTrue(w.foo == 1)
 
     def test___class__(self):
         o = object()
         w = self.new_proxy(o)
-        self.assert_(w.__class__ is o.__class__)
+        self.assertTrue(w.__class__ is o.__class__)
 
     def test_pickle_prevention(self):
         import pickle
@@ -102,7 +102,7 @@ class ProxyBaseTestCase(unittest.TestCase):
 
     def test_proxy_equality(self):
         w = self.new_proxy('foo')
-        self.assertEquals(w, 'foo')
+        self.assertEqual(w, 'foo')
 
         o1 = Comparable(1)
         o2 = Comparable(1.0)
@@ -112,16 +112,16 @@ class ProxyBaseTestCase(unittest.TestCase):
         w2 = self.new_proxy(o2)
         w3 = self.new_proxy(o3)
 
-        self.assertEquals(o1, w1)
-        self.assertEquals(o1, w2)
-        self.assertEquals(o2, w1)
-        self.assertEquals(w1, o2)
-        self.assertEquals(w2, o1)
+        self.assertEqual(o1, w1)
+        self.assertEqual(o1, w2)
+        self.assertEqual(o2, w1)
+        self.assertEqual(w1, o2)
+        self.assertEqual(w2, o1)
 
-        self.assertNotEquals(o3, w1)
-        self.assertNotEquals(w1, o3)
-        self.assertNotEquals(w3, o1)
-        self.assertNotEquals(o1, w3)
+        self.assertNotEqual(o3, w1)
+        self.assertNotEqual(w1, o3)
+        self.assertNotEqual(w3, o1)
+        self.assertNotEqual(o1, w3)
 
     def test_proxy_ordering_lt(self):
         o1 = Comparable(1)
@@ -130,24 +130,24 @@ class ProxyBaseTestCase(unittest.TestCase):
         w1 = self.new_proxy(o1)
         w2 = self.new_proxy(o2)
 
-        self.assert_(w1 < w2)
-        self.assert_(w1 <= w2)
-        self.assert_(o1 < w2)
-        self.assert_(o1 <= w2)
-        self.assert_(w1 < o2)
-        self.assert_(w2 <= o2)
+        self.assertTrue(w1 < w2)
+        self.assertTrue(w1 <= w2)
+        self.assertTrue(o1 < w2)
+        self.assertTrue(o1 <= w2)
+        self.assertTrue(w1 < o2)
+        self.assertTrue(w2 <= o2)
 
     def test_proxy_callable(self):
         from zope.proxy._compat import PY3
         if not PY3: # Gone in Python 3:
             w = self.new_proxy({}.get)
-            self.assert_(callable(w))
+            self.assertTrue(callable(w))
 
     def test_proxy_item_protocol(self):
         w = self.new_proxy({})
         self.assertRaises(KeyError, lambda: w[1])
         w[1] = 'a'
-        self.assertEquals(w[1], 'a')
+        self.assertEqual(w[1], 'a')
         del w[1]
         self.assertRaises(KeyError, lambda: w[1])
         def del_w_1():
@@ -159,7 +159,7 @@ class ProxyBaseTestCase(unittest.TestCase):
         b = []
         for x in self.new_proxy(a):
             b.append(x)
-        self.assertEquals(a, b)
+        self.assertEqual(a, b)
 
     def test_iteration_over_proxy(self):
         # Wrap an iterator before starting iteration.
@@ -168,9 +168,9 @@ class ProxyBaseTestCase(unittest.TestCase):
         b = []
         for x in self.new_proxy(iter(a)):
             b.append(x)
-        self.assertEquals(a, b)
+        self.assertEqual(a, b)
         t = tuple(self.new_proxy(iter(a)))
-        self.assertEquals(t, (1, 2, 3))
+        self.assertEqual(t, (1, 2, 3))
 
     def test_iteration_using_proxy(self):
         # Wrap an iterator within the iteration protocol, expecting it
@@ -188,11 +188,11 @@ class ProxyBaseTestCase(unittest.TestCase):
         b = []
         for x in Iterable(self, a):
             b.append(x)
-        self.assertEquals(a, b)
+        self.assertEqual(a, b)
 
     def test_bool_wrapped_None(self):
         w = self.new_proxy(None)
-        self.assertEquals(not w, 1)
+        self.assertEqual(not w, 1)
 
     # Numeric ops.
 
@@ -260,7 +260,7 @@ class ProxyBaseTestCase(unittest.TestCase):
         a = [1, 2, 3]
         pa = qa = P(a)
         pa += [4, 5, 6]
-        self.failUnless(pa is qa)
+        self.assertTrue(pa is qa)
         self.assertEqual(a, [1, 2, 3, 4, 5, 6])
 
         pa = P(2)
@@ -278,57 +278,57 @@ class ProxyBaseTestCase(unittest.TestCase):
         x = P(1)
         y = P(2)
         a, b = coerce(x, y)
-        self.failUnless(a is x and b is y)
+        self.assertTrue(a is x and b is y)
 
         x = P(1)
         y = P(2.1)
         a, b = coerce(x, y)
-        self.failUnless(a == 1.0)
-        self.failUnless(b is y)
-        self.failUnless(a.__class__ is float, a.__class__)
+        self.assertTrue(a == 1.0)
+        self.assertTrue(b is y)
+        self.assertTrue(a.__class__ is float, a.__class__)
 
         x = P(1.1)
         y = P(2)
         a, b = coerce(x, y)
-        self.failUnless(a is x)
-        self.failUnless(b == 2.0)
-        self.failUnless(b.__class__ is float, b.__class__)
+        self.assertTrue(a is x)
+        self.assertTrue(b == 2.0)
+        self.assertTrue(b.__class__ is float, b.__class__)
 
         x = P(1)
         y = 2
         a, b = coerce(x, y)
-        self.failUnless(a is x)
-        self.failUnless(b is y)
+        self.assertTrue(a is x)
+        self.assertTrue(b is y)
 
         x = P(1)
         y = 2.1
         a, b = coerce(x, y)
-        self.failUnless(a.__class__ is float, a.__class__)
-        self.failUnless(b is y)
+        self.assertTrue(a.__class__ is float, a.__class__)
+        self.assertTrue(b is y)
 
         x = P(1.1)
         y = 2
         a, b = coerce(x, y)
-        self.failUnless(a is x)
-        self.failUnless(b.__class__ is float, b.__class__)
+        self.assertTrue(a is x)
+        self.assertTrue(b.__class__ is float, b.__class__)
 
         x = 1
         y = P(2)
         a, b = coerce(x, y)
-        self.failUnless(a is x)
-        self.failUnless(b is y)
+        self.assertTrue(a is x)
+        self.assertTrue(b is y)
 
         x = 1.1
         y = P(2)
         a, b = coerce(x, y)
-        self.failUnless(a is x)
-        self.failUnless(b.__class__ is float, b.__class__)
+        self.assertTrue(a is x)
+        self.assertTrue(b.__class__ is float, b.__class__)
 
         x = 1
         y = P(2.1)
         a, b = coerce(x, y)
-        self.failUnless(a.__class__ is float, a.__class__)
-        self.failUnless(b is y)
+        self.assertTrue(a.__class__ is float, a.__class__)
+        self.assertTrue(b is y)
 
     def test_getslice(self):
         # These tests are moot under Python 3 as __slice__ isn't supported.
