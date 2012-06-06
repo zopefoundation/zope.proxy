@@ -138,6 +138,9 @@ class PyProxyBase(object):
         # Called when we wrap an iterator itself.
         return self._wrapped.next()
 
+    def __next__(self): #pragma NO COVER Python3
+        return self._wrapped.__next__()
+
     # Python 2.7 won't let the C wrapper support __reversed__ :(
     #def __reversed__(self):
     #    return reversed(self._wrapped)
