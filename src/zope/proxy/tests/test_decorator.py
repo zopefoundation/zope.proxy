@@ -74,6 +74,31 @@ class DecoratorSpecificationDescriptorTests(unittest.TestCase):
         self.assertRaises(TypeError, dsd.__set__, foo, object())
 
 
+class SpecificationDecoratorBaseTests(unittest.TestCase):
+
+    def _getTargetClass(self):
+        from zope.proxy.decorator import SpecificationDecoratorBase
+        return SpecificationDecoratorBase
+
+    def _makeOne(self, wrapped):
+        return self._getTargetClass()(wrapped)
+
+    def test_wrapped_instance(self):
+        from zope.interface import Interface
+        from zope.interface import implementer
+        from zope.interface import providedBy
+        class IFoo(Interface):
+            pass
+        @implementer(IFoo)
+        class Foo(object):
+            pass
+        foo = Foo()
+        proxy = self._makeOne(foo)
+        self.assertEqual(list(providedBy(proxy)), list(providedBy(foo)))
+
+
 def test_suite():
     return unittest.TestSuite((
+        unittest.makeSuite(DecoratorSpecificationDescriptorTests),
+        unittest.makeSuite(SpecificationDecoratorBaseTests),
     ))
