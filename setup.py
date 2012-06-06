@@ -18,11 +18,34 @@
 ##############################################################################
 """Setup for zope.proxy package
 """
-import os, sys
-from setuptools import setup, Extension
+import os
+import platform
+
+from setuptools import setup, Extension, Feature
 
 def read(*rnames):
     return open(os.path.join(os.path.dirname(__file__), *rnames)).read()
+
+Cwrapper = Feature(
+    "C wrapper",
+    standard = True,
+    ext_modules=[Extension("zope.proxy._zope_proxy_proxy",
+                            [os.path.join('src', 'zope', 'proxy',
+                                        "_zope_proxy_proxy.c")
+                            ],
+                            extra_compile_args=['-g']),
+                ],
+)
+
+# PyPy won't build the extension.
+py_impl = getattr(platform, 'python_implementation', lambda: None)
+is_pypy = py_impl() == 'PyPy'
+if is_pypy:
+    features = {}
+    headers = []
+else:
+    features = {'Cwrapper': Cwrapper}
+    headers=[os.path.join('src', 'zope', 'proxy', 'proxy.h')],
 
 setup(name='zope.proxy',
       version = '4.0.0dev',
@@ -46,20 +69,16 @@ setup(name='zope.proxy',
           'Programming Language :: Python :: 2.7',
           'Programming Language :: Python :: 3',
           'Programming Language :: Python :: 3.2',
+          'Programming Language :: Python :: Implementation :: CPython',
+          'Programming Language :: Python :: Implementation :: PyPy',
           'Natural Language :: English',
           'Operating System :: OS Independent'],
       keywords='proxy generic transparent',
       packages=['zope', 'zope.proxy'],
       package_dir = {'': 'src'},
       namespace_packages=['zope',],
-
-      headers=[os.path.join('src', 'zope', 'proxy', 'proxy.h')],
-      ext_modules=[Extension("zope.proxy._zope_proxy_proxy",
-                             [os.path.join('src', 'zope', 'proxy',
-                                           "_zope_proxy_proxy.c")
-                              ]),
-                   ],
-
+      features=features,
+      headers=headers,
       test_suite = 'zope.proxy',
       install_requires=[
           'zope.interface',

@@ -5,6 +5,8 @@ CHANGES
 4.0.0 (unreleased)
 ------------------
 
+- Added support for PyPy.
+
 - Added a pure-Python fallback implementations of ``zope.proxy.ProxyBase``
   and the proxy module API functions.
 
