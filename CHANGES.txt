@@ -5,6 +5,8 @@ CHANGES
 4.0.0 (unreleased)
 ------------------
 
+- Added a pure-Python fallback implementation of ``zope.proxy.ProxyBase``.
+
 - Added support for continuous integration using ``tox`` and ``jenkins``.
 
 - 100% unit test coverage.

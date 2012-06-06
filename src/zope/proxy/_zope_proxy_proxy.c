@@ -467,6 +467,18 @@ call_hex(PyObject *self)
 #endif
 
 static PyObject *
+call_index(PyObject *self)
+{
+    PyNumberMethods *nb = self->ob_type->tp_as_number;
+    if (nb == NULL || nb->nb_index == NULL) {
+        PyErr_SetString(PyExc_TypeError,
+                        "object can't be converted to index");
+        return NULL;
+    }
+    return nb->nb_index(self);
+}
+
+static PyObject *
 call_float(PyObject *self)
 {
     PyNumberMethods *nb = self->ob_type->tp_as_number;
@@ -675,6 +687,7 @@ BINOP(floordiv, PyNumber_FloorDivide)
 BINOP(truediv, PyNumber_TrueDivide)
 INPLACE(floordiv, PyNumber_InPlaceFloorDivide)
 INPLACE(truediv, PyNumber_InPlaceTrueDivide)
+UNOP(index, call_index)
 
 static int
 wrap_nonzero(PyObject *self)
@@ -834,6 +847,7 @@ wrap_as_number = {
     wrap_truediv,			/* nb_true_divide */
     wrap_ifloordiv,			/* nb_inplace_floor_divide */
     wrap_itruediv,			/* nb_inplace_true_divide */
+    wrap_index,			    /* nb_index */
 };
 
 static PySequenceMethods
