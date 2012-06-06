@@ -32,10 +32,6 @@ class ProxyBaseTestCase(unittest.TestCase):
         from zope.proxy import ProxyBase
         return ProxyBase
 
-    def setUp(self):
-        self.x = Thing()
-        self.p = self.new_proxy(self.x)
-
     def new_proxy(self, o):
         return self.proxy_class(o)
 
@@ -81,6 +77,8 @@ class ProxyBaseTestCase(unittest.TestCase):
         self.assertEquals(list(p), list('another'))
 
     def test_proxy_attributes(self):
+        class Thing:
+            """This class is expected to be a classic class."""
         o = Thing()
         o.foo = 1
         w = self.new_proxy(o)
@@ -96,6 +94,8 @@ class ProxyBaseTestCase(unittest.TestCase):
         from zope.proxy._compat import PY3
         # Proxies of old-style classes can't be pickled.
         if not PY3: # No old-style classes in Python 3.
+            class Thing:
+                """This class is expected to be a classic class."""
             w = self.new_proxy(Thing())
             self.assertRaises(pickle.PicklingError,
                             pickle.dumps, w)
@@ -758,34 +758,24 @@ class Test_nonOverridable(unittest.TestCase):
         self.assertEqual(proxy.what(), 'PROXY')
 
 
-class Thing:
-    """This class is expected to be a classic class."""
-
-
 class Comparable(object):
     def __init__(self, value):
         self.value = value
 
     def __eq__(self, other):
-        if hasattr(other, "value"):
-            other = other.value
-        return self.value == other
+        return self.value == getattr(other, 'value', other)
 
     def __ne__(self, other):
         return not self.__eq__(other)
 
     def __lt__(self, other):
-        if hasattr(other, "value"):
-            other = other.value
-        return self.value < other
+        return self.value < getattr(other, 'value', other)
 
     def __ge__(self, other):
         return not self.__lt__(other)
 
     def __le__(self, other):
-        if hasattr(other, "value"):
-            other = other.value
-        return self.value <= other
+        return self.value <= getattr(other, 'value', other)
 
     def __gt__(self, other):
         return not self.__le__(other)
@@ -795,7 +785,6 @@ class Comparable(object):
 
 
 def test_suite():
-    from doctest import DocTestSuite
     return unittest.TestSuite((
         unittest.makeSuite(ModuleConformanceCase),
         unittest.makeSuite(ProxyBaseTestCase),
@@ -807,5 +796,4 @@ def test_suite():
         unittest.makeSuite(Test_queryInnerProxy),
         unittest.makeSuite(Test_sameProxiedObjects),
         unittest.makeSuite(Test_nonOverridable),
-        DocTestSuite(),
     ))
