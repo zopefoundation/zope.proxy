@@ -15,7 +15,14 @@
 """
 from zope.interface import moduleProvides
 from zope.proxy.interfaces import IProxyIntrospection
-from zope.proxy._zope_proxy_proxy import *
+from zope.proxy._zope_proxy_proxy import ProxyBase
+from zope.proxy._zope_proxy_proxy import getProxiedObject
+from zope.proxy._zope_proxy_proxy import setProxiedObject
+from zope.proxy._zope_proxy_proxy import isProxy
+from zope.proxy._zope_proxy_proxy import sameProxiedObjects
+from zope.proxy._zope_proxy_proxy import queryProxy
+from zope.proxy._zope_proxy_proxy import queryInnerProxy
+from zope.proxy._zope_proxy_proxy import removeAllProxies
 from zope.proxy._zope_proxy_proxy import _CAPI
 
 moduleProvides(IProxyIntrospection)
