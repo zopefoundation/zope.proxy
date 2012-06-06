@@ -70,9 +70,9 @@ empty_tuple = NULL;
   #define MOD_INIT(name) PyMODINIT_FUNC PyInit_##name(void)
 
   #define MOD_DEF(ob, name, doc, methods) \
-	  static struct PyModuleDef moduledef = { \
-	    PyModuleDef_HEAD_INIT, name, doc, -1, methods, }; \
-	  ob = PyModule_Create(&moduledef);
+          static struct PyModuleDef moduledef = { \
+            PyModuleDef_HEAD_INIT, name, doc, -1, methods, }; \
+          ob = PyModule_Create(&moduledef);
 #endif
 
 
@@ -205,7 +205,7 @@ WrapperType_Lookup(PyTypeObject *type, PyObject *name)
 
     assert(PyTuple_Check(mro));
 
-    n = PyTuple_GET_SIZE(mro) 
+    n = PyTuple_GET_SIZE(mro)
       - 1; /* We don't want to look at the last item, which is object. */
 
     for (i = 0; i < n; i++) {
@@ -215,13 +215,13 @@ WrapperType_Lookup(PyTypeObject *type, PyObject *name)
 #if PY_MAJOR_VERSION < 3
             if (PyClass_Check(base))
                 dict = ((PyClassObject *)base)->cl_dict;
-            else 
+            else
 #endif
-	    {
+            {
                 assert(PyType_Check(base));
                 dict = ((PyTypeObject *)base)->tp_dict;
             }
-	    
+
             assert(dict && PyDict_Check(dict));
             res = PyDict_GetItem(dict, name);
             if (res != NULL)
@@ -259,7 +259,7 @@ wrap_getattro(PyObject *self, PyObject *name)
     }
     else
         Py_INCREF(name);
-	
+
     name_as_string = MAKE_STRING(name);
 
     wrapped = Proxy_GET_OBJECT(self);
@@ -277,11 +277,11 @@ wrap_getattro(PyObject *self, PyObject *name)
         descriptor = WrapperType_Lookup(self->ob_type, name);
 
         if (descriptor != NULL) {
-            if (descriptor->ob_type->tp_descr_get != NULL 
+            if (descriptor->ob_type->tp_descr_get != NULL
 #if PY_MAJOR_VERSION < 3 // Always true in Python 3
-		&& PyType_HasFeature(descriptor->ob_type, Py_TPFLAGS_HAVE_CLASS)
-#endif	    
-	    ){
+                && PyType_HasFeature(descriptor->ob_type, Py_TPFLAGS_HAVE_CLASS)
+#endif
+            ){
               if (descriptor->ob_type->tp_descr_set == NULL)
                 {
                   res = PyObject_GetAttr(wrapped, name);
@@ -298,8 +298,8 @@ wrap_getattro(PyObject *self, PyObject *name)
                         self,
                         (PyObject *)self->ob_type);
             }
-	    else 
-	    {
+            else
+            {
                 Py_INCREF(descriptor);
                 res = descriptor;
             }
@@ -343,12 +343,12 @@ wrap_setattro(PyObject *self, PyObject *name, PyObject *value)
         Py_INCREF(name);
 
     descriptor = WrapperType_Lookup(self->ob_type, name);
-    
+
     if (descriptor != NULL
 #if PY_MAJOR_VERSION < 3 // This is always true in Python 3 (I think)
-        && PyType_HasFeature(descriptor->ob_type, Py_TPFLAGS_HAVE_CLASS) 
+        && PyType_HasFeature(descriptor->ob_type, Py_TPFLAGS_HAVE_CLASS)
 #endif
-        && descriptor->ob_type->tp_descr_set != NULL) 
+        && descriptor->ob_type->tp_descr_set != NULL)
       {
         res = descriptor->ob_type->tp_descr_set(descriptor, self, value);
         goto finally;
@@ -406,7 +406,7 @@ wrap_call(PyObject *self, PyObject *args, PyObject *kw)
 {
     if (kw)
         return PyEval_CallObjectWithKeywords(Proxy_GET_OBJECT(self),
-					     args, kw);
+                                             args, kw);
     else
         return PyObject_CallObject(Proxy_GET_OBJECT(self), args);
 }
@@ -542,10 +542,10 @@ check2(PyObject *self, PyObject *other,
 
 static PyObject *
 check2i(ProxyObject *self, PyObject *other,
-	char *opname, binaryfunc operation)
+        char *opname, binaryfunc operation)
 {
-	PyObject *result = NULL;
-	PyObject *object = Proxy_GET_OBJECT(self);
+        PyObject *result = NULL;
+        PyObject *object = Proxy_GET_OBJECT(self);
 
         result = operation(object, other);
         if (result == object) {
@@ -560,20 +560,20 @@ check2i(ProxyObject *self, PyObject *other,
             /* ??? create proxy for result? */
             ;
 #endif
-	return result;
+        return result;
 }
 
 #define UNOP(NAME, CALL) \
-	static PyObject *wrap_##NAME(PyObject *self) \
-	{ return check1((ProxyObject *)self, "__"#NAME"__", CALL); }
+        static PyObject *wrap_##NAME(PyObject *self) \
+        { return check1((ProxyObject *)self, "__"#NAME"__", CALL); }
 
 #define BINOP(NAME, CALL) \
-	static PyObject *wrap_##NAME(PyObject *self, PyObject *other) \
-	{ return check2(self, other, "__"#NAME"__", "__r"#NAME"__", CALL); }
+        static PyObject *wrap_##NAME(PyObject *self, PyObject *other) \
+        { return check2(self, other, "__"#NAME"__", "__r"#NAME"__", CALL); }
 
 #define INPLACE(NAME, CALL) \
-	static PyObject *wrap_i##NAME(PyObject *self, PyObject *other) \
-	{ return check2i((ProxyObject *)self, other, "__i"#NAME"__", CALL); }
+        static PyObject *wrap_i##NAME(PyObject *self, PyObject *other) \
+        { return check2i((ProxyObject *)self, other, "__i"#NAME"__", CALL); }
 
 BINOP(add, PyNumber_Add)
 BINOP(sub, PyNumber_Subtract)
@@ -664,7 +664,7 @@ UNOP(invert, PyNumber_Invert)
 UNOP(int, call_int)
 UNOP(float, call_float)
 #if PY_MAJOR_VERSION < 3 // Python 3 has no long, oct or hex methods
-UNOP(long, call_long) 
+UNOP(long, call_long)
 UNOP(oct, call_oct)
 UNOP(hex, call_hex)
 #endif
@@ -751,9 +751,9 @@ static int
 wrap_setitem(PyObject *self, PyObject *key, PyObject *value)
 {
     if (value == NULL)
-	return PyObject_DelItem(Proxy_GET_OBJECT(self), key);
+        return PyObject_DelItem(Proxy_GET_OBJECT(self), key);
     else
-	return PyObject_SetItem(Proxy_GET_OBJECT(self), key, value);
+        return PyObject_SetItem(Proxy_GET_OBJECT(self), key, value);
 }
 
 /*
@@ -791,82 +791,82 @@ wrap_reduce(PyObject *self)
 
 static PyNumberMethods
 wrap_as_number = {
-    wrap_add,				/* nb_add */
-    wrap_sub,				/* nb_subtract */
-    wrap_mul,				/* nb_multiply */
+    wrap_add,                                /* nb_add */
+    wrap_sub,                                /* nb_subtract */
+    wrap_mul,                                /* nb_multiply */
 #if PY_MAJOR_VERSION < 3
-    wrap_div,				/* nb_divide */
+    wrap_div,                                /* nb_divide */
 #endif
-    wrap_mod,				/* nb_remainder */
-    wrap_divmod,			/* nb_divmod */
-    wrap_pow,				/* nb_power */
-    wrap_neg,				/* nb_negative */
-    wrap_pos,				/* nb_positive */
-    wrap_abs,				/* nb_absolute */
-    wrap_nonzero,			/* nb_nonzero */
-    wrap_invert,			/* nb_invert */
-    wrap_lshift,			/* nb_lshift */
-    wrap_rshift,			/* nb_rshift */
-    wrap_and,				/* nb_and */
-    wrap_xor,				/* nb_xor */
-    wrap_or,				/* nb_or */
+    wrap_mod,                                /* nb_remainder */
+    wrap_divmod,                        /* nb_divmod */
+    wrap_pow,                                /* nb_power */
+    wrap_neg,                                /* nb_negative */
+    wrap_pos,                                /* nb_positive */
+    wrap_abs,                                /* nb_absolute */
+    wrap_nonzero,                        /* nb_nonzero */
+    wrap_invert,                        /* nb_invert */
+    wrap_lshift,                        /* nb_lshift */
+    wrap_rshift,                        /* nb_rshift */
+    wrap_and,                                /* nb_and */
+    wrap_xor,                                /* nb_xor */
+    wrap_or,                                /* nb_or */
 #if PY_MAJOR_VERSION < 3
-    wrap_coerce,			/* nb_coerce */
+    wrap_coerce,                        /* nb_coerce */
 #endif
-    wrap_int,				/* nb_int */
+    wrap_int,                                /* nb_int */
 #if PY_MAJOR_VERSION < 3
-    wrap_long,				/* nb_long */
+    wrap_long,                                /* nb_long */
 #else
     0,                                  /* The slot formerly known as nb_long */
 #endif
-    wrap_float,				/* nb_float */
+    wrap_float,                                /* nb_float */
 #if PY_MAJOR_VERSION < 3
-    wrap_oct,				/* nb_oct */
-    wrap_hex,				/* nb_hex */
+    wrap_oct,                                /* nb_oct */
+    wrap_hex,                                /* nb_hex */
 #endif
 
     /* Added in release 2.0 */
     /* These require the Py_TPFLAGS_HAVE_INPLACEOPS flag */
-    wrap_iadd,				/* nb_inplace_add */
-    wrap_isub,				/* nb_inplace_subtract */
-    wrap_imul,				/* nb_inplace_multiply */
+    wrap_iadd,                                /* nb_inplace_add */
+    wrap_isub,                                /* nb_inplace_subtract */
+    wrap_imul,                                /* nb_inplace_multiply */
 #if PY_MAJOR_VERSION < 3
-    wrap_idiv,				/* nb_inplace_divide */
+    wrap_idiv,                                /* nb_inplace_divide */
 #endif
-    wrap_imod,				/* nb_inplace_remainder */
-    (ternaryfunc)wrap_ipow,		/* nb_inplace_power */
-    wrap_ilshift,			/* nb_inplace_lshift */
-    wrap_irshift,			/* nb_inplace_rshift */
-    wrap_iand,				/* nb_inplace_and */
-    wrap_ixor,				/* nb_inplace_xor */
-    wrap_ior,				/* nb_inplace_or */
+    wrap_imod,                                /* nb_inplace_remainder */
+    (ternaryfunc)wrap_ipow,                /* nb_inplace_power */
+    wrap_ilshift,                        /* nb_inplace_lshift */
+    wrap_irshift,                        /* nb_inplace_rshift */
+    wrap_iand,                                /* nb_inplace_and */
+    wrap_ixor,                                /* nb_inplace_xor */
+    wrap_ior,                                /* nb_inplace_or */
 
     /* Added in release 2.2 */
     /* These require the Py_TPFLAGS_HAVE_CLASS flag */
-    wrap_floordiv,			/* nb_floor_divide */
-    wrap_truediv,			/* nb_true_divide */
-    wrap_ifloordiv,			/* nb_inplace_floor_divide */
-    wrap_itruediv,			/* nb_inplace_true_divide */
-    wrap_index,			    /* nb_index */
+    wrap_floordiv,                        /* nb_floor_divide */
+    wrap_truediv,                        /* nb_true_divide */
+    wrap_ifloordiv,                        /* nb_inplace_floor_divide */
+    wrap_itruediv,                        /* nb_inplace_true_divide */
+    wrap_index,                            /* nb_index */
 };
 
 static PySequenceMethods
 wrap_as_sequence = {
-    wrap_length,			/* sq_length */
-    0,					/* sq_concat */
-    0,					/* sq_repeat */
-    0,					/* sq_item */
-    wrap_slice,				/* sq_slice */
-    0,					/* sq_ass_item */
-    wrap_ass_slice,			/* sq_ass_slice */
-    wrap_contains,			/* sq_contains */
+    wrap_length,                        /* sq_length */
+    0,                                        /* sq_concat */
+    0,                                        /* sq_repeat */
+    0,                                        /* sq_item */
+    wrap_slice,                                /* sq_slice */
+    0,                                        /* sq_ass_item */
+    wrap_ass_slice,                        /* sq_ass_slice */
+    wrap_contains,                        /* sq_contains */
 };
 
 static PyMappingMethods
 wrap_as_mapping = {
-    wrap_length,			/* mp_length */
-    wrap_getitem,			/* mp_subscript */
-    wrap_setitem,			/* mp_ass_subscript */
+    wrap_length,                        /* mp_length */
+    wrap_getitem,                        /* mp_subscript */
+    wrap_setitem,                        /* mp_ass_subscript */
 };
 
 static PyMethodDef
@@ -892,51 +892,51 @@ ProxyType = {
     "zope.proxy.ProxyBase",
     sizeof(ProxyObject),
     0,
-    wrap_dealloc,			/* tp_dealloc */
-    wrap_print,				/* tp_print */
-    0,					/* tp_getattr */
-    0,					/* tp_setattr */
+    wrap_dealloc,                        /* tp_dealloc */
+    wrap_print,                                /* tp_print */
+    0,                                        /* tp_getattr */
+    0,                                        /* tp_setattr */
 #if PY_MAJOR_VERSION < 3
-    wrap_compare,			/* tp_compare */
+    wrap_compare,                        /* tp_compare */
 #else
-    0,			                /* tp_reserved */
-#endif    
-    wrap_repr,				/* tp_repr */
-    &wrap_as_number,			/* tp_as_number */
-    &wrap_as_sequence,			/* tp_as_sequence */
-    &wrap_as_mapping,			/* tp_as_mapping */
-    wrap_hash,				/* tp_hash */
-    wrap_call,				/* tp_call */
-    wrap_str,				/* tp_str */
-    wrap_getattro,			/* tp_getattro */
-    wrap_setattro,			/* tp_setattro */
-    0,					/* tp_as_buffer */
+    0,                                        /* tp_reserved */
+#endif
+    wrap_repr,                                /* tp_repr */
+    &wrap_as_number,                        /* tp_as_number */
+    &wrap_as_sequence,                        /* tp_as_sequence */
+    &wrap_as_mapping,                        /* tp_as_mapping */
+    wrap_hash,                                /* tp_hash */
+    wrap_call,                                /* tp_call */
+    wrap_str,                                /* tp_str */
+    wrap_getattro,                        /* tp_getattro */
+    wrap_setattro,                        /* tp_setattro */
+    0,                                        /* tp_as_buffer */
 #if PY_MAJOR_VERSION < 3
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC
-        | Py_TPFLAGS_CHECKTYPES | Py_TPFLAGS_BASETYPE, /* tp_flags */ 
+        | Py_TPFLAGS_CHECKTYPES | Py_TPFLAGS_BASETYPE, /* tp_flags */
 #else // Py_TPFLAGS_CHECKTYPES is always true in Python 3 and removed.
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC
         | Py_TPFLAGS_BASETYPE, /* tp_flags */
 #endif
-    0,					/* tp_doc */
-    wrap_traverse,			/* tp_traverse */
-    wrap_clear,				/* tp_clear */
-    wrap_richcompare,			/* tp_richcompare */
-    0,					/* tp_weaklistoffset */
-    wrap_iter,				/* tp_iter */
-    wrap_iternext,			/* tp_iternext */
-    wrap_methods,			/* tp_methods */
-    0,					/* tp_members */
-    0,					/* tp_getset */
-    0,					/* tp_base */
-    0,					/* tp_dict */
-    0,					/* tp_descr_get */
-    0,					/* tp_descr_set */
-    0,					/* tp_dictoffset */
-    wrap_init,				/* tp_init */
-    0,                   		/* tp_alloc */
-    wrap_new,				/* tp_new */
-    0, /*PyObject_GC_Del,*/		/* tp_free */
+    0,                                        /* tp_doc */
+    wrap_traverse,                        /* tp_traverse */
+    wrap_clear,                                /* tp_clear */
+    wrap_richcompare,                        /* tp_richcompare */
+    0,                                        /* tp_weaklistoffset */
+    wrap_iter,                                /* tp_iter */
+    wrap_iternext,                        /* tp_iternext */
+    wrap_methods,                        /* tp_methods */
+    0,                                        /* tp_members */
+    0,                                        /* tp_getset */
+    0,                                        /* tp_base */
+    0,                                        /* tp_dict */
+    0,                                        /* tp_descr_get */
+    0,                                        /* tp_descr_set */
+    0,                                        /* tp_dictoffset */
+    wrap_init,                                /* tp_init */
+    0,                                   /* tp_alloc */
+    wrap_new,                                /* tp_new */
+    0, /*PyObject_GC_Del,*/                /* tp_free */
 };
 
 static PyObject *
@@ -977,14 +977,14 @@ api_getobject(PyObject *proxy)
 {
     if (proxy == NULL) {
         PyErr_SetString(PyExc_RuntimeError,
-			"cannot pass NULL to ProxyAPI.getobject()");
+                        "cannot pass NULL to ProxyAPI.getobject()");
         return NULL;
     }
     if (Proxy_Check(proxy))
         return Proxy_GET_OBJECT(proxy);
     else {
         PyErr_Format(PyExc_TypeError, "expected proxy object, got %s",
-		     proxy->ob_type->tp_name);
+                     proxy->ob_type->tp_name);
         return NULL;
     }
 }
@@ -1010,9 +1010,9 @@ getobject__doc__[] =
 static PyObject *
 wrapper_getobject(PyObject *unused, PyObject *obj)
 {
-  if (Proxy_Check(obj)) 
+  if (Proxy_Check(obj))
     obj = Proxy_GET_OBJECT(obj);
-  
+
   if (obj == NULL)
     obj = Py_None;
 
@@ -1056,7 +1056,7 @@ wrapper_isProxy(PyObject *unused, PyObject *args)
   PyObject *obj, *result;
   PyTypeObject *proxytype=&ProxyType;
 
-  if (! PyArg_ParseTuple(args, "O|O!:isProxy", 
+  if (! PyArg_ParseTuple(args, "O|O!:isProxy",
                          &obj, &PyType_Type, &proxytype)
       )
     return NULL;
@@ -1066,7 +1066,7 @@ wrapper_isProxy(PyObject *unused, PyObject *args)
     if (PyObject_TypeCheck(obj, proxytype))
       {
         result = Py_True;
-	Py_INCREF(result);
+        Py_INCREF(result);
         return result;
       }
     obj = Proxy_GET_OBJECT(obj);
@@ -1090,9 +1090,9 @@ removeAllProxies__doc__[] =
 static PyObject *
 wrapper_removeAllProxies(PyObject *unused, PyObject *obj)
 {
-  while (obj && Proxy_Check(obj)) 
+  while (obj && Proxy_Check(obj))
     obj = Proxy_GET_OBJECT(obj);
-  
+
   if (obj == NULL)
     obj = Py_None;
 
@@ -1101,7 +1101,7 @@ wrapper_removeAllProxies(PyObject *unused, PyObject *obj)
 }
 
 static char
-sameProxiedObjects__doc__[] = 
+sameProxiedObjects__doc__[] =
 "Check whether two objects are the same or proxies of the same object";
 
 static PyObject *
@@ -1112,10 +1112,10 @@ wrapper_sameProxiedObjects(PyObject *unused, PyObject *args)
   if (! PyArg_ParseTuple(args, "OO:sameProxiedObjects", &ob1, &ob2))
     return NULL;
 
-  while (ob1 && Proxy_Check(ob1)) 
+  while (ob1 && Proxy_Check(ob1))
     ob1 = Proxy_GET_OBJECT(ob1);
 
-  while (ob2 && Proxy_Check(ob2)) 
+  while (ob2 && Proxy_Check(ob2))
     ob2 = Proxy_GET_OBJECT(ob2);
 
   if (ob1 == ob2)
@@ -1141,7 +1141,7 @@ wrapper_queryProxy(PyObject *unused, PyObject *args)
   PyObject *obj, *result=Py_None;
   PyTypeObject *proxytype=&ProxyType;
 
-  if (! PyArg_ParseTuple(args, "O|O!O:queryProxy", 
+  if (! PyArg_ParseTuple(args, "O|O!O:queryProxy",
                          &obj, &PyType_Type, &proxytype, &result)
       )
     return NULL;
@@ -1175,7 +1175,7 @@ wrapper_queryInnerProxy(PyObject *unused, PyObject *args)
   PyObject *obj, *result=Py_None;
   PyTypeObject *proxytype=&ProxyType;
 
-  if (! PyArg_ParseTuple(args, "O|O!O:queryInnerProxy", 
+  if (! PyArg_ParseTuple(args, "O|O!O:queryInnerProxy",
                          &obj, &PyType_Type, &proxytype, &result)
       )
     return NULL;
@@ -1207,12 +1207,12 @@ module_functions[] = {
     {"getProxiedObject", wrapper_getobject, METH_O, getobject__doc__},
     {"setProxiedObject", wrapper_setobject, METH_VARARGS, setobject__doc__},
     {"isProxy", wrapper_isProxy, METH_VARARGS, isProxy__doc__},
-    {"sameProxiedObjects", wrapper_sameProxiedObjects, METH_VARARGS, 
+    {"sameProxiedObjects", wrapper_sameProxiedObjects, METH_VARARGS,
      sameProxiedObjects__doc__},
     {"queryProxy", wrapper_queryProxy, METH_VARARGS, queryProxy__doc__},
-    {"queryInnerProxy", wrapper_queryInnerProxy, METH_VARARGS, 
+    {"queryInnerProxy", wrapper_queryInnerProxy, METH_VARARGS,
      queryInnerProxy__doc__},
-    {"removeAllProxies", wrapper_removeAllProxies, METH_O, 
+    {"removeAllProxies", wrapper_removeAllProxies, METH_O,
      removeAllProxies__doc__},
     {NULL}
 };
@@ -1220,7 +1220,7 @@ module_functions[] = {
 MOD_INIT(_zope_proxy_proxy)
 {
     PyObject *m;
-    
+
     MOD_DEF(m, "_zope_proxy_proxy", module___doc__, module_functions)
 
     if (m == NULL)
@@ -1244,8 +1244,8 @@ MOD_INIT(_zope_proxy_proxy)
     }
     Py_INCREF(api_object);
     PyModule_AddObject(m, "_CAPI", api_object);
-    
+
     return MOD_SUCCESS_VAL(m);
-    
+
 }
 
