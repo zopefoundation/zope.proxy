@@ -29,6 +29,7 @@ def read(*rnames):
 Cwrapper = Feature(
     "C wrapper",
     standard = True,
+    headers=[os.path.join('src', 'zope', 'proxy', 'proxy.h')],
     ext_modules=[Extension("zope.proxy._zope_proxy_proxy",
                             [os.path.join('src', 'zope', 'proxy',
                                         "_zope_proxy_proxy.c")
@@ -42,10 +43,8 @@ py_impl = getattr(platform, 'python_implementation', lambda: None)
 is_pypy = py_impl() == 'PyPy'
 if is_pypy:
     features = {}
-    headers = []
 else:
     features = {'Cwrapper': Cwrapper}
-    headers=[os.path.join('src', 'zope', 'proxy', 'proxy.h')],
 
 setup(name='zope.proxy',
       version = '4.0.0dev',
@@ -78,7 +77,6 @@ setup(name='zope.proxy',
       package_dir = {'': 'src'},
       namespace_packages=['zope',],
       features=features,
-      headers=headers,
       test_suite = 'zope.proxy',
       install_requires=[
           'zope.interface',
