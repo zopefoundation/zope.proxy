@@ -885,12 +885,6 @@ wrap_methods[] = {
  * be associated with the wrapper itself.
  */
 
-// Python < 2.6	support:
-#ifndef PyVarObject_HEAD_INIT
-    #define PyVarObject_HEAD_INIT(type, size) \
-	PyObject_HEAD_INIT(type) size,
-#endif
-
 
 static PyTypeObject
 ProxyType = {
