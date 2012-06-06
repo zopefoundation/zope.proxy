@@ -339,15 +339,75 @@ class PyProxyBase(object):
             self._wrapped = pow(self._wrapped, other, modulus)
         return self
 
-# Python API:  not used in this module
-from zope.proxy._zope_proxy_proxy import ProxyBase
-from zope.proxy._zope_proxy_proxy import getProxiedObject
-from zope.proxy._zope_proxy_proxy import setProxiedObject
-from zope.proxy._zope_proxy_proxy import isProxy
-from zope.proxy._zope_proxy_proxy import sameProxiedObjects
-from zope.proxy._zope_proxy_proxy import queryProxy
-from zope.proxy._zope_proxy_proxy import queryInnerProxy
-from zope.proxy._zope_proxy_proxy import removeAllProxies
+def py_getProxiedObject(obj):
+    if isinstance(obj, PyProxyBase):
+        return obj._wrapped
+    return obj
 
-# API for proxy-using C extensions.
-from zope.proxy._zope_proxy_proxy import _CAPI
+def py_setProxiedObject(obj, new_value):
+    if not isinstance(obj, PyProxyBase):
+        raise TypeError('Not a proxy')
+    old, obj._wrapped = obj._wrapped, new_value
+    return old
+
+def py_isProxy(obj, klass=None):
+    if klass is None:
+        klass = PyProxyBase
+    return isinstance(obj, klass)
+
+def py_sameProxiedObjects(lhs, rhs):
+    while isinstance(lhs, PyProxyBase):
+        lhs = lhs._wrapped
+    while isinstance(rhs, PyProxyBase):
+        rhs = rhs._wrapped
+    return lhs is rhs
+
+def py_queryProxy(obj, klass=None, default=None):
+    if klass is None:
+        klass = PyProxyBase
+    while obj is not None and not isinstance(obj, klass):
+        obj = getattr(obj, '_wrapped', None)
+    if obj is not None:
+        return obj
+    return default
+
+def py_queryInnerProxy(obj, klass=None, default=None):
+    if klass is None:
+        klass = PyProxyBase
+    found = []
+    while obj is not None:
+        if isinstance(obj, klass):
+            found.append(obj) # stack
+        obj = getattr(obj, '_wrapped', None)
+    if found:
+        return found[-1]
+    return default
+
+def py_removeAllProxies(obj):
+    while isinstance(obj, PyProxyBase):
+        obj = obj._wrapped
+    return obj
+
+try:
+    # Python API:  not used in this module
+    from zope.proxy._zope_proxy_proxy import ProxyBase
+    from zope.proxy._zope_proxy_proxy import getProxiedObject
+    from zope.proxy._zope_proxy_proxy import setProxiedObject
+    from zope.proxy._zope_proxy_proxy import isProxy
+    from zope.proxy._zope_proxy_proxy import sameProxiedObjects
+    from zope.proxy._zope_proxy_proxy import queryProxy
+    from zope.proxy._zope_proxy_proxy import queryInnerProxy
+    from zope.proxy._zope_proxy_proxy import removeAllProxies
+
+    # API for proxy-using C extensions.
+    from zope.proxy._zope_proxy_proxy import _CAPI
+except ImportError: #pragma NO COVER
+    # no C extension available, fall back
+    ProxyBase = PyProxyBase
+    getProxiedObject = py_getProxiedObject
+    setProxiedObject = py_setProxiedObject
+    isProxy = py_isProxy
+    sameProxiedObjects = py_sameProxiedObjects
+    queryProxy = py_queryProxy
+    queryInnerProxy = py_queryInnerProxy
+    removeAllProxies = py_removeAllProxies

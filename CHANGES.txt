@@ -5,7 +5,8 @@ CHANGES
 4.0.0 (unreleased)
 ------------------
 
-- Added a pure-Python fallback implementation of ``zope.proxy.ProxyBase``.
+- Added a pure-Python fallback implementations of ``zope.proxy.ProxyBase``
+  and the proxy module API functions.
 
 - Added support for continuous integration using ``tox`` and ``jenkins``.
 
