@@ -492,7 +492,8 @@ class PyProxyBaseTestCase(unittest.TestCase):
         x = self._makeOne(1)
         y = self._makeOne(2.1)
         a, b = coerce(x, y)
-        self.assertFalse(a is x) # a was coerced
+        self.assertTrue(isinstance(a, float)) # a was coerced
+        self.assertFalse(a is x)
         self.assertEqual(a,  float(x))
         self.assertTrue(b is y)
 
@@ -500,7 +501,8 @@ class PyProxyBaseTestCase(unittest.TestCase):
         y = self._makeOne(2)
         a, b = coerce(x, y)
         self.assertTrue(a is x)
-        self.assertFalse(b is y) # b was coerced
+        self.assertTrue(isinstance(b, float)) # b was coerced
+        self.assertFalse(b is y)
         self.assertEqual(b,  float(y))
 
         x = self._makeOne(1)
@@ -512,7 +514,8 @@ class PyProxyBaseTestCase(unittest.TestCase):
         x = self._makeOne(1)
         y = 2.1
         a, b = coerce(x, y)
-        self.assertFalse(a is x) # a was coerced
+        self.assertTrue(isinstance(a, float)) # a was coerced
+        self.assertFalse(a is x)
         self.assertEqual(a,  float(x))
         self.assertTrue(b is y)
 
@@ -520,7 +523,8 @@ class PyProxyBaseTestCase(unittest.TestCase):
         y = 2
         a, b = coerce(x, y)
         self.assertTrue(a is x)
-        self.assertFalse(b is y) # b was coerced
+        self.assertTrue(isinstance(b, float)) # b was coerced
+        self.assertFalse(b is y)
         self.assertEqual(b,  float(y))
 
         x = 1
@@ -533,13 +537,15 @@ class PyProxyBaseTestCase(unittest.TestCase):
         y = self._makeOne(2)
         a, b = coerce(x, y)
         self.assertTrue(a is x)
-        self.assertFalse(b is y) # b was coerced
+        self.assertTrue(isinstance(b, float)) # b was coerced
+        self.assertFalse(b is y)
         self.assertEqual(b,  float(y))
 
         x = 1
         y = self._makeOne(2.1)
         a, b = coerce(x, y)
-        self.assertFalse(a is x) # a was coerced
+        self.assertTrue(isinstance(a, float)) # a was coerced
+        self.assertFalse(a is x)
         self.assertEqual(a,  float(x))
         self.assertTrue(b is y)
 
