@@ -16,7 +16,6 @@
 import operator
 import pickle
 import sys
-import types
 
 from zope.interface import moduleProvides
 from zope.proxy.interfaces import IProxyIntrospection
