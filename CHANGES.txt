@@ -5,6 +5,9 @@ CHANGES
 4.0.0 (unreleased)
 ------------------
 
+- Added 'setup.py dev' alias (runs ``setup.py develop`` plus installs
+  ``nose`` and ``coverage``).
+
 - Replaced deprecated ``zope.interface.implements`` usage with equivalent
   ``zope.interface.implementer`` decorator.
 

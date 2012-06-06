@@ -75,5 +75,8 @@ setup(name='zope.proxy',
           'setuptools'],
       include_package_data = True,
       zip_safe = False,
+      extras_require = {
+        'testing': ['nose', 'coverage'],
+      },
       **extra
       )
