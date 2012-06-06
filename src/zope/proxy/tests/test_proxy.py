@@ -179,6 +179,15 @@ class PyProxyBaseTestCase(unittest.TestCase):
         w1 = self._makeOne(1)
         self.assertEqual(hash(w1), hash(1))
 
+    def test___getattr__miss_both(self):
+        class Foo(object):
+            pass
+        o = Foo()
+        w = self._makeOne(o)
+        def _try():
+            return w.nonesuch
+        self.assertRaises(AttributeError, _try)
+
     def test___getattr__delegates_to_wrapped(self):
         class Foo(object):
             pass
@@ -534,23 +543,17 @@ class PyProxyBaseTestCase(unittest.TestCase):
         self.assertEqual(a,  float(x))
         self.assertTrue(b is y)
 
+    def test___class__(self):
+        o = object()
+        w = self._makeOne(o)
+        self.assertTrue(w.__class__ is o.__class__)
+
 
 class ProxyBaseTestCase(PyProxyBaseTestCase):
 
     def _getTargetClass(self):
         from zope.proxy import ProxyBase
         return ProxyBase
-
-    def test___class__(self):
-        try:
-            from zope.proxy import _CAPI
-        except ImportError:
-            # Pure Python proxies can't lie about their '__class__'
-            pass
-        else:
-            o = object()
-            w = self._makeOne(o)
-            self.assertTrue(w.__class__ is o.__class__)
 
 
 class Test_py_getProxiedObject(unittest.TestCase):

@@ -58,7 +58,7 @@ class PyProxyBase(object):
     def __unicode__(self):
         return unicode(self._wrapped)
 
-    def __reduce__(self):
+    def __reduce__(self): #pragma NO COVER  (__reduce_ex__ prevents normal)
         raise pickle.PicklingError
 
     def __reduce_ex__(self, proto):
@@ -100,7 +100,7 @@ class PyProxyBase(object):
         except AttributeError:
             mine = _MARKER
         else:
-            if isinstance(mine, PyNonOverridable):
+            if isinstance(mine, PyNonOverridable): #pragma NO COVER PyPy
                 return mine.desc.__get__(self)
         try:
             return getattr(wrapped, name)
@@ -413,7 +413,7 @@ def py_removeAllProxies(obj):
     return obj
 
 class PyNonOverridable(object):
-    def __init__(self, method_desc):
+    def __init__(self, method_desc): #pragma NO COVER PyPy
         self.desc = method_desc
 
 try:
