@@ -30,9 +30,8 @@ def ProxyIterator(p):
         p = getProxiedObject(p)
         yield p
 
-def non_overridable(func):
-    return property(lambda self: func.__get__(self))
 
+_MARKER = object()
 
 class PyProxyBase(object):
     """Reference implementation.
@@ -62,6 +61,9 @@ class PyProxyBase(object):
     def __reduce__(self):
         raise pickle.PicklingError
 
+    def __reduce_ex__(self, proto):
+        raise pickle.PicklingError
+
     # Rich comparison protocol
     def __lt__(self, other):
         return self._wrapped < other
@@ -89,6 +91,24 @@ class PyProxyBase(object):
         return hash(self._wrapped)
 
     # Attribute protocol
+    def __getattribute__(self, name):
+        wrapped = super(PyProxyBase, self).__getattribute__('_wrapped')
+        if name == '_wrapped':
+            return wrapped
+        try:
+            mine = super(PyProxyBase, self).__getattribute__(name)
+        except AttributeError:
+            mine = _MARKER
+        else:
+            if isinstance(mine, PyNonOverridable):
+                return mine.desc.__get__(self)
+        try:
+            return getattr(wrapped, name)
+        except AttributeError:
+            if mine is not _MARKER:
+                return mine
+            raise
+
     def __getattr__(self, name):
         return getattr(self._wrapped, name)
 
@@ -392,6 +412,10 @@ def py_removeAllProxies(obj):
         obj = obj._wrapped
     return obj
 
+class PyNonOverridable(object):
+    def __init__(self, method_desc):
+        self.desc = method_desc
+
 try:
     # Python API:  not used in this module
     from zope.proxy._zope_proxy_proxy import ProxyBase
@@ -415,3 +439,7 @@ except ImportError: #pragma NO COVER
     queryProxy = py_queryProxy
     queryInnerProxy = py_queryInnerProxy
     removeAllProxies = py_removeAllProxies
+    non_overridable = PyNonOverridable
+else:
+    def non_overridable(func):
+        return property(lambda self: func.__get__(self))

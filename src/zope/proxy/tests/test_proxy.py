@@ -117,7 +117,7 @@ class PyProxyBaseTestCase(unittest.TestCase):
                 """This class is expected to be a classic class."""
             w = self._makeOne(Thing())
             self.assertRaises(pickle.PicklingError,
-                            pickle.dumps, w)
+                              pickle.dumps, w)
 
     def test___eq___and___ne__(self):
         w = self._makeOne('foo')
@@ -186,6 +186,17 @@ class PyProxyBaseTestCase(unittest.TestCase):
         o.foo = 1
         w = self._makeOne(o)
         self.assertEqual(w.foo, 1)
+
+    def test___getattr__delegates_to_wrapped_when_conflict(self):
+        class Proxy(self._getTargetClass()):
+            def foo(self):
+                return 'PROXY'
+        class Foo(object):
+            def foo(self):
+                return 'FOO'
+        o = Foo()
+        w = Proxy(o)
+        self.assertEqual(w.foo(), 'FOO')
 
     def test___setattr__delegates_to_wrapped(self):
         class Foo(object):
