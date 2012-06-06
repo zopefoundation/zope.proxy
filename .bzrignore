@@ -2,3 +2,7 @@
 build
 *.egg-info
 _build
+.tox
+nosetests.xml
+coverage.xml
+__pycache__
