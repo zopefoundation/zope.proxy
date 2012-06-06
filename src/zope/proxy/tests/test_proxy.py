@@ -13,52 +13,24 @@
 ##############################################################################
 """Test base proxy class.
 """
-from doctest import DocTestSuite
-import pickle
-import sys
 import unittest
 
-from zope.proxy import ProxyBase
-import zope.proxy
 
-class Thing:
-    """This class is expected to be a classic class."""
+class ModuleConformanceCase(unittest.TestCase):
 
-class Comparable(object):
-    def __init__(self, value):
-        self.value = value
-
-    def __eq__(self, other):
-        if hasattr(other, "value"):
-            other = other.value
-        return self.value == other
-
-    def __ne__(self, other):
-        return not self.__eq__(other)
-
-    def __lt__(self, other):
-        if hasattr(other, "value"):
-            other = other.value
-        return self.value < other
-
-    def __ge__(self, other):
-        return not self.__lt__(other)
-
-    def __le__(self, other):
-        if hasattr(other, "value"):
-            other = other.value
-        return self.value <= other
-
-    def __gt__(self, other):
-        return not self.__le__(other)
-
-    def __repr__(self):
-        return "<Comparable: %r>" % self.value
+    def test_module_conforms_to_IProxyIntrospection(self):
+        from zope.interface.verify import verifyObject
+        import zope.proxy
+        from zope.proxy.interfaces import IProxyIntrospection
+        verifyObject(IProxyIntrospection, zope.proxy)
 
 
-class ProxyTestCase(unittest.TestCase):
+class ProxyBaseTestCase(unittest.TestCase):
 
-    proxy_class = ProxyBase
+    @property
+    def proxy_class(self):
+        from zope.proxy import ProxyBase
+        return ProxyBase
 
     def setUp(self):
         self.x = Thing()
@@ -120,13 +92,13 @@ class ProxyTestCase(unittest.TestCase):
         self.assert_(w.__class__ is o.__class__)
 
     def test_pickle_prevention(self):
+        import pickle
+        from zope.proxy._compat import PY3
         # Proxies of old-style classes can't be pickled.
-        if sys.version > '3':
-            # No old-style classes in Python 3.
-            return
-        w = self.new_proxy(Thing())
-        self.assertRaises(pickle.PicklingError,
-                          pickle.dumps, w)
+        if not PY3: # No old-style classes in Python 3.
+            w = self.new_proxy(Thing())
+            self.assertRaises(pickle.PicklingError,
+                            pickle.dumps, w)
 
     def test_proxy_equality(self):
         w = self.new_proxy('foo')
@@ -166,7 +138,8 @@ class ProxyTestCase(unittest.TestCase):
         self.assert_(w2 <= o2)
 
     def test_proxy_callable(self):
-        if sys.version < '3': # Gone in Python 3:
+        from zope.proxy._compat import PY3
+        if not PY3: # Gone in Python 3:
             w = self.new_proxy({}.get)
             self.assert_(callable(w))
 
@@ -223,12 +196,20 @@ class ProxyTestCase(unittest.TestCase):
 
     # Numeric ops.
 
-    unops = [
-        "-x", "+x", "abs(x)", "~x",
-        "int(x)", "float(x)",
+    @property
+    def unops(self):
+        from zope.proxy._compat import PY3
+        ops = [
+            "-x",
+            "+x",
+            "abs(x)",
+            "~x",
+            "int(x)",
+            "float(x)",
         ]
-    if sys.version < '3': # long is gone in Python 3
-        unops.append("long(x)") 
+        if not PY3: # long is gone in Python 3
+            ops.append("long(x)") 
+        return ops
 
     def test_unops(self):
         P = self.new_proxy
@@ -241,10 +222,11 @@ class ProxyTestCase(unittest.TestCase):
                              "x=%r; expr=%r" % (x, expr))
 
     def test_odd_unops(self):
+        from zope.proxy._compat import PY3
         # unops that don't return a proxy
         P = self.new_proxy
         funcs = (lambda x: not x,)
-        if sys.version < '3':
+        if not PY3:
             funcs += (oct, hex)
         for func in funcs:
             self.assertEqual(func(P(100)), func(100))
@@ -286,13 +268,12 @@ class ProxyTestCase(unittest.TestCase):
         self.assertEqual(pa, 4)
 
     def test_coerce(self):
-        if sys.version > '3':
-            # No coercion in Python 3
+        from zope.proxy._compat import PY3
+        if PY3: # No coercion in Python 3
             return
         P = self.new_proxy
 
         # Before 2.3, coerce() of two proxies returns them unchanged
-        fixed_coerce = sys.version_info >= (2, 3, 0)
 
         x = P(1)
         y = P(2)
@@ -304,16 +285,14 @@ class ProxyTestCase(unittest.TestCase):
         a, b = coerce(x, y)
         self.failUnless(a == 1.0)
         self.failUnless(b is y)
-        if fixed_coerce:
-            self.failUnless(a.__class__ is float, a.__class__)
+        self.failUnless(a.__class__ is float, a.__class__)
 
         x = P(1.1)
         y = P(2)
         a, b = coerce(x, y)
         self.failUnless(a is x)
         self.failUnless(b == 2.0)
-        if fixed_coerce:
-            self.failUnless(b.__class__ is float, b.__class__)
+        self.failUnless(b.__class__ is float, b.__class__)
 
         x = P(1)
         y = 2
@@ -353,7 +332,8 @@ class ProxyTestCase(unittest.TestCase):
 
     def test_getslice(self):
         # These tests are moot under Python 3 as __slice__ isn't supported.
-        if sys.version > '3':
+        from zope.proxy._compat import PY3
+        if PY3:
             return
         
         # Lists have special slicing behavior.
@@ -422,321 +402,410 @@ class ProxyTestCase(unittest.TestCase):
         self.assertEqual(pList, [3, 4])
 
 
-def test_isProxy():
-    """
-    >>> from zope.proxy import ProxyBase, isProxy
-    >>> class P1(ProxyBase):
-    ...     pass
-    >>> class P2(ProxyBase):
-    ...     pass
-    >>> class C(object):
-    ...     pass
-    >>> c = C()
-    >>> int(isProxy(c))
-    0
-    >>> p = P1(c)
-    >>> int(isProxy(p))
-    1
-    >>> int(isProxy(p, P1))
-    1
-    >>> int(isProxy(p, P2))
-    0
-    >>> p = P2(p)
-    >>> int(isProxy(p, P1))
-    1
-    >>> int(isProxy(p, P2))
-    1
+class Test_isProxy(unittest.TestCase):
 
-    """
+    def _callFUT(self, *args):
+        from zope.proxy import isProxy
+        return isProxy(*args)
 
-def test_getProxiedObject():
-    """
-    >>> from zope.proxy import ProxyBase, getProxiedObject
-    >>> class C(object):
-    ...     pass
-    >>> c = C()
-    >>> int(getProxiedObject(c) is c)
-    1
-    >>> p = ProxyBase(c)
-    >>> int(getProxiedObject(p) is c)
-    1
-    >>> p2 = ProxyBase(p)
-    >>> int(getProxiedObject(p2) is p)
-    1
+    def test_bare_instance(self):
+        class C(object):
+            pass
+        c = C()
+        self.assertFalse(self._callFUT(c))
 
-    """
+    def test_proxy_no_class(self):
+        from zope.proxy import ProxyBase
+        class P1(ProxyBase):
+            pass
+        class C(object):
+            pass
+        c = C()
+        p1 = P1(c)
+        self.assertTrue(self._callFUT(p1))
 
-def test_ProxyIterator():
-    """
-    >>> from zope.proxy import ProxyBase, ProxyIterator
-    >>> class C(object):
-    ...     pass
-    >>> c = C()
-    >>> p1 = ProxyBase(c)
-    >>> class P(ProxyBase):
-    ...     pass
-    >>> p2 = P(p1)
-    >>> p3 = ProxyBase(p2)
-    >>> list(ProxyIterator(p3)) == [p3, p2, p1, c]
-    1
-    """
+    def test_proxy_w_same_class(self):
+        from zope.proxy import ProxyBase
+        class P1(ProxyBase):
+            pass
+        class C(object):
+            pass
+        c = C()
+        p1 = P1(c)
+        self.assertTrue(self._callFUT(p1, P1))
 
-def test_removeAllProxies():
-    """
-    >>> from zope.proxy import ProxyBase, removeAllProxies
-    >>> class C(object):
-    ...     pass
-    >>> c = C()
-    >>> int(removeAllProxies(c) is c)
-    1
-    >>> p = ProxyBase(c)
-    >>> int(removeAllProxies(p) is c)
-    1
-    >>> p2 = ProxyBase(p)
-    >>> int(removeAllProxies(p2) is c)
-    1
-
-    """
-
-def test_queryProxy():
-    """
-    >>> from zope.proxy import ProxyBase, queryProxy
-    >>> class P1(ProxyBase):
-    ...    pass
-    >>> class P2(ProxyBase):
-    ...    pass
-    >>> class C(object):
-    ...     pass
-    >>> c = C()
-    >>> queryProxy(c, P1)
-    >>> queryProxy(c, P1, 42)
-    42
-    >>> p1 = P1(c)
-    >>> int(queryProxy(p1, P1) is p1)
-    1
-    >>> queryProxy(c, P2)
-    >>> queryProxy(c, P2, 42)
-    42
-    >>> p2 = P2(p1)
-    >>> int(queryProxy(p2, P1) is p1)
-    1
-    >>> int(queryProxy(p2, P2) is p2)
-    1
-    >>> int(queryProxy(p2, ProxyBase) is p2)
-    1
-
-    """
-
-def test_queryInnerProxy():
-    """
-    >>> from zope.proxy import ProxyBase, queryProxy, queryInnerProxy
-    >>> class P1(ProxyBase):
-    ...    pass
-    >>> class P2(ProxyBase):
-    ...    pass
-    >>> class C(object):
-    ...     pass
-    >>> c = C()
-    >>> queryInnerProxy(c, P1)
-    >>> queryInnerProxy(c, P1, 42)
-    42
-    >>> p1 = P1(c)
-    >>> int(queryProxy(p1, P1) is p1)
-    1
-    >>> queryInnerProxy(c, P2)
-    >>> queryInnerProxy(c, P2, 42)
-    42
-    >>> p2 = P2(p1)
-    >>> int(queryInnerProxy(p2, P1) is p1)
-    1
-    >>> int(queryInnerProxy(p2, P2) is p2)
-    1
-    >>> int(queryInnerProxy(p2, ProxyBase) is p1)
-    1
-
-    >>> p3 = P1(p2)
-    >>> int(queryProxy(p3, P1) is p3)
-    1
-    >>> int(queryInnerProxy(p3, P1) is p1)
-    1
-    >>> int(queryInnerProxy(p3, P2) is p2)
-    1
-
-    """
-
-def test_sameProxiedObjects():
-    """
-    >>> from zope.proxy import ProxyBase, sameProxiedObjects
-    >>> class C(object):
-    ...     pass
-    >>> c1 = C()
-    >>> c2 = C()
-    >>> int(sameProxiedObjects(c1, c1))
-    1
-    >>> int(sameProxiedObjects(ProxyBase(c1), c1))
-    1
-    >>> int(sameProxiedObjects(ProxyBase(c1), ProxyBase(c1)))
-    1
-    >>> int(sameProxiedObjects(ProxyBase(ProxyBase(c1)), c1))
-    1
-    >>> int(sameProxiedObjects(c1, ProxyBase(c1)))
-    1
-    >>> int(sameProxiedObjects(c1, ProxyBase(ProxyBase(c1))))
-    1
-    >>> int(sameProxiedObjects(c1, c2))
-    0
-    >>> int(sameProxiedObjects(ProxyBase(c1), c2))
-    0
-    >>> int(sameProxiedObjects(ProxyBase(c1), ProxyBase(c2)))
-    0
-    >>> int(sameProxiedObjects(ProxyBase(ProxyBase(c1)), c2))
-    0
-    >>> int(sameProxiedObjects(c1, ProxyBase(c2)))
-    0
-    >>> int(sameProxiedObjects(c1, ProxyBase(ProxyBase(c2))))
-    0
-    """
-
-def test_subclassing_proxies():
-    """You can subclass ProxyBase
-
-    If you subclass a proxy, instances of the subclass have access to
-    data defined in the class, including descriptors.
-
-    Your subclass instances don't get instance dictionaries, but they
-    can have slots.
-
-    >>> class MyProxy(ProxyBase):
-    ...    __slots__ = 'x', 'y'
-    ...
-    ...    def f(self):
-    ...        return self.x
-
-    >>> l = [1, 2, 3]
-    >>> p = MyProxy(l)
-
-    I can use attributes defined by the class, including slots:
-
-    >>> p.x = 'x'
-    >>> p.x
-    'x'
-    >>> p.f()
-    'x'
-
-    I can also use attributes of the proxied object:
-
-    >>> p
-    [1, 2, 3]
-    >>> p.pop()
-    3
-    >>> p
-    [1, 2]
-
-    """
-
-def test_get_descriptors_in_proxy_class():
-    """
-    A non-data descriptor in a proxy class doesn't hide an attribute on
-    a proxied object or prevent writing the attribute.
-
-    >>> class ReadDescr(object):
-    ...     def __get__(self, i, c):
-    ...         return 'read'
-
-    >>> class MyProxy(ProxyBase):
-    ...    __slots__ = ()
-    ...
-    ...    z = ReadDescr()
-    ...    q = ReadDescr()
-
-    >>> class MyOb:
-    ...    q = 1
-
-    >>> o = MyOb()
-    >>> p = MyProxy(o)
-    >>> p.q
-    1
-
-    >>> p.z
-    'read'
-
-    >>> p.z = 1
-    >>> o.z, p.z
-    (1, 1)
-
-    """
-
-def test_non_overridable():
-    """
-    Normally, methods defined in proxies are overridden by
-    methods of proxied objects.  This applies to all non-data
-    descriptors.  The non_overridable function can be used to
-    convert a non-data descriptor to a data descriptor that disallows
-    writes.  This function can be used as a decorator to make functions
-    defined in proxy classes take precedence over functions defined
-    in proxied objects.
+    def test_proxy_w_other_class(self):
+        from zope.proxy import ProxyBase
+        class P1(ProxyBase):
+            pass
+        class P2(ProxyBase):
+            pass
+        class C(object):
+            pass
+        c = C()
+        p1 = P1(c)
+        self.assertFalse(self._callFUT(p1, P2))
 
 
-    >>> class MyProxy(ProxyBase):
-    ...    __slots__ = ()
-    ...
-    ...    @zope.proxy.non_overridable
-    ...    def foo(self):
-    ...        return 'MyProxy foo'
+class Test_getProxiedObject(unittest.TestCase):
 
-    >>> class MyOb:
-    ...    def foo(self):
-    ...        return 'MyOb foo'
+    def _callFUT(self, *args):
+        from zope.proxy import getProxiedObject
+        return getProxiedObject(*args)
 
-    >>> o = MyOb()
-    >>> p = MyProxy(o)
-    >>> p.foo()
-    'MyProxy foo'
+    def test_no_proxy(self):
+        class C(object):
+            pass
+        c = C()
+        self.assertTrue(self._callFUT(c) is c)
 
-    """
+    def test_simple_proxy(self):
+        from zope.proxy import ProxyBase
+        class C(object):
+            pass
+        c = C()
+        p = ProxyBase(c)
+        self.assertTrue(self._callFUT(p) is c)
 
-def test_setProxiedObject():
-    """
-    >>> from zope.proxy import ProxyBase
-    >>> from zope.proxy import setProxiedObject, getProxiedObject
+    def test_nested_proxy(self):
+        from zope.proxy import ProxyBase
+        class C(object):
+            pass
+        c = C()
+        p = ProxyBase(c)
+        p2 = ProxyBase(p)
+        self.assertTrue(self._callFUT(p2) is p)
 
-    >>> class C(object):
-    ...     pass
 
-    >>> c1 = C()
-    >>> c2 = C()
+class Test_ProxyIterator(unittest.TestCase):
 
-    >>> p = ProxyBase(c1)
+    def _callFUT(self, *args):
+        from zope.proxy import ProxyIterator
+        return ProxyIterator(*args)
 
-    `setProxiedObject()` allows us to change the object a proxy refers to,
-    returning the previous referent:
+    def test_no_proxy(self):
+        class C(object):
+            pass
+        c = C()
+        self.assertEqual(list(self._callFUT(c)), [c])
 
-    >>> old = setProxiedObject(p, c2)
-    >>> old is c1
-    True
+    def test_w_simple_proxy(self):
+        from zope.proxy import ProxyBase
+        class C(object):
+            pass
+        c = C()
+        p = ProxyBase(c)
+        self.assertEqual(list(self._callFUT(p)), [p, c])
 
-    >>> getProxiedObject(p) is c2
-    True
+    def test_w_nested_proxies(self):
+        from zope.proxy import ProxyBase
+        class C(object):
+            pass
+        c = C()
+        p = ProxyBase(c)
+        p2 = ProxyBase(p)
+        p3 = ProxyBase(p2)
+        p4 = ProxyBase(p3)
+        self.assertEqual(list(self._callFUT(p4)), [p4, p3, p2, p, c])
 
-    The first argument  to `setProxiedObject()` must be a proxy; other objects
-    cause it to raise an exception:
 
-    >>> try:
-    ...     setProxiedObject(c1, None)
-    ... except TypeError:
-    ...     print "TypeError raised"
-    ... else:
-    ...     print "Expected TypeError not raised"
-    TypeError raised
-    """
+class Test_removeAllProxies(unittest.TestCase):
+
+    def _callFUT(self, *args):
+        from zope.proxy import removeAllProxies
+        return removeAllProxies(*args)
+
+    def test_no_proxy(self):
+        class C(object):
+            pass
+        c = C()
+        self.assertTrue(self._callFUT(c) is c)
+
+    def test_simple_proxy(self):
+        from zope.proxy import ProxyBase
+        class C(object):
+            pass
+        c = C()
+        p = ProxyBase(c)
+        self.assertTrue(self._callFUT(p) is c)
+
+    def test_nested_proxy(self):
+        from zope.proxy import ProxyBase
+        class C(object):
+            pass
+        c = C()
+        p = ProxyBase(c)
+        p2 = ProxyBase(p)
+        self.assertTrue(self._callFUT(p2) is c)
+
+
+class Test_queryProxy(unittest.TestCase):
+
+    def _callFUT(self, *args):
+        from zope.proxy import queryProxy
+        return queryProxy(*args)
+
+    def test_bare_instance(self):
+        class C(object):
+            pass
+        c = C()
+        self.assertEqual(self._callFUT(c), None)
+
+    def test_proxy_no_class(self):
+        from zope.proxy import ProxyBase
+        class P1(ProxyBase):
+            pass
+        class C(object):
+            pass
+        c = C()
+        p1 = P1(c)
+        self.assertTrue(self._callFUT(p1) is p1)
+
+    def test_proxy_w_same_class(self):
+        from zope.proxy import ProxyBase
+        class P1(ProxyBase):
+            pass
+        class C(object):
+            pass
+        c = C()
+        p1 = P1(c)
+        self.assertTrue(self._callFUT(p1, P1) is p1)
+        self.assertTrue(self._callFUT(p1, P1, 42) is p1)
+
+    def test_proxy_w_other_class(self):
+        from zope.proxy import ProxyBase
+        class P1(ProxyBase):
+            pass
+        class P2(ProxyBase):
+            pass
+        class C(object):
+            pass
+        c = C()
+        p1 = P1(c)
+        self.assertEqual(self._callFUT(p1, P2), None)
+        self.assertEqual(self._callFUT(p1, P2, 42), 42)
+
+    def test_proxy_w_base_class(self):
+        from zope.proxy import ProxyBase
+        class P1(ProxyBase):
+            pass
+        class P2(ProxyBase):
+            pass
+        class C(object):
+            pass
+        c = C()
+        p1 = P1(c)
+        self.assertTrue(self._callFUT(p1, ProxyBase) is p1)
+        self.assertTrue(self._callFUT(p1, ProxyBase, 42) is p1)
+
+
+class Test_queryInnerProxy(unittest.TestCase):
+
+    def _callFUT(self, *args):
+        from zope.proxy import queryInnerProxy
+        return queryInnerProxy(*args)
+
+    def test_bare_instance(self):
+        class C(object):
+            pass
+        c = C()
+        self.assertEqual(self._callFUT(c), None)
+
+    def test_proxy_no_class(self):
+        from zope.proxy import ProxyBase
+        class P1(ProxyBase):
+            pass
+        class C(object):
+            pass
+        c = C()
+        p1 = P1(c)
+        self.assertTrue(self._callFUT(p1) is p1)
+
+    def test_proxy_w_same_class(self):
+        from zope.proxy import ProxyBase
+        class P1(ProxyBase):
+            pass
+        class C(object):
+            pass
+        c = C()
+        p1 = P1(c)
+        self.assertTrue(self._callFUT(p1, P1) is p1)
+        self.assertTrue(self._callFUT(p1, P1, 42) is p1)
+
+    def test_nested_proxy(self):
+        from zope.proxy import ProxyBase
+        class P1(ProxyBase):
+            pass
+        class P2(ProxyBase):
+            pass
+        class C(object):
+            pass
+        c = C()
+        p1 = P1(c)
+        p2 = P2(p1)
+        self.assertTrue(self._callFUT(p2, P1) is p1)
+        self.assertTrue(self._callFUT(p2, P1, 42) is p1)
+        self.assertTrue(self._callFUT(p2, P2) is p2)
+        self.assertTrue(self._callFUT(p2, P2, 42) is p2)
+
+    def test_re_nested_proxy(self):
+        from zope.proxy import ProxyBase
+        class P1(ProxyBase):
+            pass
+        class P2(ProxyBase):
+            pass
+        class C(object):
+            pass
+        c = C()
+        p1 = P1(c)
+        p2 = P2(p1)
+        p3 = P1(p2)
+        self.assertTrue(self._callFUT(p3, P1) is p1)
+        self.assertTrue(self._callFUT(p3, P1, 42) is p1)
+        self.assertTrue(self._callFUT(p3, P2) is p2)
+        self.assertTrue(self._callFUT(p3, P2, 42) is p2)
+
+
+class Test_sameProxiedObjects(unittest.TestCase):
+
+    def _callFUT(self, *args):
+        from zope.proxy import sameProxiedObjects
+        return sameProxiedObjects(*args)
+
+    def test_bare_instance_identical(self):
+        class C(object):
+            pass
+        c1 = C()
+        self.assertTrue(self._callFUT(c1, c1))
+
+    def test_bare_instances_different(self):
+        class C(object):
+            pass
+        c1 = C()
+        c2 = C()
+        self.assertFalse(self._callFUT(c1, c2))
+        self.assertFalse(self._callFUT(c2, c1))
+
+    def test_proxy_and_same_bare(self):
+        from zope.proxy import ProxyBase
+        class C(object):
+            pass
+        c1 = C()
+        self.assertTrue(self._callFUT(ProxyBase(c1), c1))
+        self.assertTrue(self._callFUT(c1, ProxyBase(c1)))
+
+    def test_proxy_and_other_bare(self):
+        from zope.proxy import ProxyBase
+        class C(object):
+            pass
+        c1 = C()
+        c2 = C()
+        self.assertFalse(self._callFUT(ProxyBase(c1), c2))
+        self.assertFalse(self._callFUT(c2, ProxyBase(c1)))
+
+    def test_proxies_w_same_bare(self):
+        from zope.proxy import ProxyBase
+        class C(object):
+            pass
+        c1 = C()
+        self.assertTrue(self._callFUT(ProxyBase(c1), ProxyBase(c1)))
+
+    def test_proxies_w_other_bare(self):
+        from zope.proxy import ProxyBase
+        class C(object):
+            pass
+        c1 = C()
+        c2 = C()
+        self.assertFalse(self._callFUT(ProxyBase(c1), ProxyBase(c2)))
+        self.assertFalse(self._callFUT(ProxyBase(c2), ProxyBase(c1)))
+
+    def test_nested_proxy_and_same_bare(self):
+        from zope.proxy import ProxyBase
+        class C(object):
+            pass
+        c1 = C()
+        self.assertTrue(self._callFUT(ProxyBase(ProxyBase(c1)), c1))
+        self.assertTrue(self._callFUT(c1, ProxyBase(ProxyBase(c1))))
+
+    def test_nested_proxy_and_other_bare(self):
+        from zope.proxy import ProxyBase
+        class C(object):
+            pass
+        c1 = C()
+        c2 = C()
+        self.assertFalse(self._callFUT(ProxyBase(ProxyBase(c1)), c2))
+        self.assertFalse(self._callFUT(c2, ProxyBase(ProxyBase(c1))))
+
+
+class Test_nonOverridable(unittest.TestCase):
+
+    def test_it(self):
+        from zope.proxy import ProxyBase
+        from zope.proxy import non_overridable
+        class Proxy(ProxyBase):
+            def who(self):
+                return 'PROXY'
+            @non_overridable
+            def what(self):
+                return 'PROXY'
+        class Foo(object):
+            def who(self):
+                return 'FOO'
+            def what(self):
+                return 'FOO'
+        proxy = Proxy(Foo())
+        self.assertEqual(proxy.who(), 'FOO')
+        self.assertEqual(proxy.what(), 'PROXY')
+
+
+class Thing:
+    """This class is expected to be a classic class."""
+
+
+class Comparable(object):
+    def __init__(self, value):
+        self.value = value
+
+    def __eq__(self, other):
+        if hasattr(other, "value"):
+            other = other.value
+        return self.value == other
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+    def __lt__(self, other):
+        if hasattr(other, "value"):
+            other = other.value
+        return self.value < other
+
+    def __ge__(self, other):
+        return not self.__lt__(other)
+
+    def __le__(self, other):
+        if hasattr(other, "value"):
+            other = other.value
+        return self.value <= other
+
+    def __gt__(self, other):
+        return not self.__le__(other)
+
+    def __repr__(self):
+        return "<Comparable: %r>" % self.value
+
 
 def test_suite():
-    suite = unittest.makeSuite(ProxyTestCase)
-    suite.addTest(DocTestSuite())
-    return suite
-
-if __name__ == "__main__":
-    runner = unittest.TextTestRunner(sys.stdout)
-    result = runner.run(test_suite())
-    newerrs = len(result.errors) + len(result.failures)
-    sys.exit(newerrs and 1 or 0)
+    from doctest import DocTestSuite
+    return unittest.TestSuite((
+        unittest.makeSuite(ModuleConformanceCase),
+        unittest.makeSuite(ProxyBaseTestCase),
+        unittest.makeSuite(Test_isProxy),
+        unittest.makeSuite(Test_getProxiedObject),
+        unittest.makeSuite(Test_ProxyIterator),
+        unittest.makeSuite(Test_removeAllProxies),
+        unittest.makeSuite(Test_queryProxy),
+        unittest.makeSuite(Test_queryInnerProxy),
+        unittest.makeSuite(Test_sameProxiedObjects),
+        unittest.makeSuite(Test_nonOverridable),
+        DocTestSuite(),
+    ))
