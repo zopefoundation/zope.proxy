@@ -84,6 +84,7 @@ class PyProxyBase(object):
 
     def __nonzero__(self):
         return bool(self._wrapped)
+    __bool__ = __nonzero__ # Python3 compat
 
     def __hash__(self):
         return hash(self._wrapped)
@@ -108,7 +109,7 @@ class PyProxyBase(object):
         return len(self._wrapped)
 
     def __getitem__(self, key):
-        if isinstance(key, types.SliceType):
+        if isinstance(key, slice):
             if isinstance(self._wrapped, (list, tuple)):
                 return self._wrapped[key]
             start, stop = key.start, key.stop
