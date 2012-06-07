@@ -27,39 +27,78 @@ class DecoratorSpecificationDescriptorTests(unittest.TestCase):
 
     def test___get___w_class(self):
         from zope.interface import Interface
+        from zope.interface import implementer
         from zope.interface import provider
-        class IFoo(Interface):
+        class IContextFactory(Interface):
             pass
-        @provider(IFoo)
-        class Foo(object):
+        class IContext(Interface):
+            pass
+        @provider(IContextFactory)
+        @implementer(IContext)
+        class Context(object):
             pass
         dsd = self._makeOne()
-        self.assertEqual(list(dsd.__get__(None, Foo)), [IFoo])
+        self.assertEqual(list(dsd.__get__(None, Context)), [IContextFactory])
 
     def test___get___w_inst_no_proxy(self):
         from zope.interface import Interface
         from zope.interface import implementer
-        class IFoo(Interface):
+        from zope.interface import provider
+        class IContextFactory(Interface):
             pass
-        @implementer(IFoo)
-        class Foo(object):
+        class IContext(Interface):
+            pass
+        @provider(IContextFactory)
+        @implementer(IContext)
+        class Context(object):
             pass
         dsd = self._makeOne()
-        self.assertEqual(list(dsd.__get__(Foo(), None)), [IFoo])
+        self.assertEqual(list(dsd.__get__(Context(), None)), [IContext])
 
     def test___get___w_inst_w_proxy(self):
         from zope.interface import Interface
         from zope.interface import implementer
+        from zope.interface import provider
         from zope.proxy import ProxyBase
-        class IFoo(Interface):
+        class IContextFactory(Interface):
             pass
-        @implementer(IFoo)
-        class Foo(object):
+        class IContext(Interface):
             pass
-        foo = Foo()
-        p_foo = ProxyBase(foo)
+        @provider(IContextFactory)
+        @implementer(IContext)
+        class Context(object):
+            pass
+        context = Context()
+        proxy = ProxyBase(context)
         dsd = self._makeOne()
-        self.assertEqual(list(dsd.__get__(p_foo, None)), [IFoo])
+        self.assertEqual(list(dsd.__get__(proxy, None)), [IContext])
+
+    def test___get___w_inst_w_derived_proxy(self):
+        from zope.interface import Interface
+        from zope.interface import implementer
+        from zope.interface import provider
+        from zope.proxy import ProxyBase
+        class IContextFactory(Interface):
+            pass
+        class IContext(Interface):
+            pass
+        @provider(IContextFactory)
+        @implementer(IContext)
+        class Context(object):
+            pass
+        class IProxyFactory(Interface):
+            pass
+        class IProxy(Interface):
+            pass
+        @provider(IProxyFactory)
+        @implementer(IProxy)
+        class Proxy(ProxyBase):
+            pass
+        context = Context()
+        proxy = Proxy(context)
+        dsd = self._makeOne()
+        self.assertEqual(list(dsd.__get__(proxy, None)),
+                         [IContext, IProxy])
 
     def test___set___not_allowed(self):
         from zope.interface import Interface
