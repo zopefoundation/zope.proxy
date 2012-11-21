@@ -91,13 +91,13 @@ class PyProxyBaseTestCase(unittest.TestCase):
         def _foo():
             return 'FOO'
         proxy = self._makeOne(_foo)
-        self.assertTrue(repr(proxy).startswith('<function _foo'))
+        self.assertEqual(repr(proxy), repr(_foo))
 
     def test___str__(self):
         def _foo():
             return 'FOO'
         proxy = self._makeOne(_foo)
-        self.assertTrue(str(proxy).startswith('<function _foo'))
+        self.assertEqual(str(proxy), str(_foo))
 
     def test___unicode__(self):
         from zope.proxy._compat import PY3
