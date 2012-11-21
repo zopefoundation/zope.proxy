@@ -47,7 +47,7 @@ else:
     features = {'Cwrapper': Cwrapper}
 
 setup(name='zope.proxy',
-      version = '4.0.1dev',
+      version = '4.0.1',
       author='Zope Foundation and Contributors',
       author_email='zope-dev@zope.org',
       description='Generic Transparent Proxies',
