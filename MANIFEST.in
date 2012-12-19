@@ -1,0 +1,6 @@
+include *.txt
+include buildout.cfg
+include bootstrap.py
+include tox.ini
+recursive-include src *.h *.py
+recursive-include docs Makefile make.bat *.py *.rst
