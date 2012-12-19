@@ -2,10 +2,17 @@
 CHANGES
 =======
 
-4.0.2 (unreleased)
+4.1.0 (unreleased)
 ------------------
 
-- TBD
+- Enabled compilation of dependent modules under Py3k.
+
+- Replaced use of ``PyCObject`` APIs with equivalent ``PyCapsule`` APIs,
+  except under Python 2.6.
+  
+  N.B.  This change is an ABI incompatibility under Python 2.7:
+        extensions built under Python 2.7 against 4.0.x versions of
+        ``zope.proxy`` must be rebuilt.
 
 4.0.1 (2012-11-21)
 ------------------

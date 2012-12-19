@@ -38,6 +38,11 @@ static PyObject *
 empty_tuple = NULL;
 
 
+#if PY_VERSION_HEX <  0x02070000
+  #define PyCapsule_New(pointer, name, destr) \
+          PyCObject_FromVoidPtr(pointer, destr)
+#endif
+
 // Compatibility with Python 2
 #if PY_MAJOR_VERSION < 3
   #define IS_STRING PyString_Check
@@ -52,9 +57,6 @@ empty_tuple = NULL;
 
   #define MOD_DEF(ob, name, doc, methods) \
           ob = Py_InitModule3(name, methods, doc);
-
-  #define PyCapsule_New(pointer, name, destr) \
-          PyCObject_FromVoidPtr(pointer, destr)
 
 #else
 

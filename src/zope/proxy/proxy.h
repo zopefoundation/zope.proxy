@@ -15,7 +15,6 @@ typedef struct {
     PyObject *(*getobject)(PyObject *proxy);
 } ProxyInterface;
 
-
 #ifndef PROXY_MODULE
 
 /* These are only defined in the public interface, and are not
@@ -33,9 +32,15 @@ Proxy_Import(void)
         if (m != NULL) {
             PyObject *tmp = PyObject_GetAttrString(m, "_CAPI");
             if (tmp != NULL) {
+#if PY_VERSION_HEX <  0x02070000
                 if (PyCObject_Check(tmp))
                     _proxy_api = (ProxyInterface *)
                         PyCObject_AsVoidPtr(tmp);
+#else
+                if (PyCapsule_CheckExact(tmp))
+                    _proxy_api = (ProxyInterface *)
+                        PyCapsule_GetPointer(tmp, NULL);
+#endif
                 Py_DECREF(tmp);
             }
         }
