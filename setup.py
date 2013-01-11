@@ -52,9 +52,9 @@ setup(name='zope.proxy',
       author_email='zope-dev@zope.org',
       description='Generic Transparent Proxies',
       long_description=(
-          read('README.txt')
+          read('README.rst')
           + '\n\n' +
-          read('CHANGES.txt')
+          read('CHANGES.rst')
           ),
       url='http://pypi.python.org/pypi/zope.proxy',
       license='ZPL 2.1',
