@@ -2,7 +2,7 @@
 CHANGES
 =======
 
-4.1.2 (unreleased)
+4.1.2 (2013-03-11)
 ------------------
 
 - Fixed ``PyProxyBase.__iter__()`` to return the result of
