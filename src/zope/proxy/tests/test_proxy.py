@@ -215,6 +215,20 @@ class PyProxyBaseTestCase(unittest.TestCase):
         w.foo = 1
         self.assertEqual(o.foo, 1)
 
+    def test___setattr__sets_proxy_property(self):
+        class Proxy(self._getTargetClass()):
+            bar = property(
+                lambda s: s.__dict__.get('_bar'),
+                lambda s, v: s.__dict__.__setitem__('_bar', v)
+                )
+        class Foo(object):
+            pass
+        o = Foo()
+        w = Proxy(o)
+        w.bar = 43
+        self.assertEqual(w.bar, 43)
+        self.assertRaises(AttributeError, getattr, o, 'bar')
+
     def test___delattr___wrapped(self):
         class Foo(object):
             pass
@@ -342,6 +356,19 @@ class PyProxyBaseTestCase(unittest.TestCase):
         self.assertEqual(a, b)
         t = tuple(self._makeOne(iter(a)))
         self.assertEqual(t, (1, 2, 3))
+
+    def test___iter___returns_self_if_defined(self):
+        # Return the wrapped object itself, if it is an iterator.
+        class MyIter(object):
+            def __iter__(self):
+                return self
+            def __next__(self):
+                return 42
+            next = __next__
+        myIter = MyIter()
+        p = self._makeOne(myIter)
+        self.assertEqual(iter(p), p)
+        self.assertTrue(isinstance(iter(p), MyIter))
 
     def test___iter___next_when_returned_by_iterable(self):
         # Wrap an iterator within the iteration protocol, expecting it

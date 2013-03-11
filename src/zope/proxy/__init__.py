@@ -115,7 +115,12 @@ class PyProxyBase(object):
     def __setattr__(self, name, value):
         if name == '_wrapped':
             return super(PyProxyBase, self).__setattr__(name, value)
-        setattr(self._wrapped, name, value)
+        try:
+            mine = super(PyProxyBase, self).__getattribute__(name)
+        except AttributeError:
+            return setattr(self._wrapped, name, value)
+        else:
+            return object.__setattr__(self, name, value)
 
     def __delattr__(self, name):
         if name == '_wrapped':
@@ -150,8 +155,8 @@ class PyProxyBase(object):
         del self._wrapped[key]
 
     def __iter__(self):
-        for item in self._wrapped:
-            yield item
+        # This handles a custom __iter__ and generator support at the same time.
+        return iter(self._wrapped)
 
     def next(self):
         # Called when we wrap an iterator itself.

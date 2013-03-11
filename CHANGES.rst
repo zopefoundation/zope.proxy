@@ -5,7 +5,13 @@ CHANGES
 4.1.2 (unreleased)
 ------------------
 
-- TBD
+- Fixed ``PyProxyBase.__iter__()`` to return the result of
+  ``PyProxyBase._wrapped.__iter__`` if available, otherwise fall back to
+  Python internals. The previous implementation always created a generator.
+
+- Fixed ``PyProxyBase.__setattr__()`` to allow setting of properties on the
+  proxy itself. This is needed to properly allow proxy extensions as was
+  evidenced int he ``zope.security.decorator`` module.
 
 4.1.1 (2012-12-31)
 ------------------
@@ -19,7 +25,7 @@ CHANGES
 
 - Replaced use of ``PyCObject`` APIs with equivalent ``PyCapsule`` APIs,
   except under Python 2.6.
-  
+
   N.B.  This change is an ABI incompatibility under Python 2.7:
         extensions built under Python 2.7 against 4.0.x versions of
         ``zope.proxy`` must be rebuilt.
@@ -37,7 +43,7 @@ CHANGES
   N.B.:  the C extension is *not* built under PyPy.
 
 - Added a pure-Python reference / fallback implementations of
-  ``zope.proxy.ProxyBase`` and the proxy module API functions.  
+  ``zope.proxy.ProxyBase`` and the proxy module API functions.
 
   N.B.:  the pure-Python proxy implements all regular features of
   ``ProxyBase``;  however, it does not exclude access to the wrapped object
