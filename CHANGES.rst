@@ -2,7 +2,7 @@
 CHANGES
 =======
 
-4.1.3 (unreleased)
+4.1.3 (2013-03-12)
 ------------------
 
 - Fixed interface object introspection in PyPy. For some reason PyPy made
