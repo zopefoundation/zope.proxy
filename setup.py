@@ -41,7 +41,8 @@ Cwrapper = Feature(
 # PyPy won't build the extension.
 py_impl = getattr(platform, 'python_implementation', lambda: None)
 is_pypy = py_impl() == 'PyPy'
-if is_pypy:
+is_pure = os.environ.get('PURE_PYTHON')
+if is_pypy or is_pure:
     features = {}
 else:
     features = {'Cwrapper': Cwrapper}
