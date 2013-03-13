@@ -18,6 +18,7 @@ import pickle
 import sys
 
 from zope.interface import moduleProvides
+from zope.proxy._compat import PYPY
 from zope.proxy.interfaces import IProxyIntrospection
 
 
@@ -99,8 +100,13 @@ class PyProxyBase(object):
             mine = super(PyProxyBase, self).__getattribute__(name)
         except AttributeError:
             mine = _MARKER
-        else:
-            if isinstance(mine, PyNonOverridable): #pragma NO COVER PyPy
+        else: #pragma NO COVER PyPy
+            # PyPy returns non-slot attributes for some reason, so we have to
+            # doctor things up a bit.
+            if (PYPY and
+                name in ('__providedBy__', '__provides__', '__implemented__')):
+                mine = _MARKER
+            elif isinstance(mine, PyNonOverridable):
                 return mine.desc.__get__(self)
         try:
             return getattr(wrapped, name)

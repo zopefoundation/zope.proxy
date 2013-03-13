@@ -581,6 +581,72 @@ class PyProxyBaseTestCase(unittest.TestCase):
         w = self._makeOne(o)
         self.assertTrue(w.__class__ is o.__class__)
 
+    def test_interface_implementedBy(self):
+        import zope.interface
+        class IFoo(zope.interface.Interface):
+            pass
+        @zope.interface.implementer(IFoo)
+        class Foo(object):
+            pass
+        FooProxy = self._makeOne(Foo)
+        self.assertTrue(IFoo in tuple(zope.interface.implementedBy(Foo)))
+        self.assertTrue(IFoo in tuple(zope.interface.implementedBy(FooProxy)))
+
+    def test_interface_providedBy(self):
+        import zope.interface
+        class IFoo(zope.interface.Interface):
+            pass
+        @zope.interface.implementer(IFoo)
+        class Foo(object):
+            pass
+        foo = Foo()
+        pfoo = self._makeOne(Foo)
+        self.assertTrue(IFoo in tuple(zope.interface.providedBy(foo)))
+        # So proxies (both C And Py) do not properly return provided interfaces.
+        self.assertEqual(tuple(zope.interface.providedBy(pfoo)), ())
+
+    def test_interface_providedBy_builtin(self):
+        import zope.interface
+        pdict = self._makeOne({})
+        self.assertEqual(
+            zope.interface.providedBy({}),
+            zope.interface.providedBy(pdict))
+
+    def test_adapter(self):
+        import zope.interface
+        class IFoo(zope.interface.Interface):
+            pass
+        class IBar(zope.interface.Interface):
+            pass
+        @zope.interface.implementer(IFoo)
+        class Foo(object):
+            pass
+        @zope.interface.implementer(IBar)
+        class Bar(object):
+            def __init__(self, foo):
+                self.foo = foo
+        from zope.interface.registry import Components
+        c = Components()
+        c.registerAdapter(Bar, (IFoo,), IBar)
+        foo = Foo()
+        pfoo = self._makeOne(foo)
+        self.assertEqual(c.getAdapter(foo, IBar).__class__, Bar)
+        self.assertEqual(c.getAdapter(pfoo, IBar).__class__, Bar)
+
+    def test_adapter_builtin(self):
+        import zope.interface
+        class IBar(zope.interface.Interface):
+            pass
+        @zope.interface.implementer(IBar)
+        class Bar(object):
+            def __init__(self, foo):
+                self.foo = foo
+        from zope.interface.registry import Components
+        c = Components()
+        c.registerAdapter(Bar, (dict,), IBar)
+        pdict = self._makeOne({})
+        self.assertEqual(c.getAdapter(pdict, IBar).__class__, Bar)
+
 
 class ProxyBaseTestCase(PyProxyBaseTestCase):
 

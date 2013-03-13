@@ -5,7 +5,10 @@ CHANGES
 4.1.3 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Fixed interface object introspection in PyPy. For some reason PyPy made
+  attributes available despite the restrictive ``__slots__`` declaration.
+
+- Added a bunch of tests surrounding interface lookup and adaptation.
 
 
 4.1.2 (2013-03-11)
