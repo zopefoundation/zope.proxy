@@ -108,6 +108,26 @@ class PyProxyBaseTestCase(unittest.TestCase):
         proxy = self._makeOne(_foo)
         self.assertTrue(unicode(proxy).startswith('<function _foo'))
 
+    def test___unicode__of_unicode(self):
+        from zope.proxy._compat import PY3
+        if PY3: # Gone in Python 3:
+            return
+        s = u'Hello, \u2603'
+        proxy = self._makeOne(s)
+        self.assertEqual(unicode(proxy), s)
+
+    def test___unicode__of_custom_class(self):
+        from zope.proxy._compat import PY3
+        if PY3: # Gone in Python 3:
+            return
+        class CustomClass(object):
+            def __unicode__(self):
+                return u'Hello, \u2603'
+        cc = CustomClass()
+        self.assertEqual(unicode(cc), u'Hello, \u2603')
+        proxy = self._makeOne(cc)
+        self.assertEqual(unicode(proxy), u'Hello, \u2603')
+
     def test___reduce___via_pickling(self):
         import pickle
         from zope.proxy._compat import PY3
