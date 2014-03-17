@@ -48,7 +48,7 @@ else:
     features = {'Cwrapper': Cwrapper}
 
 setup(name='zope.proxy',
-      version='4.1.3.dev0',
+      version='4.1.3dev',
       author='Zope Foundation and Contributors',
       author_email='zope-dev@zope.org',
       description='Generic Transparent Proxies',
@@ -70,6 +70,7 @@ setup(name='zope.proxy',
           'Programming Language :: Python :: 3',
           'Programming Language :: Python :: 3.2',
           'Programming Language :: Python :: 3.3',
+          'Programming Language :: Python :: 3.4',
           'Programming Language :: Python :: Implementation :: CPython',
           'Programming Language :: Python :: Implementation :: PyPy',
           "Framework :: Zope3",
