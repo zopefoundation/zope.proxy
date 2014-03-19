@@ -2,13 +2,20 @@
 CHANGES
 =======
 
-4.1.3 (2014-03-19)
+4.1.4 (unreleased)
 ------------------
 
 - Added support for Python 3.4.
 
-- Updated ``boostrap.py`` to version 2.2.
+- Updated ``bootstrap.py`` to version 2.2.
 
+4.1.3 (2013-03-12)
+------------------
+
+- Fixed interface object introspection in PyPy. For some reason PyPy made
+  attributes available despite the restrictive ``__slots__`` declaration.
+
+- Added a bunch of tests surrounding interface lookup and adaptation.
 
 4.1.2 (2013-03-11)
 ------------------
