@@ -2,7 +2,7 @@
 CHANGES
 =======
 
-4.1.3 (unreleased)
+4.1.3 (2014-03-19)
 ------------------
 
 - Added support for Python 3.4.
