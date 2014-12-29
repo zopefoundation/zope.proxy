@@ -1,6 +1,8 @@
-===========================
-Generic Transparent Proxies
-===========================
+``zope.proxy``
+==============
+
+.. image:: https://travis-ci.org/zopefoundation/zope.proxy.png?branch=master
+        :target: https://travis-ci.org/zopefoundation/zope.proxy
 
 Proxies are special objects which serve as mostly-transparent
 wrappers around another object, intervening in the apparent behavior of
