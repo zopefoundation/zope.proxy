@@ -1,8 +1,16 @@
 ``zope.proxy``
 ==============
 
+.. image:: https://pypip.in/version/zope.proxy/badge.svg?style=flat
+    :target: https://pypi.python.org/pypi/zope.proxy/
+    :alt: Latest Version
+
 .. image:: https://travis-ci.org/zopefoundation/zope.proxy.png?branch=master
         :target: https://travis-ci.org/zopefoundation/zope.proxy
+
+.. image:: https://readthedocs.org/projects/zopeproxy/badge/?version=latest
+        :target: http://zopeproxy.readthedocs.org/en/latest/
+        :alt: Documentation Status
 
 Proxies are special objects which serve as mostly-transparent
 wrappers around another object, intervening in the apparent behavior of
@@ -13,10 +21,3 @@ zope.proxy is implemented via a C extension module, which lets it do things
 like lie about its own ``__class__`` that are difficult in pure Python (and
 were completely impossible before metaclasses).  It also proxies all the
 internal slots (such as `__int__`/`__str__`/`__add__`).
-
-Editorial note:
-
-   Unfortunately, we don't have separate documentation for `zope.proxy`
-   at this time.  This is a shame because they are generically useful.
-   We are publishing this release without documentation mainly because
-   it is a dependency of other releases.
