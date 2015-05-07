@@ -642,6 +642,18 @@ class PyProxyBaseTestCase(unittest.TestCase):
         self.assertRaises(AttributeError, setattr, proxy, 'attr', 42)
         self.assertEqual(proxy.attr, "constant value")
 
+    def test_method_in_proxy_subclass(self):
+        class Proxy(self._getTargetClass()):
+            def __getitem__(self, k):
+                return k
+
+        proxy = Proxy(object())
+        # Both when called by the interpreter, which bypasses
+        # __getattribute__
+        self.assertEquals(proxy[42], 42)
+        # And when asked for as an attribute
+        self.assertNotEqual(getattr(proxy, '__getitem__'), self)
+
     def test_string_to_int(self):
         # XXX Implementation difference: This works in the
         # Pure-Python version, but fails in CPython.

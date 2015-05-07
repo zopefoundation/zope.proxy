@@ -117,13 +117,17 @@ class PyProxyBase(object):
             # __class__ is special cased in the C implementation
             return wrapped.__class__
 
+        if name in ('__reduce__', '__reduce_ex__'):
+            # These things we specifically override and no one
+            # can stop us, not even a subclass
+            return object.__getattribute__(self, name)
+
         # First, look for descriptors in this object's type
         type_self = type(self)
         descriptor = _WrapperType_Lookup(type_self, name)
         if descriptor is _MARKER:
             # Nothing in the class, go straight to the wrapped object
             return getattr(wrapped, name)
-
 
         if hasattr(descriptor, '__get__'):
             if not hasattr(descriptor, '__set__'):
@@ -132,7 +136,7 @@ class PyProxyBase(object):
                 try:
                     return getattr(wrapped, name)
                 except AttributeError:
-                    raise
+                    pass
             # Data-descriptor on this type. Call it
             return descriptor.__get__(self, type_self)
         return descriptor
