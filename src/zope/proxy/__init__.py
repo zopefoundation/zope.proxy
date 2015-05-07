@@ -456,6 +456,11 @@ if 'PURE_PYTHON' not in os.environ:
     except ImportError: #pragma NO COVER
         pass
 
+class PyNonOverridable(object):
+    "Deprecated, only for BWC."
+    def __init__(self, method_desc): #pragma NO COVER PyPy
+        self.desc = method_desc
+
 if _c_available:
     # Python API:  not used in this module
     from zope.proxy._zope_proxy_proxy import ProxyBase
