@@ -418,7 +418,7 @@ class PyProxyBaseTestCase(unittest.TestCase):
             "complex(x)",
         ]
         if not PY3: # long is gone in Python 3
-            ops.append("long(x)") 
+            ops.append("long(x)")
         return ops
 
     def test_unops(self):
@@ -581,13 +581,84 @@ class PyProxyBaseTestCase(unittest.TestCase):
         w = self._makeOne(o)
         self.assertTrue(w.__class__ is o.__class__)
 
+    def test_descriptor__set___only_in_proxy_subclass(self):
+
+        class Descriptor(object):
+            value = None
+            instance = None
+            def __set__(self, instance, value):
+                self.value = value
+                self.instance = instance
+
+        descriptor = Descriptor()
+        class Proxy(self._getTargetClass()):
+            attr = descriptor
+
+        proxy = Proxy(object())
+        proxy.attr = 42
+
+        self.assertEqual(proxy.attr, descriptor)
+        self.assertEqual(descriptor.value, 42)
+        self.assertEqual(descriptor.instance, proxy)
+
+    def test_descriptor__get___set___in_proxy_subclass(self):
+
+        class Descriptor(object):
+            value = None
+            instance = None
+            cls = None
+
+            def __get__(self, instance, cls):
+                self.cls = cls
+                return self.value
+
+            def __set__(self, instance, value):
+                self.value = value
+                self.instance = instance
+
+        descriptor = Descriptor()
+        descriptor.value = "descriptor value"
+        class Proxy(self._getTargetClass()):
+            attr = descriptor
+
+        proxy = Proxy(object())
+        self.assertEqual(proxy.attr, "descriptor value")
+        self.assertEqual(descriptor.cls, Proxy)
+
+        proxy.attr = 42
+
+        self.assertEqual(descriptor.value, 42)
+        self.assertEqual(descriptor.instance, proxy)
+
+    def test_non_descriptor_in_proxy_subclass__dict__(self):
+        # Non-descriptors in the class dict of the subclass
+        # are always passed through to the wrapped instance
+        class Proxy(self._getTargetClass()):
+            attr = "constant value"
+
+        proxy = Proxy(object())
+        self.assertEqual(proxy.attr, "constant value")
+
+        self.assertRaises(AttributeError, setattr, proxy, 'attr', 42)
+        self.assertEqual(proxy.attr, "constant value")
+
+    def test_string_to_int(self):
+        # XXX Implementation difference: This works in the
+        # Pure-Python version, but fails in CPython.
+        # See https://github.com/zopefoundation/zope.proxy/issues/4
+        proxy = self._makeOne("14")
+        try:
+            self.assertEqual(14, int(proxy))
+        except TypeError:
+            from zope.proxy import PyProxyBase
+            self.assertNotEqual(self._getTargetClass, PyProxyBase)
+
 
 class ProxyBaseTestCase(PyProxyBaseTestCase):
 
     def _getTargetClass(self):
         from zope.proxy import ProxyBase
         return ProxyBase
-
 
 class Test_py_getProxiedObject(unittest.TestCase):
 
@@ -619,7 +690,6 @@ class Test_py_getProxiedObject(unittest.TestCase):
         proxy = self._makeProxy(c)
         proxy2 = self._makeProxy(proxy)
         self.assertTrue(self._callFUT(proxy2) is proxy)
-
 
 class Test_getProxiedObject(Test_py_getProxiedObject):
 

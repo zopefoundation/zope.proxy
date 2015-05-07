@@ -4,7 +4,9 @@ Changes
 4.1.5 (unreleased)
 ------------------
 
-- TBD
+- The pure Python implementation handles descriptors defined in
+  subclasses like the C version. See
+  https://github.com/zopefoundation/zope.proxy/issues/5.
 
 4.1.4 (2014-03-19)
 ------------------

@@ -14,6 +14,7 @@
 """More convenience functions for dealing with proxies.
 """
 import operator
+import os
 import pickle
 import sys
 
@@ -32,6 +33,22 @@ def ProxyIterator(p):
 
 
 _MARKER = object()
+
+def _WrapperType_Lookup(type_, name):
+    """
+    Looks up information in class dictionaries in MRO
+    order, ignoring the proxy type itself.
+
+    Returns the first found object, or _MARKER
+    """
+
+    for base in type_.mro():
+        if base is PyProxyBase:
+            continue
+        res = base.__dict__.get(name, _MARKER)
+        if res is not _MARKER:
+            return res
+    return _MARKER
 
 class PyProxyBase(object):
     """Reference implementation.
@@ -95,19 +112,30 @@ class PyProxyBase(object):
         wrapped = super(PyProxyBase, self).__getattribute__('_wrapped')
         if name == '_wrapped':
             return wrapped
-        try:
-            mine = super(PyProxyBase, self).__getattribute__(name)
-        except AttributeError:
-            mine = _MARKER
-        else:
-            if isinstance(mine, PyNonOverridable): #pragma NO COVER PyPy
-                return mine.desc.__get__(self)
-        try:
+
+        if name == '__class__':
+            # __class__ is special cased in the C implementation
+            return wrapped.__class__
+
+        # First, look for descriptors in this object's type
+        type_self = type(self)
+        descriptor = _WrapperType_Lookup(type_self, name)
+        if descriptor is _MARKER:
+            # Nothing in the class, go straight to the wrapped object
             return getattr(wrapped, name)
-        except AttributeError:
-            if mine is not _MARKER:
-                return mine
-            raise
+
+
+        if hasattr(descriptor, '__get__'):
+            if not hasattr(descriptor, '__set__'):
+                # Non-data-descriptor: call through to the wrapped object
+                # to see if it's there
+                try:
+                    return getattr(wrapped, name)
+                except AttributeError:
+                    raise
+            # Data-descriptor on this type. Call it
+            return descriptor.__get__(self, type_self)
+        return descriptor
 
     def __getattr__(self, name):
         return getattr(self._wrapped, name)
@@ -115,12 +143,16 @@ class PyProxyBase(object):
     def __setattr__(self, name, value):
         if name == '_wrapped':
             return super(PyProxyBase, self).__setattr__(name, value)
-        try:
-            mine = super(PyProxyBase, self).__getattribute__(name)
-        except AttributeError:
+
+        # First, look for descriptors in this object's type
+        type_self = type(self)
+        descriptor = _WrapperType_Lookup(type_self, name)
+        if descriptor is _MARKER or not hasattr(descriptor, '__set__'):
+            # Nothing in the class that's a descriptor,
+            # go straight to the wrapped object
             return setattr(self._wrapped, name, value)
-        else:
-            return object.__setattr__(self, name, value)
+
+        return object.__setattr__(self, name, value)
 
     def __delattr__(self, name):
         if name == '_wrapped':
@@ -417,11 +449,14 @@ def py_removeAllProxies(obj):
         obj = obj._wrapped
     return obj
 
-class PyNonOverridable(object):
-    def __init__(self, method_desc): #pragma NO COVER PyPy
-        self.desc = method_desc
+_c_available = False
+if 'PURE_PYTHON' not in os.environ:
+    try:
+        from zope.proxy._zope_proxy_proxy import ProxyBase as _c_available
+    except ImportError: #pragma NO COVER
+        pass
 
-try:
+if _c_available:
     # Python API:  not used in this module
     from zope.proxy._zope_proxy_proxy import ProxyBase
     from zope.proxy._zope_proxy_proxy import getProxiedObject
@@ -434,7 +469,8 @@ try:
 
     # API for proxy-using C extensions.
     from zope.proxy._zope_proxy_proxy import _CAPI
-except ImportError: #pragma NO COVER
+
+else: #pragma NO COVER
     # no C extension available, fall back
     ProxyBase = PyProxyBase
     getProxiedObject = py_getProxiedObject
@@ -444,7 +480,6 @@ except ImportError: #pragma NO COVER
     queryProxy = py_queryProxy
     queryInnerProxy = py_queryInnerProxy
     removeAllProxies = py_removeAllProxies
-    non_overridable = PyNonOverridable
-else:
-    def non_overridable(func):
-        return property(lambda self: func.__get__(self))
+
+def non_overridable(func):
+    return property(lambda self: func.__get__(self))
