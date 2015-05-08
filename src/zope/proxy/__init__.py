@@ -43,20 +43,36 @@ def _WrapperType_Lookup(type_, name):
     """
 
     for base in type_.mro():
-        if base is PyProxyBase:
+        if base is AbstractPyProxyBase:
             continue
         res = base.__dict__.get(name, _MARKER)
         if res is not _MARKER:
             return res
     return _MARKER
 
-class PyProxyBase(object):
-    """Reference implementation.
+def _get_wrapped(self):
     """
-    __slots__ = ('_wrapped', )
+    Helper method to access the wrapped object.
+    """
+    return super(AbstractPyProxyBase, self).__getattribute__('_wrapped')
 
-    def __new__(cls, value):
-        inst = super(PyProxyBase, cls).__new__(cls)
+class AbstractPyProxyBase(object):
+    """
+    A reference implementation that cannot be instantiated. Most users
+    will want to use :class:`PyProxyBase`.
+
+    This type is intended to be used in multiple-inheritance
+    scenarios, where another super class already has defined
+    ``__slots__``. In order to subclass both that class and this
+    class, you must include the ``_wrapped`` value in your own
+    ``__slots__`` definition (or else you will get the infamous
+    TypeError: "multiple bases have instance lay-out conflicts")
+    """
+    __slots__ = ()
+
+    def __new__(cls, value=None):
+        # Some subclasses (zope.security.proxy) fail to pass the object
+        inst = super(AbstractPyProxyBase, cls).__new__(cls)
         inst._wrapped = value
         return inst
 
@@ -109,13 +125,15 @@ class PyProxyBase(object):
 
     # Attribute protocol
     def __getattribute__(self, name):
-        wrapped = super(PyProxyBase, self).__getattribute__('_wrapped')
+        # Try to avoid accessing the _wrapped value until we need to.
+        # We don't know how subclasses may be storing it
+        # (e.g., persistent subclasses)
         if name == '_wrapped':
-            return wrapped
+            return _get_wrapped(self)
 
         if name == '__class__':
             # __class__ is special cased in the C implementation
-            return wrapped.__class__
+            return _get_wrapped(self).__class__
 
         if name in ('__reduce__', '__reduce_ex__'):
             # These things we specifically override and no one
@@ -127,14 +145,14 @@ class PyProxyBase(object):
         descriptor = _WrapperType_Lookup(type_self, name)
         if descriptor is _MARKER:
             # Nothing in the class, go straight to the wrapped object
-            return getattr(wrapped, name)
+            return getattr(_get_wrapped(self), name)
 
         if hasattr(descriptor, '__get__'):
             if not hasattr(descriptor, '__set__'):
                 # Non-data-descriptor: call through to the wrapped object
                 # to see if it's there
                 try:
-                    return getattr(wrapped, name)
+                    return getattr(_get_wrapped(self), name)
                 except AttributeError:
                     pass
             # Data-descriptor on this type. Call it
@@ -146,7 +164,7 @@ class PyProxyBase(object):
 
     def __setattr__(self, name, value):
         if name == '_wrapped':
-            return super(PyProxyBase, self).__setattr__(name, value)
+            return super(AbstractPyProxyBase, self).__setattr__(name, value)
 
         # First, look for descriptors in this object's type
         type_self = type(self)
@@ -403,6 +421,12 @@ class PyProxyBase(object):
             # There is no syntax which triggers in-place pow w/ modulus
             self._wrapped = pow(self._wrapped, other, modulus)
         return self
+
+class PyProxyBase(AbstractPyProxyBase):
+    """Reference implementation.
+    """
+    __slots__ = ('_wrapped', )
+
 
 def py_getProxiedObject(obj):
     if isinstance(obj, PyProxyBase):

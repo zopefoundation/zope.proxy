@@ -650,7 +650,7 @@ class PyProxyBaseTestCase(unittest.TestCase):
         proxy = Proxy(object())
         # Both when called by the interpreter, which bypasses
         # __getattribute__
-        self.assertEquals(proxy[42], 42)
+        self.assertEqual(proxy[42], 42)
         # And when asked for as an attribute
         self.assertNotEqual(getattr(proxy, '__getitem__'), self)
 
