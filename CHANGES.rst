@@ -1,7 +1,7 @@
 Changes
 =======
 
-4.1.5 (unreleased)
+4.1.5 (2015-05-19)
 ------------------
 
 - Made the C implementation proxy ``__unicode__`` correctly.
