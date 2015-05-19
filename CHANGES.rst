@@ -4,7 +4,12 @@ Changes
 4.1.5 (unreleased)
 ------------------
 
-- The pure Python implementation handles descriptors defined in
+- Made the C implementation proxy ``__unicode__`` correctly.
+
+- Made the C implementation use the standard methods to proxy ``int`` and
+  ``float``.
+
+- Made the pure Python implementation handle descriptors defined in
   subclasses like the C version. See
   https://github.com/zopefoundation/zope.proxy/issues/5.
 
