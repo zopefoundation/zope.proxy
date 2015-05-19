@@ -420,26 +420,18 @@ wrap_call(PyObject *self, PyObject *args, PyObject *kw)
 static PyObject *
 call_int(PyObject *self)
 {
-    PyNumberMethods *nb = self->ob_type->tp_as_number;
-    if (nb == NULL || nb->nb_int == NULL) {
-        PyErr_SetString(PyExc_TypeError,
-                        "object can't be converted to int");
-        return NULL;
-    }
-    return nb->nb_int(self);
+#if PY_MAJOR_VERSION < 3
+    return PyNumber_Int(self);
+#else
+    return PyNumber_Long(self);
+#endif
 }
 
 #if PY_MAJOR_VERSION < 3 // Python 3 has no long, oct or hex methods.
 static PyObject *
 call_long(PyObject *self)
 {
-    PyNumberMethods *nb = self->ob_type->tp_as_number;
-    if (nb == NULL || nb->nb_long == NULL) {
-        PyErr_SetString(PyExc_TypeError,
-                        "object can't be converted to long");
-        return NULL;
-    }
-    return nb->nb_long(self);
+    return PyNumber_Long(self);
 }
 
 static PyObject *
@@ -471,25 +463,13 @@ call_hex(PyObject *self)
 static PyObject *
 call_index(PyObject *self)
 {
-    PyNumberMethods *nb = self->ob_type->tp_as_number;
-    if (nb == NULL || nb->nb_index == NULL) {
-        PyErr_SetString(PyExc_TypeError,
-                        "object can't be converted to index");
-        return NULL;
-    }
-    return nb->nb_index(self);
+    return PyNumber_Index(self);
 }
 
 static PyObject *
 call_float(PyObject *self)
 {
-    PyNumberMethods *nb = self->ob_type->tp_as_number;
-    if (nb == NULL || nb->nb_float== NULL) {
-        PyErr_SetString(PyExc_TypeError,
-                        "object can't be converted to float");
-        return NULL;
-    }
-    return nb->nb_float(self);
+   return PyNumber_Float(self);
 }
 
 static PyObject *
@@ -498,6 +478,15 @@ call_ipow(PyObject *self, PyObject *other)
     /* PyNumber_InPlacePower has three args.  How silly. :-) */
     return PyNumber_InPlacePower(self, other, Py_None);
 }
+
+#if PY_MAJOR_VERSION < 3
+static PyObject *
+call_unicode(PyObject *self)
+{
+    return PyObject_Unicode(self);
+}
+#endif
+
 
 typedef PyObject *(*function1)(PyObject *);
 
@@ -691,6 +680,10 @@ INPLACE(floordiv, PyNumber_InPlaceFloorDivide)
 INPLACE(truediv, PyNumber_InPlaceTrueDivide)
 UNOP(index, call_index)
 
+#if PY_MAJOR_VERSION < 3 // Python 3 has no __unicode__ method
+UNOP(unicode, call_unicode)
+#endif
+
 static int
 wrap_nonzero(PyObject *self)
 {
@@ -874,6 +867,9 @@ wrap_as_mapping = {
 static PyMethodDef
 wrap_methods[] = {
     {"__reduce__", (PyCFunction)wrap_reduce, METH_NOARGS, reduce__doc__},
+#if PY_MAJOR_VERSION < 3
+    {"__unicode__", (PyCFunction)wrap_unicode, METH_NOARGS, "" },
+#endif
     {NULL, NULL},
 };
 

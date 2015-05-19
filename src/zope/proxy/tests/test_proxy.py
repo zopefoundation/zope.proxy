@@ -75,6 +75,70 @@ class PyProxyBaseTestCase(unittest.TestCase):
         proxy = MyProxy3('notused')
         self.assertEqual(list(proxy), list('another'))
 
+    def test_string_to_int(self):
+        # Strings don't have the tp_number.tp_int pointer
+        proxy = self._makeOne("14")
+        self.assertEqual(14, int(proxy))
+
+    def test_custom_int_to_int(self):
+        class CustomClass(object):
+            def __int__(self):
+                return 42
+        proxy = self._makeOne(CustomClass())
+        self.assertEqual(42, int(proxy))
+
+    def test_string_to_float(self):
+        proxy = self._makeOne("14")
+        self.assertEqual(float("14"), float(proxy))
+
+    def test_incorrect_string_to_int(self):
+        proxy = self._makeOne("")
+        self.assertRaises(ValueError, int, proxy)
+
+    def test_incorrect_string_to_float(self):
+        proxy = self._makeOne("")
+        self.assertRaises(ValueError, float, proxy)
+
+    def test_custom_float_to_float(self):
+        class CustomClass(object):
+            def __float__(self):
+                return 42.0
+        proxy = self._makeOne(CustomClass())
+        self.assertEqual(42.0, float(proxy))
+
+    def test___unicode__of_unicode(self):
+        from zope.proxy._compat import PY3, _u
+        if PY3: # Gone in Python 3:
+            return
+        s = _u('Hello, \u2603')
+        proxy = self._makeOne(s)
+        self.assertEqual(unicode(proxy), s)
+
+    def test___unicode__of_custom_class(self):
+        from zope.proxy._compat import PY3, _u
+        if PY3: # Gone in Python 3:
+            return
+        class CustomClass(object):
+            def __unicode__(self):
+                return _u('Hello, \u2603')
+        cc = CustomClass()
+        self.assertEqual(unicode(cc), _u('Hello, \u2603'))
+        proxy = self._makeOne(cc)
+        self.assertEqual(unicode(proxy), _u('Hello, \u2603'))
+
+    def test___unicode__of_custom_class_no_unicode(self):
+        # The default behaviour should be preserved
+        from zope.proxy._compat import PY3, _u
+        if PY3: # Gone in Python 3:
+            return
+        class CustomClass(object):
+            pass
+        cc = CustomClass()
+        cc_unicode = unicode(cc)
+        self.assertEqual(type(cc_unicode), unicode)
+        proxy = self._makeOne(cc)
+        self.assertEqual(unicode(proxy), cc_unicode)
+
     def test___call__(self):
         def _foo():
             return 'FOO'
