@@ -135,6 +135,30 @@ class SpecificationDecoratorBaseTests(unittest.TestCase):
         proxy = self._makeOne(foo)
         self.assertEqual(list(providedBy(proxy)), list(providedBy(foo)))
 
+    def test_proxy_that_provides_interface_as_well_as_wrapped(self):
+        # If both the wrapper and the wrapped object provide
+        # interfaces, the wrapper provides the sum
+        from zope.interface import Interface
+        from zope.interface import implementer
+        from zope.interface import providedBy
+        class IFoo(Interface):
+            pass
+        @implementer(IFoo)
+        class Foo(object):
+            from_foo = 1
+
+        class IWrapper(Interface):
+            pass
+        @implementer(IWrapper)
+        class Proxy(self._getTargetClass()):
+            pass
+
+        foo = Foo()
+        proxy = Proxy(foo)
+
+        self.assertEqual(proxy.from_foo, 1)
+        self.assertEqual(list(providedBy(proxy)), [IFoo,IWrapper])
+
 
 def test_suite():
     return unittest.TestSuite((
