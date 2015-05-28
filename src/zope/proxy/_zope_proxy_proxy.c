@@ -274,7 +274,9 @@ wrap_getattro(PyObject *self, PyObject *name)
 
     maybe_special_name = name_as_string[0] == '_' && name_as_string[1] == '_';
 
-    if (!(maybe_special_name && strcmp(name_as_string, "__class__") == 0)) {
+    if (!(maybe_special_name
+          && (strcmp(name_as_string, "__class__") == 0
+              || strcmp(name_as_string, "__module__") == 0))) {
 
         descriptor = WrapperType_Lookup(self->ob_type, name);
 

@@ -131,9 +131,11 @@ class AbstractPyProxyBase(object):
         if name == '_wrapped':
             return _get_wrapped(self)
 
-        if name == '__class__':
-            # __class__ is special cased in the C implementation
-            return _get_wrapped(self).__class__
+        if name in ('__class__', '__module__'):
+            # __class__ and __module__ are special cased in the C
+            # implementation, because we will always find them on the
+            # type of this object if we are being subclassed
+            return getattr(_get_wrapped(self), name)
 
         if name in ('__reduce__', '__reduce_ex__'):
             # These things we specifically override and no one

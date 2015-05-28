@@ -4,7 +4,8 @@ Changes
 4.1.6 (unreleased)
 ------------------
 
-- TBD
+- Made subclasses of ProxyBase properly delegate ``__module__`` to the
+  wrapped object.
 
 4.1.5 (2015-05-19)
 ------------------

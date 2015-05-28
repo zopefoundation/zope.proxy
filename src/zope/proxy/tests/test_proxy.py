@@ -729,12 +729,94 @@ class PyProxyBaseTestCase(unittest.TestCase):
             from zope.proxy import PyProxyBase
             self.assertNotEqual(self._getTargetClass, PyProxyBase)
 
-
 class ProxyBaseTestCase(PyProxyBaseTestCase):
 
     def _getTargetClass(self):
         from zope.proxy import ProxyBase
         return ProxyBase
+
+class Test_py__module(unittest.TestCase):
+    # Historically, proxying __module__ has been troublesome,
+    # especially when subclasses of the proxy class are involved;
+    # there was also a discrepancy between the C and Python implementations
+    # in that the C implementation only failed Test_subclass__module:test__module__in_instance,
+    # whereas the Python version failed every test.
+    # See https://github.com/zopefoundation/zopetoolkit/pull/2#issuecomment-106075153
+    # and https://github.com/zopefoundation/zope.proxy/pull/8
+
+    def _getTargetClass(self):
+        from zope.proxy import PyProxyBase
+        return PyProxyBase
+
+    def _makeProxy(self, obj):
+        from zope.proxy import PyProxyBase
+        return self._getTargetClass()(obj)
+
+    def _check_module(self, obj, expected):
+        self.assertEqual(expected, obj.__module__)
+        self.assertEqual(expected, self._makeProxy(obj).__module__)
+
+    def test__module__in_instance(self):
+        # We can find __module__ in an instance dict
+        class Module(object):
+            def __init__(self):
+                self.__module__ = 'module'
+
+        self._check_module(Module(), 'module')
+
+    def test__module__in_class_instance(self):
+        # We can find module in an instance of a class
+        class Module(object):
+            pass
+
+        self._check_module(Module(), __name__)
+
+    def test__module__in_class(self):
+        # We can find module in a class itself
+        class Module(object):
+            pass
+        self._check_module(Module, __name__)
+
+    def test__module_in_eq_transitive(self):
+        # An object that uses __module__ in its implementation
+        # of __eq__ is transitively equal to a proxy of itself.
+        # Seen with zope.interface.interface.Interface
+
+        class Module(object):
+            def __init__(self):
+                self.__module__ = __name__
+            def __eq__(self, other):
+                return self.__module__ == other.__module__
+
+        module = Module()
+        # Sanity checks
+        self.assertEqual(module, module)
+        self.assertEqual(module.__module__, __name__)
+
+        # transitive equal
+        self.assertEqual(module, self._makeProxy(module))
+        self.assertEqual(self._makeProxy(module), module)
+
+class Test__module(Test_py__module):
+
+    def _getTargetClass(self):
+        from zope.proxy import ProxyBase
+        return ProxyBase
+
+class Test_py_subclass__module(Test_py__module):
+
+    def _getTargetClass(self):
+        class ProxySubclass(super(Test_py_subclass__module,self)._getTargetClass()):
+            pass
+        return ProxySubclass
+
+class Test_subclass__module(Test__module):
+
+    def _getTargetClass(self):
+        class ProxySubclass(super(Test_subclass__module,self)._getTargetClass()):
+            pass
+        return ProxySubclass
+
 
 class Test_py_getProxiedObject(unittest.TestCase):
 
@@ -1270,4 +1352,8 @@ def test_suite():
         unittest.makeSuite(Test_removeAllProxies),
         unittest.makeSuite(Test_ProxyIterator),
         unittest.makeSuite(Test_nonOverridable),
+        unittest.makeSuite(Test_py__module),
+        unittest.makeSuite(Test__module),
+        unittest.makeSuite(Test_py_subclass__module),
+        unittest.makeSuite(Test_subclass__module),
     ))
