@@ -21,7 +21,6 @@ import sys
 from zope.interface import moduleProvides
 from zope.proxy.interfaces import IProxyIntrospection
 
-
 moduleProvides(IProxyIntrospection)
 __all__ = tuple(IProxyIntrospection)
 
@@ -55,6 +54,35 @@ def _get_wrapped(self):
     Helper method to access the wrapped object.
     """
     return super(AbstractPyProxyBase, self).__getattribute__('_wrapped')
+
+class _EmptyInterfaceDescriptor(object):
+    """A descriptor for the attributes used on the class by the
+    Python implementation of `zope.interface`.
+
+    When wrapping builtin types, these descriptors prevent the objects
+    we find in the AbstractPyProxyBase from being used.
+    """
+
+    def __get__(self, inst, klass):
+        raise AttributeError()
+
+    def __set__(self, inst, value):
+        raise TypeError()
+
+    def __delete__(self, inst):
+        pass
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        raise StopIteration()
+    next = __next__
+
+class _ProxyMetaclass(type):
+    # The metaclass is applied after the class definition
+    # for Py2/Py3 compatibility.
+    __implemented__ = _EmptyInterfaceDescriptor()
 
 class AbstractPyProxyBase(object):
     """
@@ -423,6 +451,9 @@ class AbstractPyProxyBase(object):
             # There is no syntax which triggers in-place pow w/ modulus
             self._wrapped = pow(self._wrapped, other, modulus)
         return self
+
+AbstractPyProxyBase = _ProxyMetaclass(str('AbstractPyProxyBase'), (),
+                                      dict(AbstractPyProxyBase.__dict__))
 
 class PyProxyBase(AbstractPyProxyBase):
     """Reference implementation.

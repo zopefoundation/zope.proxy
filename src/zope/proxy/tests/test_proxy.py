@@ -706,6 +706,53 @@ class PyProxyBaseTestCase(unittest.TestCase):
         self.assertRaises(AttributeError, setattr, proxy, 'attr', 42)
         self.assertEqual(proxy.attr, "constant value")
 
+    def _check_wrapping_builtin_returns_correct_provided_by(self, proxy_class, builtin_type):
+        # We get the __implemented__ (fallback) of the type, not our own
+        from zope.interface import Interface
+        from zope.interface import classImplements
+        from zope.interface import classImplementsOnly
+        from zope.interface import implementedBy
+        from zope.interface import providedBy
+        from zope.interface import implementedBy
+
+        # Set up the builtin interface
+        class IFoo(Interface):
+            pass
+        impl_before = list(implementedBy(builtin_type))
+        classImplements(builtin_type, IFoo)
+
+        builtin = builtin_type()
+        self.assertTrue(IFoo in list(providedBy(builtin)))
+
+        try:
+            proxy_instance = proxy_class(builtin)
+            provided_instance = providedBy(proxy_instance)
+            proxy_type = proxy_class(builtin_type)
+            provided_type = implementedBy(proxy_type)
+            # The asserts must be before we remove the interface
+            # because there's a single object that gets mutated
+            self.assertTrue(IFoo in list(provided_instance))
+            self.assertTrue(IFoo in list(provided_type))
+        finally:
+            classImplementsOnly(builtin_type, *impl_before)
+
+    def test_wrapping_builtin_type_returns_correct_provided_by(self):
+        self._check_wrapping_builtin_returns_correct_provided_by(self._getTargetClass(), list)
+
+    def _check_wrapping_builtin_with_subclass_returns_correct_provided_by(self, builtin_type):
+        class Proxy(self._getTargetClass()):
+            pass
+
+        self._check_wrapping_builtin_returns_correct_provided_by(Proxy, builtin_type)
+        # Our new class did not gain an __implemented__ attribute, unless we're
+        # the pure-python version
+        if hasattr(Proxy, '__implemented__'):
+            from zope.proxy import PyProxyBase
+            self.assertTrue(self._getTargetClass() is PyProxyBase)
+
+    def test_wrapping_builtin_with_subclass_returns_correct_provided_by(self):
+        self._check_wrapping_builtin_with_subclass_returns_correct_provided_by(list)
+
     def test_method_in_proxy_subclass(self):
         class Proxy(self._getTargetClass()):
             def __getitem__(self, k):
@@ -727,7 +774,7 @@ class PyProxyBaseTestCase(unittest.TestCase):
             self.assertEqual(14, int(proxy))
         except TypeError:
             from zope.proxy import PyProxyBase
-            self.assertNotEqual(self._getTargetClass, PyProxyBase)
+            self.assertNotEqual(self._getTargetClass(), PyProxyBase)
 
 class ProxyBaseTestCase(PyProxyBaseTestCase):
 

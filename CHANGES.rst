@@ -5,7 +5,11 @@ Changes
 ------------------
 
 - Made subclasses of ProxyBase properly delegate ``__module__`` to the
-  wrapped object.
+  wrapped object. This fixes some ``zope.interface`` lookups under
+  PyPy.
+- Made the pure-Python implementation of ProxyBase properly report the
+  ``zope.interface`` interfaces implemented by builtin types like
+  ``list``. This fixes some ``zope.interface`` lookups under PyPy.
 
 4.1.5 (2015-05-19)
 ------------------
