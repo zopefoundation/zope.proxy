@@ -719,20 +719,34 @@ class PyProxyBaseTestCase(unittest.TestCase):
         class IFoo(Interface):
             pass
         impl_before = list(implementedBy(builtin_type))
+
         classImplements(builtin_type, IFoo)
 
         builtin = builtin_type()
         self.assertTrue(IFoo in list(providedBy(builtin)))
+        self.assertTrue(IFoo in list(implementedBy(builtin_type)))
 
         try:
-            proxy_instance = proxy_class(builtin)
-            provided_instance = providedBy(proxy_instance)
-            proxy_type = proxy_class(builtin_type)
-            provided_type = implementedBy(proxy_type)
             # The asserts must be before we remove the interface
             # because there's a single object that gets mutated
+
+            proxy_instance = proxy_class(builtin)
+            provided_instance = providedBy(proxy_instance)
             self.assertTrue(IFoo in list(provided_instance))
-            self.assertTrue(IFoo in list(provided_type))
+
+            # XXX: PyPy 2.5.0 has a bug where proxys around types
+            # aren't correctly hashable, which breaks this part of the
+            # test. This is fixed in 2.5.1, but as of 2015-05-28,
+            # TravisCI still uses 2.5.0.
+            proxy_type = proxy_class(builtin_type)
+            from zope.interface.declarations import BuiltinImplementationSpecifications
+            if proxy_type in BuiltinImplementationSpecifications \
+               and BuiltinImplementationSpecifications.get(proxy_type, self) is not self:
+                provided_type = implementedBy(proxy_type)
+                self.assertTrue(IFoo in list(provided_type))
+            else:
+                import sys
+                self.assertEqual((2,5,0), sys.pypy_version_info[:3])
         finally:
             classImplementsOnly(builtin_type, *impl_before)
 
