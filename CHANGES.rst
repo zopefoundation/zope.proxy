@@ -1,7 +1,7 @@
 Changes
 =======
 
-4.1.6 (unreleased)
+4.1.6 (2015-06-02)
 ------------------
 
 - Make subclasses of ProxyBase properly delegate ``__module__`` to the
