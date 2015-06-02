@@ -4,48 +4,49 @@ Changes
 4.1.6 (unreleased)
 ------------------
 
-- Made subclasses of ProxyBase properly delegate ``__module__`` to the
+- Make subclasses of ProxyBase properly delegate ``__module__`` to the
   wrapped object. This fixes some ``zope.interface`` lookups under
   PyPy.
-- Made the pure-Python implementation of ProxyBase properly report the
+
+- Make the pure-Python implementation of ProxyBase properly report the
   ``zope.interface`` interfaces implemented by builtin types like
   ``list``. This fixes some ``zope.interface`` lookups under PyPy.
 
 4.1.5 (2015-05-19)
 ------------------
 
-- Made the C implementation proxy ``__unicode__`` correctly.
+- Make the C implementation proxy ``__unicode__`` correctly.
 
-- Made the C implementation use the standard methods to proxy ``int`` and
+- Make the C implementation use the standard methods to proxy ``int`` and
   ``float``.
 
-- Made the pure Python implementation handle descriptors defined in
+- Make the pure Python implementation handle descriptors defined in
   subclasses like the C version. See
   https://github.com/zopefoundation/zope.proxy/issues/5.
 
 4.1.4 (2014-03-19)
 ------------------
 
-- Added support for Python 3.4.
+- Add support for Python 3.4.
 
-- Updated ``bootstrap.py`` to version 2.2.
+- Update ``bootstrap.py`` to version 2.2.
 
 4.1.3 (2013-03-12)
 ------------------
 
-- Fixed interface object introspection in PyPy. For some reason PyPy made
+- Fixed interface object introspection in PyPy. For some reason PyPy makes
   attributes available despite the restrictive ``__slots__`` declaration.
 
-- Added a bunch of tests surrounding interface lookup and adaptation.
+- Add a bunch of tests surrounding interface lookup and adaptation.
 
 4.1.2 (2013-03-11)
 ------------------
 
-- Fixed ``PyProxyBase.__iter__()`` to return the result of
-  ``PyProxyBase._wrapped.__iter__`` if available, otherwise fall back to
+- Make ``PyProxyBase.__iter__()`` return the result of
+  ``PyProxyBase._wrapped.__iter__`` if available, otherwise falling back to
   Python internals. The previous implementation always created a generator.
 
-- Fixed ``PyProxyBase.__setattr__()`` to allow setting of properties on the
+- In ``PyProxyBase.__setattr__()``, allow setting of properties on the
   proxy itself. This is needed to properly allow proxy extensions as was
   evidenced int he ``zope.security.decorator`` module.
 
@@ -69,16 +70,16 @@ Changes
 4.0.1 (2012-11-21)
 ------------------
 
-- Added support for Python 3.3.
+- Add support for Python 3.3.
 
 4.0.0 (2012-06-06)
 ------------------
 
-- Added support for PyPy.
+- Add support for PyPy.
 
   N.B.:  the C extension is *not* built under PyPy.
 
-- Added a pure-Python reference / fallback implementations of
+- Add a pure-Python reference / fallback implementations of
   ``zope.proxy.ProxyBase`` and the proxy module API functions.
 
   N.B.:  the pure-Python proxy implements all regular features of
@@ -87,15 +88,15 @@ Changes
   hiding (e.g., to implement security sandboxing), you still need to use
   the C version.
 
-- Added support for continuous integration using ``tox`` and ``jenkins``.
+- Add support for continuous integration using ``tox`` and ``jenkins``.
 
 - 100% unit test coverage.
 
-- Added Sphinx documentation:  moved doctest examples to API reference.
+- Add Sphinx documentation:  moved doctest examples to API reference.
 
-- Added 'setup.py docs' alias (installs ``Sphinx`` and dependencies).
+- Add 'setup.py docs' alias (installs ``Sphinx`` and dependencies).
 
-- Added 'setup.py dev' alias (runs ``setup.py develop`` plus installs
+- Add 'setup.py dev' alias (runs ``setup.py develop`` plus installs
   ``nose`` and ``coverage``).
 
 - Replaced deprecated ``zope.interface.implements`` usage with equivalent
@@ -103,7 +104,7 @@ Changes
 
 - Dropped support for Python 2.4 and 2.5.
 
-- Added Python 3.2 support.
+- Add Python 3.2 support.
 
 3.6.1 (2010-07-06)
 ------------------
@@ -113,54 +114,54 @@ Changes
 3.6.0 (2010-04-30)
 ------------------
 
-- Removed test extra and the remaining dependency on zope.testing.
+- Remove test extra and the remaining dependency on zope.testing.
 
-- Removed use of 'zope.testing.doctestunit' in favor of stdlib's 'doctest.
+- Remove use of 'zope.testing.doctestunit' in favor of stdlib's 'doctest.
 
 3.5.0 (2009/01/31)
 ------------------
 
-- Added support to bootstrap on Jython.
+- Add support to bootstrap on Jython.
 
-- Use zope.container instead of zope.app.container.
+- Use ``zope.container`` instead of ``zope.app.container``.
 
 3.4.2 (2008/07/27)
 ------------------
 
-- Made C code compatible with Python 2.5 on 64bit architectures.
+- Make C code compatible with Python 2.5 on 64bit architectures.
 
 3.4.1 (2008/06/24)
 ------------------
 
-- Bug: Updated `setup.py` script to conform to common layout. Also updated
+- Bug: Update ``setup.py`` script to conform to common layout. Also updated
   some of the fields.
 
-- Bug: The behavior of tuples and lists in the `__getslice__()` and
-  `__setslice__()` method were incorrect by not honoring the pre-cooked
-  indices. See http://docs.python.org/ref/sequence-methods.html.
+- Bug: Honor pre-cooked indices for tuples and lists in the ``__getslice__()``
+  and ``__setslice__()`` methods. See
+  http://docs.python.org/ref/sequence-methods.html.
 
 3.4.0 (2007/07/12)
 ------------------
 
-- Feature: Added a decorator module that supports declaring interfaces on
+- Feature: Add a ``decorator`` module that supports declaring interfaces on
   proxies that get blended with the interfaces of the things they proxy.
 
 3.3.0 (2006/12/20)
 ------------------
 
-- Corresponds to the verison of the `zope.proxy` package shipped as part of
+- Corresponds to the verison of the ``zope.proxy`` package shipped as part of
   the Zope 3.3.0 release.
 
 
 3.2.0 (2006/01/05)
 ------------------
 
-- Corresponds to the verison of the zope.proxy package shipped as part of
+- Corresponds to the verison of the ``zope.proxy`` package shipped as part of
   the Zope 3.2.0 release.
 
 
 3.0.0 (2004/11/07)
 ------------------
 
-- Corresponds to the verison of the zope.proxy package shipped as part of
+- Corresponds to the verison of the ``zope.proxy`` package shipped as part of
   the Zope X3.0.0 release.
