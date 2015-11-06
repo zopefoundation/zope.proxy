@@ -1,7 +1,7 @@
 ``zope.proxy``
 ==============
 
-.. image:: https://pypip.in/version/zope.proxy/badge.svg?style=flat
+.. image:: https://img.shields.io/pypi/v/zope.proxy.svg
     :target: https://pypi.python.org/pypi/zope.proxy/
     :alt: Latest Version
 
