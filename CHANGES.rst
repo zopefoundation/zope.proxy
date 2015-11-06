@@ -4,7 +4,7 @@ Changes
 4.1.7 (unreleased)
 ------------------
 
-- TBD
+- Claim support for Python 3.5.
 
 4.1.6 (2015-06-02)
 ------------------
