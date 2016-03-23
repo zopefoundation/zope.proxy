@@ -1,10 +1,12 @@
 Changes
 =======
 
-4.1.7 (unreleased)
+4.2.0 (unreleased)
 ------------------
 
-- Claim support for Python 3.5.
+- Drop support for Python 2.6 and 3.2.
+
+- Add support for Python 3.5.
 
 4.1.6 (2015-06-02)
 ------------------
@@ -39,7 +41,7 @@ Changes
 4.1.3 (2013-03-12)
 ------------------
 
-- Fixed interface object introspection in PyPy. For some reason PyPy makes
+- Fix interface object introspection in PyPy. For some reason PyPy makes
   attributes available despite the restrictive ``__slots__`` declaration.
 
 - Add a bunch of tests surrounding interface lookup and adaptation.
@@ -63,9 +65,9 @@ Changes
 4.1.0 (2012-12-19)
 ------------------
 
-- Enabled compilation of dependent modules under Py3k.
+- Enable compilation of dependent modules under Py3k.
 
-- Replaced use of ``PyCObject`` APIs with equivalent ``PyCapsule`` APIs,
+- Replace use of ``PyCObject`` APIs with equivalent ``PyCapsule`` APIs,
   except under Python 2.6.
 
   N.B.  This change is an ABI incompatibility under Python 2.7:
@@ -104,10 +106,10 @@ Changes
 - Add 'setup.py dev' alias (runs ``setup.py develop`` plus installs
   ``nose`` and ``coverage``).
 
-- Replaced deprecated ``zope.interface.implements`` usage with equivalent
+- Replace deprecated ``zope.interface.implements`` usage with equivalent
   ``zope.interface.implementer`` decorator.
 
-- Dropped support for Python 2.4 and 2.5.
+- Drop support for Python 2.4 and 2.5.
 
 - Add Python 3.2 support.
 
