@@ -507,7 +507,7 @@ def py_queryInnerProxy(obj, klass=None, default=None):
 
 def py_removeAllProxies(obj):
     while isinstance(obj, PyProxyBase):
-        obj = obj._wrapped
+        obj = super(PyProxyBase, obj).__getattribute__('_wrapped')
     return obj
 
 _c_available = False

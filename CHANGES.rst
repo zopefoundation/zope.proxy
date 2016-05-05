@@ -11,6 +11,8 @@ Changes
 
 - Add support for Python 3.5.
 
+- Fixed failure when using removeAllProxies with zope.security proxies.
+
 4.1.6 (2015-06-02)
 ------------------
 

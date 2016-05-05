@@ -1276,6 +1276,11 @@ class Test_py_removeAllProxies(unittest.TestCase):
         from zope.proxy import PyProxyBase
         return PyProxyBase(obj)
 
+    def _makeSecurityProxy(self, obj):
+        from zope.security.proxy import ProxyPy
+        checker = object()
+        return ProxyPy(obj, checker)
+
     def test_no_proxy(self):
         class C(object):
             pass
@@ -1297,6 +1302,12 @@ class Test_py_removeAllProxies(unittest.TestCase):
         proxy2 = self._makeProxy(proxy)
         self.assertTrue(self._callFUT(proxy2) is c)
 
+    def test_security_proxy(self):
+        class C(object):
+            pass
+        c = C()
+        proxy = self._makeSecurityProxy(c)
+        self.assertTrue(self._callFUT(proxy) is c)
 
 class Test_removeAllProxies(unittest.TestCase):
 
