@@ -8,6 +8,7 @@ python:
     - pypy
 install:
     - pip install .
+    - pip install zope.security
 script:
     - python setup.py test -q
 notifications:
