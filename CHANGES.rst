@@ -1,17 +1,17 @@
 Changes
 =======
 
-4.2.0 (unreleased)
+4.2.0 (2016-05-05)
 ------------------
 
-- When testing ``PURE_PYTHON`` environments under ``tox``, avoid poisoning
-  the user's global wheel cache.
+- Correctly strip ``zope.security`` proxies in ``removeAllProxies``.
+
+- Avoid poisoning the user's global wheel cache when testing ``PURE_PYTHON``
+  environments under ``tox``,
 
 - Drop support for Python 2.6 and 3.2.
 
 - Add support for Python 3.5.
-
-- Fixed failure when using removeAllProxies with zope.security proxies.
 
 4.1.6 (2015-06-02)
 ------------------
