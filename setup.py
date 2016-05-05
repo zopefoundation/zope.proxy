@@ -87,7 +87,7 @@ setup(name='zope.proxy',
       include_package_data = True,
       zip_safe = False,
       extras_require = {
-        'testing': ['nose', 'coverage'],
+        'testing': ['nose', 'coverage', 'zope.security'],
         'docs': ['Sphinx', 'repoze.sphinx.autointerface'],
       },
 )
