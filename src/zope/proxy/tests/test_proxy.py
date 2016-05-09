@@ -15,6 +15,13 @@
 """
 import unittest
 
+try:
+    import zope.security
+except ImportError:
+    _HAVE_ZOPE_SECURITY = False
+else:
+    _HAVE_ZOPE_SECURITY = True
+
 
 class ModuleConformanceCase(unittest.TestCase):
 
@@ -1302,6 +1309,7 @@ class Test_py_removeAllProxies(unittest.TestCase):
         proxy2 = self._makeProxy(proxy)
         self.assertTrue(self._callFUT(proxy2) is c)
 
+    @unittest.skipUnless(_HAVE_ZOPE_SECURITY, 'zope.security missing')
     def test_security_proxy(self):
         class C(object):
             pass
