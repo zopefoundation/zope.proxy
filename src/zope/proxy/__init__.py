@@ -479,9 +479,9 @@ def py_isProxy(obj, klass=None):
 
 def py_sameProxiedObjects(lhs, rhs):
     while isinstance(lhs, PyProxyBase):
-        lhs = lhs._wrapped
+        lhs = super(PyProxyBase, lhs).__getattribute__('_wrapped')
     while isinstance(rhs, PyProxyBase):
-        rhs = rhs._wrapped
+        rhs = super(PyProxyBase, rhs).__getattribute__('_wrapped')
     return lhs is rhs
 
 def py_queryProxy(obj, klass=None, default=None):
