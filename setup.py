@@ -24,7 +24,8 @@ import platform
 from setuptools import setup, Extension, Feature
 
 def read(*rnames):
-    return open(os.path.join(os.path.dirname(__file__), *rnames)).read()
+    with open(os.path.join(os.path.dirname(__file__), *rnames)) as f:
+        return f.read()
 
 Cwrapper = Feature(
     "C wrapper",
@@ -74,7 +75,8 @@ setup(name='zope.proxy',
           'Programming Language :: Python :: Implementation :: PyPy',
           "Framework :: Zope3",
           'Natural Language :: English',
-          'Operating System :: OS Independent'],
+          'Operating System :: OS Independent'
+      ],
       keywords='proxy generic transparent',
       packages=['zope', 'zope.proxy'],
       package_dir = {'': 'src'},
@@ -83,11 +85,13 @@ setup(name='zope.proxy',
       test_suite = 'zope.proxy',
       install_requires=[
           'zope.interface',
-          'setuptools'],
+          'setuptools',
+      ],
       include_package_data = True,
       zip_safe = False,
       extras_require = {
-        'testing': ['nose', 'coverage', 'zope.security'],
-        'docs': ['Sphinx', 'repoze.sphinx.autointerface'],
+          'test': ['zope.security',],
+          'testing': ['nose', 'coverage', 'zope.security',],
+          'docs': ['Sphinx', 'repoze.sphinx.autointerface',],
       },
 )

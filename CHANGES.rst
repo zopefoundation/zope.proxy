@@ -4,12 +4,14 @@ Changes
 4.2.1 (unreleased)
 ------------------
 
-- TBD
+- Make the pure-Python implementation of ``sameProxiedObjects`` handle
+  ``zope.security`` proxies. See `issue 15 <https://github.com/zopefoundation/zope.proxy/issues/15>`_.
 
 4.2.0 (2016-05-05)
 ------------------
 
 - Correctly strip ``zope.security`` proxies in ``removeAllProxies``.
+  See `issue 13 <https://github.com/zopefoundation/zope.proxy/pull/13>`_.
 
 - Avoid poisoning the user's global wheel cache when testing ``PURE_PYTHON``
   environments under ``tox``,

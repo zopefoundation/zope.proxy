@@ -1050,6 +1050,12 @@ class Test_py_sameProxiedObjects(unittest.TestCase):
         from zope.proxy import PyProxyBase
         return PyProxyBase(obj)
 
+    def _makeSecurityProxy(self, obj):
+        from zope.security.proxy import ProxyPy
+        from zope.security.checker import CheckerPy
+        checker = CheckerPy({})
+        return ProxyPy(obj, checker)
+
     def test_bare_instance_identical(self):
         class C(object):
             pass
@@ -1112,6 +1118,20 @@ class Test_py_sameProxiedObjects(unittest.TestCase):
         self.assertFalse(self._callFUT(_mP(_mP(c1)), c2))
         self.assertFalse(self._callFUT(c2, _mP(_mP(c1))))
 
+    @unittest.skipUnless(_HAVE_ZOPE_SECURITY, 'zope.security missing')
+    def test_security_proxy(self):
+        class C(object):
+            pass
+        c1 = C()
+        proxy1 = self._makeSecurityProxy(c1)
+        proxy1_2 = self._makeSecurityProxy(c1)
+
+        self.assertTrue(self._callFUT(proxy1, proxy1))
+        self.assertTrue(self._callFUT(proxy1, proxy1_2))
+
+        c2 = C()
+        proxy2 = self._makeSecurityProxy(c2)
+        self.assertFalse(self._callFUT(proxy1, proxy2))
 
 class Test_sameProxiedObjects(Test_py_sameProxiedObjects):
 
@@ -1123,6 +1143,11 @@ class Test_sameProxiedObjects(Test_py_sameProxiedObjects):
         from zope.proxy import ProxyBase
         return ProxyBase(obj)
 
+    def _makeSecurityProxy(self, obj):
+        from zope.security.proxy import Proxy
+        from zope.security.checker import Checker
+        checker = Checker({})
+        return Proxy(obj, checker)
 
 class Test_py_queryProxy(unittest.TestCase):
 
@@ -1327,7 +1352,6 @@ class Test_removeAllProxies(unittest.TestCase):
         from zope.proxy import ProxyBase
         return ProxyBase(obj)
 
-
 class Test_ProxyIterator(unittest.TestCase):
 
     def _callFUT(self, *args):
@@ -1412,28 +1436,4 @@ class Comparable(object):
 
 
 def test_suite():
-    return unittest.TestSuite((
-        unittest.makeSuite(ModuleConformanceCase),
-        unittest.makeSuite(PyProxyBaseTestCase),
-        unittest.makeSuite(ProxyBaseTestCase),
-        unittest.makeSuite(Test_py_getProxiedObject),
-        unittest.makeSuite(Test_getProxiedObject),
-        unittest.makeSuite(Test_py_setProxiedObject),
-        unittest.makeSuite(Test_setProxiedObject),
-        unittest.makeSuite(Test_py_isProxy),
-        unittest.makeSuite(Test_isProxy),
-        unittest.makeSuite(Test_py_sameProxiedObjects),
-        unittest.makeSuite(Test_sameProxiedObjects),
-        unittest.makeSuite(Test_py_queryProxy),
-        unittest.makeSuite(Test_queryProxy),
-        unittest.makeSuite(Test_py_queryInnerProxy),
-        unittest.makeSuite(Test_queryInnerProxy),
-        unittest.makeSuite(Test_py_removeAllProxies),
-        unittest.makeSuite(Test_removeAllProxies),
-        unittest.makeSuite(Test_ProxyIterator),
-        unittest.makeSuite(Test_nonOverridable),
-        unittest.makeSuite(Test_py__module),
-        unittest.makeSuite(Test__module),
-        unittest.makeSuite(Test_py_subclass__module),
-        unittest.makeSuite(Test_subclass__module),
-    ))
+    return unittest.defaultTestLoader.loadTestsFromName(__name__)
