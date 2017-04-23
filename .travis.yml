@@ -5,10 +5,18 @@ python:
     - 3.3
     - 3.4
     - 3.5
+    - 3.6
     - pypy
 install:
+    - pip install -U pip
+    - pip install -U setuptools
+    - pip install -U zope.testrunner
+    - pip install -U zope.security # We have a circular dependency for testing
     - pip install -e .[test]
 script:
-    - python setup.py test -q
+    - zope-testrunner --test-path=src
 notifications:
     email: false
+cache: pip
+before_cache:
+    - rm -f $HOME/.cache/pip/log/debug.log

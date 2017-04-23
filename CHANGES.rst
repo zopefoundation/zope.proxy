@@ -7,6 +7,8 @@ Changes
 - Make the pure-Python implementation of ``sameProxiedObjects`` handle
   ``zope.security`` proxies. See `issue 15 <https://github.com/zopefoundation/zope.proxy/issues/15>`_.
 
+- Add support for Python 3.6.
+
 4.2.0 (2016-05-05)
 ------------------
 
