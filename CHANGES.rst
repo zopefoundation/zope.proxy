@@ -1,7 +1,7 @@
 Changes
 =======
 
-4.2.1 (unreleased)
+4.2.1 (2017-04-23)
 ------------------
 
 - Make the pure-Python implementation of ``sameProxiedObjects`` handle
