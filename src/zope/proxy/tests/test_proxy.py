@@ -1320,8 +1320,10 @@ class Test_removeAllProxies(Test_py_removeAllProxies):
         from zope.proxy import ProxyBase
         return ProxyBase(obj)
 
-    def test_security_proxy(self):
-        raise unittest.SkipTest("This fails with the C implementation")
+    def _makeSecurityProxy(self, obj):
+        from zope.security.proxy import Proxy
+        checker = object()
+        return Proxy(obj, checker)
 
 class Test_ProxyIterator(unittest.TestCase):
 
