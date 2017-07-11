@@ -11,5 +11,6 @@ eggs
 parts
 .tox
 .coverage
+htmlcov/
 nosetests.xml
 coverage.xml

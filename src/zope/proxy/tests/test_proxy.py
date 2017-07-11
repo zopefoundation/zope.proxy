@@ -17,11 +17,12 @@ import unittest
 
 try:
     import zope.security
-except ImportError:
+except ImportError: # pragma: no cover
     _HAVE_ZOPE_SECURITY = False
 else:
     _HAVE_ZOPE_SECURITY = True
 
+from zope.proxy._compat import PY3
 
 class ModuleConformanceCase(unittest.TestCase):
 
@@ -82,11 +83,6 @@ class PyProxyBaseTestCase(unittest.TestCase):
         proxy = MyProxy3('notused')
         self.assertEqual(list(proxy), list('another'))
 
-    def test_string_to_int(self):
-        # Strings don't have the tp_number.tp_int pointer
-        proxy = self._makeOne("14")
-        self.assertEqual(14, int(proxy))
-
     def test_custom_int_to_int(self):
         class CustomClass(object):
             def __int__(self):
@@ -113,31 +109,24 @@ class PyProxyBaseTestCase(unittest.TestCase):
         proxy = self._makeOne(CustomClass())
         self.assertEqual(42.0, float(proxy))
 
+    @unittest.skipIf(PY3, "Gone in Py3")
     def test___unicode__of_unicode(self):
-        from zope.proxy._compat import PY3, _u
-        if PY3: # Gone in Python 3:
-            return
-        s = _u('Hello, \u2603')
+        s = u'Hello, \u2603'
         proxy = self._makeOne(s)
         self.assertEqual(unicode(proxy), s)
 
+    @unittest.skipIf(PY3, "Gone in Py3")
     def test___unicode__of_custom_class(self):
-        from zope.proxy._compat import PY3, _u
-        if PY3: # Gone in Python 3:
-            return
         class CustomClass(object):
             def __unicode__(self):
-                return _u('Hello, \u2603')
+                return u'Hello, \u2603'
         cc = CustomClass()
-        self.assertEqual(unicode(cc), _u('Hello, \u2603'))
+        self.assertEqual(unicode(cc), u'Hello, \u2603')
         proxy = self._makeOne(cc)
-        self.assertEqual(unicode(proxy), _u('Hello, \u2603'))
+        self.assertEqual(unicode(proxy), u'Hello, \u2603')
 
+    @unittest.skipIf(PY3, "Gone in Py3")
     def test___unicode__of_custom_class_no_unicode(self):
-        # The default behaviour should be preserved
-        from zope.proxy._compat import PY3, _u
-        if PY3: # Gone in Python 3:
-            return
         class CustomClass(object):
             pass
         cc = CustomClass()
@@ -152,43 +141,40 @@ class PyProxyBaseTestCase(unittest.TestCase):
         proxy = self._makeOne(_foo)
         self.assertEqual(proxy(), 'FOO')
 
+    @unittest.skipIf(PY3, "Gone in Py3")
     def test_callable(self):
-        from zope.proxy._compat import PY3
-        if not PY3: # Gone in Python 3:
-            w = self._makeOne({}.get)
-            self.assertTrue(callable(w))
+        w = self._makeOne({}.get)
+        self.assertTrue(callable(w))
 
     def test___repr__(self):
         def _foo():
-            return 'FOO'
+            raise AssertionError("Not called")
         proxy = self._makeOne(_foo)
         self.assertEqual(repr(proxy), repr(_foo))
 
     def test___str__(self):
         def _foo():
-            return 'FOO'
+            raise AssertionError("Not called")
         proxy = self._makeOne(_foo)
         self.assertEqual(str(proxy), str(_foo))
 
+    @unittest.skipIf(PY3, "Gone in Py3")
     def test___unicode__(self):
-        from zope.proxy._compat import PY3
-        if PY3: # Gone in Python 3:
-            return
         def _foo():
-            return 'FOO'
+            raise AssertionError("Not called")
         proxy = self._makeOne(_foo)
         self.assertTrue(unicode(proxy).startswith('<function _foo'))
 
+    @unittest.skipIf(PY3, "No old-style classes in Python 3")
     def test___reduce___via_pickling(self):
         import pickle
-        from zope.proxy._compat import PY3
+
         # Proxies of old-style classes can't be pickled.
-        if not PY3: # No old-style classes in Python 3.
-            class Thing:
-                """This class is expected to be a classic class."""
-            w = self._makeOne(Thing())
-            self.assertRaises(pickle.PicklingError,
-                              pickle.dumps, w)
+        class Thing:
+            """This class is expected to be a classic class."""
+        w = self._makeOne(Thing())
+        self.assertRaises(pickle.PicklingError,
+                          pickle.dumps, w)
 
     def test___eq___and___ne__(self):
         w = self._makeOne('foo')
@@ -270,7 +256,7 @@ class PyProxyBaseTestCase(unittest.TestCase):
     def test___getattr__delegates_to_wrapped_when_conflict(self):
         class Proxy(self._getTargetClass()):
             def foo(self):
-                return 'PROXY'
+                raise AssertionError("Not called")
         class Foo(object):
             def foo(self):
                 return 'FOO'
@@ -353,35 +339,34 @@ class PyProxyBaseTestCase(unittest.TestCase):
 
     def test___getitem__w_slice_against_derived_list(self):
         # This behavior should be true for all list- and tuple-derived classes.
+        # It even passes on Py3, even though there is no __getslice__
         class DerivedList(list):
             def __getslice__(self, start, end, step=None):
-                return (start, end, step)
+                raise AssertionError("not called")
 
         pList = self._makeOne(DerivedList([1, 2]))
         self.assertEqual(pList[-1:], [2])
         self.assertEqual(pList[-2:], [1, 2])
         self.assertEqual(pList[-3:], [1, 2])
 
+    @unittest.skipIf(PY3, "No __getslice__ in Py3")
     def test___getitem__w_slice_against_class_w_custom___getslice__(self):
-        # moot under Python 3, where __getslice__ isn't supported.
-        from zope.proxy._compat import PY3
-        if not PY3:
-            class Slicer(object):
-                def __len__(self):
-                    return 2
-                def __getslice__(self, start, end, step=None):
-                    return (start, end, step)
+        class Slicer(object):
+            def __len__(self):
+                return 2
+            def __getslice__(self, start, end, step=None):
+                return (start, end, step)
 
-            pSlicer = self._makeOne(Slicer())
-            self.assertEqual(pSlicer[:1][0], 0)
-            self.assertEqual(pSlicer[:1][1], 1)
-            self.assertEqual(pSlicer[:-1][0], 0)
-            self.assertEqual(pSlicer[:-1][1], 1)
-            self.assertEqual(pSlicer[-1:][0], 1)
-            self.assertEqual(pSlicer[-2:][0], 0)
-            # Note that for non-lists and non-tuples the slice is computed
-            # differently
-            self.assertEqual(pSlicer[-3:][0], 1)
+        pSlicer = self._makeOne(Slicer())
+        self.assertEqual(pSlicer[:1][0], 0)
+        self.assertEqual(pSlicer[:1][1], 1)
+        self.assertEqual(pSlicer[:-1][0], 0)
+        self.assertEqual(pSlicer[:-1][1], 1)
+        self.assertEqual(pSlicer[-1:][0], 1)
+        self.assertEqual(pSlicer[-2:][0], 0)
+        # Note that for non-lists and non-tuples the slice is computed
+        # differently
+        self.assertEqual(pSlicer[-3:][0], 1)
 
     def test___setslice___against_list(self):
         # Lists have special slicing bahvior for assignment as well.
@@ -434,7 +419,7 @@ class PyProxyBaseTestCase(unittest.TestCase):
             def __iter__(self):
                 return self
             def __next__(self):
-                return 42
+                raise AssertionError("Not called")
             next = __next__
         myIter = MyIter()
         p = self._makeOne(myIter)
@@ -478,7 +463,6 @@ class PyProxyBaseTestCase(unittest.TestCase):
 
     @property
     def unops(self):
-        from zope.proxy._compat import PY3
         ops = [
             "-x",
             "+x",
@@ -502,7 +486,6 @@ class PyProxyBaseTestCase(unittest.TestCase):
                              "x=%r; expr=%r" % (x, expr))
 
     def test_odd_unops(self):
-        from zope.proxy._compat import PY3
         # unops that don't return a proxy
         funcs = (lambda x: not x,)
         if not PY3:
@@ -576,10 +559,8 @@ class PyProxyBaseTestCase(unittest.TestCase):
         pa ^= 2
         self.assertEqual(pa, 20)
 
+    @unittest.skipIf(PY3, "No coercion in Py3")
     def test_coerce(self):
-        from zope.proxy._compat import PY3
-        if PY3: # No coercion in Python 3
-            return
         # Before 2.3, coerce() of two proxies returns them unchanged
 
         x = self._makeOne(1)
@@ -741,19 +722,13 @@ class PyProxyBaseTestCase(unittest.TestCase):
             provided_instance = providedBy(proxy_instance)
             self.assertTrue(IFoo in list(provided_instance))
 
-            # XXX: PyPy 2.5.0 has a bug where proxys around types
-            # aren't correctly hashable, which breaks this part of the
-            # test. This is fixed in 2.5.1, but as of 2015-05-28,
-            # TravisCI still uses 2.5.0.
             proxy_type = proxy_class(builtin_type)
             from zope.interface.declarations import BuiltinImplementationSpecifications
-            if proxy_type in BuiltinImplementationSpecifications \
-               and BuiltinImplementationSpecifications.get(proxy_type, self) is not self:
-                provided_type = implementedBy(proxy_type)
-                self.assertTrue(IFoo in list(provided_type))
-            else:
-                import sys
-                self.assertEqual((2,5,0), sys.pypy_version_info[:3])
+            self.assertIn(proxy_type, BuiltinImplementationSpecifications)
+            self.assertIsNot(BuiltinImplementationSpecifications.get(proxy_type, self),
+                             self)
+            provided_type = implementedBy(proxy_type)
+            self.assertTrue(IFoo in list(provided_type))
         finally:
             classImplementsOnly(builtin_type, *impl_before)
 
@@ -787,15 +762,8 @@ class PyProxyBaseTestCase(unittest.TestCase):
         self.assertNotEqual(getattr(proxy, '__getitem__'), self)
 
     def test_string_to_int(self):
-        # XXX Implementation difference: This works in the
-        # Pure-Python version, but fails in CPython.
-        # See https://github.com/zopefoundation/zope.proxy/issues/4
         proxy = self._makeOne("14")
-        try:
-            self.assertEqual(14, int(proxy))
-        except TypeError:
-            from zope.proxy import PyProxyBase
-            self.assertNotEqual(self._getTargetClass(), PyProxyBase)
+        self.assertEqual(14, int(proxy))
 
 class ProxyBaseTestCase(PyProxyBaseTestCase):
 
@@ -1287,7 +1255,7 @@ class Test_py_queryInnerProxy(unittest.TestCase):
         self.assertTrue(self._callFUT(proxy3, P2, 42) is proxy2)
 
 
-class Test_queryInnerProxy(unittest.TestCase):
+class Test_queryInnerProxy(Test_py_queryInnerProxy):
 
     def _callFUT(self, *args):
         from zope.proxy import queryInnerProxy
@@ -1340,9 +1308,9 @@ class Test_py_removeAllProxies(unittest.TestCase):
             pass
         c = C()
         proxy = self._makeSecurityProxy(c)
-        self.assertTrue(self._callFUT(proxy) is c)
+        self.assertIs(self._callFUT(proxy), c)
 
-class Test_removeAllProxies(unittest.TestCase):
+class Test_removeAllProxies(Test_py_removeAllProxies):
 
     def _callFUT(self, *args):
         from zope.proxy import removeAllProxies
@@ -1351,6 +1319,11 @@ class Test_removeAllProxies(unittest.TestCase):
     def _makeProxy(self, obj):
         from zope.proxy import ProxyBase
         return ProxyBase(obj)
+
+    def _makeSecurityProxy(self, obj):
+        from zope.security.proxy import Proxy
+        checker = object()
+        return Proxy(obj, checker)
 
 class Test_ProxyIterator(unittest.TestCase):
 
@@ -1392,7 +1365,7 @@ class Test_nonOverridable(unittest.TestCase):
         from zope.proxy import non_overridable
         class Proxy(ProxyBase):
             def who(self):
-                return 'PROXY'
+                raise AssertionError("Not called")
             @non_overridable
             def what(self):
                 return 'PROXY'
@@ -1407,6 +1380,31 @@ class Test_nonOverridable(unittest.TestCase):
         proxy = Proxy(Foo())
         self.assertEqual(proxy.who(), 'FOO')
         self.assertEqual(proxy.what(), 'PROXY')
+
+
+class TestEmptyInterfaceDescriptor(unittest.TestCase):
+
+    def _makeOne(self):
+        from zope.proxy import _EmptyInterfaceDescriptor
+        class It(object):
+            feature = _EmptyInterfaceDescriptor()
+        return It()
+
+    def test_set(self):
+        it = self._makeOne()
+        with self.assertRaises(TypeError):
+            it.feature = 42
+
+    def test_delete(self):
+        it = self._makeOne()
+        del it.feature
+        with self.assertRaises(AttributeError):
+            getattr(it, 'feature')
+
+    def test_iter(self):
+        it = type(self._makeOne())
+        feature = it.__dict__['feature']
+        self.assertEqual([], list(feature))
 
 
 class Comparable(object):
@@ -1431,7 +1429,7 @@ class Comparable(object):
     def __gt__(self, other):
         return not self.__le__(other)
 
-    def __repr__(self):
+    def __repr__(self): # pragma: no cover
         return "<Comparable: %r>" % self.value
 
 

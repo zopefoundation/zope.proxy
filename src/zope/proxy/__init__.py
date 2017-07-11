@@ -119,7 +119,7 @@ class AbstractPyProxyBase(object):
     def __unicode__(self):
         return unicode(self._wrapped)
 
-    def __reduce__(self): #pragma NO COVER  (__reduce_ex__ prevents normal)
+    def __reduce__(self): # pragma: no cover  (__reduce_ex__ prevents normal)
         raise pickle.PicklingError
 
     def __reduce_ex__(self, proto):
@@ -246,7 +246,7 @@ class AbstractPyProxyBase(object):
         # Called when we wrap an iterator itself.
         return self._wrapped.next()
 
-    def __next__(self): #pragma NO COVER Python3
+    def __next__(self): # pragma: no cover Python3
         return self._wrapped.__next__()
 
     # Python 2.7 won't let the C wrapper support __reversed__ :(
@@ -311,11 +311,11 @@ class AbstractPyProxyBase(object):
     def __floordiv__(self, other):
         return self._wrapped // other
 
-    def __truediv__(self, other): #pragma NO COVER
+    def __truediv__(self, other): # pragma: no cover
         # Only one of __truediv__ and __div__ is meaningful at any one time.
         return self._wrapped / other
 
-    def __div__(self, other): #pragma NO COVER
+    def __div__(self, other): # pragma: no cover
         # Only one of __truediv__ and __div__ is meaningful at any one time.
         return self._wrapped / other
 
@@ -342,11 +342,11 @@ class AbstractPyProxyBase(object):
     def __rfloordiv__(self, other):
         return other // self._wrapped
 
-    def __rtruediv__(self, other): #pragma NO COVER
+    def __rtruediv__(self, other): # pragma: no cover
         # Only one of __rtruediv__ and __rdiv__ is meaningful at any one time.
         return other / self._wrapped
 
-    def __rdiv__(self, other): #pragma NO COVER
+    def __rdiv__(self, other): # pragma: no cover
         # Only one of __rtruediv__ and __rdiv__ is meaningful at any one time.
         return other / self._wrapped
 
@@ -360,7 +360,7 @@ class AbstractPyProxyBase(object):
         if modulus is None:
             return pow(other, self._wrapped)
         # We can't actually get here, because we can't lie about our type()
-        return pow(other, self._wrapped, modulus) #pragma NO COVER
+        return pow(other, self._wrapped, modulus) # pragma: no cover
 
     # Numeric protocol:  binary bitwise operators
     def __lshift__(self, other):
@@ -406,12 +406,12 @@ class AbstractPyProxyBase(object):
         self._wrapped *= other
         return self
 
-    def __idiv__(self, other): #pragma NO COVER
+    def __idiv__(self, other): # pragma: no cover
         # Only one of __itruediv__ and __idiv__ is meaningful at any one time.
         self._wrapped /= other
         return self
 
-    def __itruediv__(self, other): #pragma NO COVER
+    def __itruediv__(self, other): # pragma: no cover
         # Only one of __itruediv__ and __idiv__ is meaningful at any one time.
         self._wrapped /= other
         return self
@@ -447,7 +447,7 @@ class AbstractPyProxyBase(object):
     def __ipow__(self, other, modulus=None):
         if modulus is None:
             self._wrapped **= other
-        else: #pragma NO COVER
+        else: # pragma: no cover
             # There is no syntax which triggers in-place pow w/ modulus
             self._wrapped = pow(self._wrapped, other, modulus)
         return self
@@ -514,12 +514,12 @@ _c_available = False
 if 'PURE_PYTHON' not in os.environ:
     try:
         from zope.proxy._zope_proxy_proxy import ProxyBase as _c_available
-    except ImportError: #pragma NO COVER
+    except ImportError: # pragma: no cover
         pass
 
 class PyNonOverridable(object):
     "Deprecated, only for BWC."
-    def __init__(self, method_desc): #pragma NO COVER PyPy
+    def __init__(self, method_desc): # pragma: no cover PyPy
         self.desc = method_desc
 
 if _c_available:
@@ -536,7 +536,7 @@ if _c_available:
     # API for proxy-using C extensions.
     from zope.proxy._zope_proxy_proxy import _CAPI
 
-else: #pragma NO COVER
+else: # pragma: no cover
     # no C extension available, fall back
     ProxyBase = PyProxyBase
     getProxiedObject = py_getProxiedObject

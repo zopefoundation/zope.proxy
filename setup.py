@@ -49,7 +49,7 @@ else:
     features = {'Cwrapper': Cwrapper}
 
 setup(name='zope.proxy',
-      version='4.2.2.dev0',
+      version='4.3.0.dev0',
       author='Zope Foundation and Contributors',
       author_email='zope-dev@zope.org',
       description='Generic Transparent Proxies',
@@ -57,8 +57,8 @@ setup(name='zope.proxy',
           read('README.rst')
           + '\n\n' +
           read('CHANGES.rst')
-          ),
-      url='http://pypi.python.org/pypi/zope.proxy',
+      ),
+      url='http://github.com/zopefoundation/zope.proxy',
       license='ZPL 2.1',
       classifiers = [
           'Development Status :: 5 - Production/Stable',
@@ -68,7 +68,6 @@ setup(name='zope.proxy',
           'Programming Language :: Python :: 2',
           'Programming Language :: Python :: 2.7',
           'Programming Language :: Python :: 3',
-          'Programming Language :: Python :: 3.3',
           'Programming Language :: Python :: 3.4',
           'Programming Language :: Python :: 3.5',
           'Programming Language :: Python :: 3.6',
@@ -80,19 +79,23 @@ setup(name='zope.proxy',
       ],
       keywords='proxy generic transparent',
       packages=['zope', 'zope.proxy'],
-      package_dir = {'': 'src'},
+      package_dir={'': 'src'},
       namespace_packages=['zope',],
       features=features,
-      test_suite = 'zope.proxy',
       install_requires=[
           'zope.interface',
           'setuptools',
       ],
-      include_package_data = True,
-      zip_safe = False,
-      extras_require = {
-          'test': ['zope.security',],
-          'testing': ['nose', 'coverage', 'zope.security',],
-          'docs': ['Sphinx', 'repoze.sphinx.autointerface',],
+      include_package_data=True,
+      zip_safe=False,
+      extras_require={
+          'test': [
+              'zope.security', # We have a circular dependency for testing
+              'zope.testrunner',
+          ],
+          'docs': [
+              'Sphinx',
+              'repoze.sphinx.autointerface',
+          ],
       },
 )

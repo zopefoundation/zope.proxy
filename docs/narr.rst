@@ -147,7 +147,7 @@ cause it to raise an exception:
    >>> try:
    ...     setProxiedObject(c1, None)
    ... except TypeError:
-   ...     print "TypeError raised"
+   ...     print("TypeError raised")
    ... else:
-   ...     print "Expected TypeError not raised"
+   ...     print("Expected TypeError not raised")
    TypeError raised

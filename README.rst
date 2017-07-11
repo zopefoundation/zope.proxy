@@ -20,4 +20,6 @@ checking, location brokering, etc.) for which the proxy is responsible.
 zope.proxy is implemented via a C extension module, which lets it do things
 like lie about its own ``__class__`` that are difficult in pure Python (and
 were completely impossible before metaclasses).  It also proxies all the
-internal slots (such as `__int__`/`__str__`/`__add__`).
+internal slots (such as ``__int__``/``__str__``/``__add__``).
+
+Complete documentation is at https://zopeproxy.readthedocs.io
