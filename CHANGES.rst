@@ -4,6 +4,9 @@ Changes
 4.3.0 (unreleased)
 ------------------
 
+- Fix a potential rare crash when deallocating proxies. See `issue 20
+  <https://github.com/zopefoundation/zope.proxy/issues/20>`_.
+
 - Drop support for Python 3.3.
 
 - Drop support for "python setup.py test".

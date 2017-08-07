@@ -182,6 +182,7 @@ wrap_iternext(PyObject *self)
 static void
 wrap_dealloc(PyObject *self)
 {
+    PyObject_GC_UnTrack(self);
     (void) wrap_clear(self);
     self->ob_type->tp_free(self);
 }
