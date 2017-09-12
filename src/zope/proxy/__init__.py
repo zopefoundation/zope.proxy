@@ -216,21 +216,22 @@ class AbstractPyProxyBase(object):
     def __len__(self):
         return len(self._wrapped)
 
+    def __getslice__(self, start, stop):
+        try:
+            getslice = type(self._wrapped).__getslice__
+        except AttributeError:
+            return self.__getitem__(slice(start, stop))
+        return getslice(self._wrapped, start, stop)
+
     def __getitem__(self, key):
-        if isinstance(key, slice):
-            if isinstance(self._wrapped, (list, tuple)):
-                return self._wrapped[key]
-            start, stop = key.start, key.stop
-            if start is None:
-                start = 0
-            if start < 0:
-                start += len(self._wrapped)
-            if stop is None:
-                stop = sys.maxint
-            if stop < 0:
-                stop += len(self._wrapped)
-            return operator.getslice(self._wrapped, start, stop)
         return self._wrapped[key]
+
+    def __setslice__(self, start, stop, value):
+        try:
+            setslice = type(self._wrapped).__setslice__
+        except AttributeError:
+            return self.__setitem__(slice(start, stop), value)
+        return setslice(self._wrapped, start, stop, value)
 
     def __setitem__(self, key, value):
         self._wrapped[key] = value

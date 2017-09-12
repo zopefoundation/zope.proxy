@@ -10,6 +10,13 @@ Changes
 
 - 100% test coverage.
 
+- Fix indexing pure-Python proxies with slices under Python 3, and
+  restore the use of ``__getslice__`` (if implemented by the target's
+  type) under Python 2. Previously, pure-Python proxies would fail
+  with an AttributeError when given a slice on Python 3, and on Python
+  2, a custom ``__getslice__`` was ignored. See `issue 21
+  <https://github.com/zopefoundation/zope.proxy/issues/21>`_.
+
 4.2.1 (2017-04-23)
 ------------------
 

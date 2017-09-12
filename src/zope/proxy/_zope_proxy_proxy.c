@@ -705,16 +705,22 @@ wrap_length(PyObject *self)
 static PyObject *
 wrap_slice(PyObject *self, Py_ssize_t start, Py_ssize_t end)
 {
+    /*
+     * Note that we have arrived here through PySequence_GetSlice
+     * once already, which on Python 2 adjusted indices. We can't call
+     * PySequence_GetSlice again or they will be wrong. So we directly
+     * call the slice method the type provides.
+     */
     PyObject *obj = Proxy_GET_OBJECT(self);
-    if (PyList_Check(obj)) {
-        return PyList_GetSlice(obj, start, end);
+#if PY_MAJOR_VERSION < 3
+    PySequenceMethods *m;
+
+    m = obj->ob_type->tp_as_sequence;
+    if (m && m->sq_slice) {
+        return m->sq_slice(obj, start, end);
     }
-    else if (PyTuple_Check(obj)) {
-        return PyTuple_GetSlice(obj, start, end);
-    }
-    else {
-        return PySequence_GetSlice(obj, start, end);
-    }
+#endif
+	return PySequence_GetSlice(obj, start, end);
 }
 
 static int
@@ -1251,4 +1257,3 @@ MOD_INIT(_zope_proxy_proxy)
     return MOD_SUCCESS_VAL(m);
 
 }
-
