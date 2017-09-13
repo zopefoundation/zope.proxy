@@ -35,6 +35,11 @@ class ModuleConformanceCase(unittest.TestCase):
 
 class PyProxyBaseTestCase(unittest.TestCase):
 
+    # Names of special methods
+    getslice = '__getitem__' if PY3 else '__getslice__'
+    setslice = '__setitem__' if PY3 else '__setslice__'
+
+
     def _getTargetClass(self):
         from zope.proxy import PyProxyBase
         return PyProxyBase
@@ -338,24 +343,35 @@ class PyProxyBaseTestCase(unittest.TestCase):
         self.assertEqual(pTuple[-3:], (1, 2))
 
     def test___getitem__w_slice_against_derived_list(self):
-        # This behavior should be true for all list- and tuple-derived classes.
-        # It even passes on Py3, even though there is no __getslice__
+        data = [1, 2]
         class DerivedList(list):
-            def __getslice__(self, start, end, step=None):
-                raise AssertionError("not called")
+            def __getslice__(self, start, stop):
+                return list.__getslice__(self, start, stop)
 
-        pList = self._makeOne(DerivedList([1, 2]))
-        self.assertEqual(pList[-1:], [2])
-        self.assertEqual(pList[-2:], [1, 2])
-        self.assertEqual(pList[-3:], [1, 2])
+        pList = self._makeOne(DerivedList(data))
 
-    @unittest.skipIf(PY3, "No __getslice__ in Py3")
+        self.assertEqual(pList[-1:], data[-1:])
+        self.assertEqual(pList[-2:], data[-2:])
+        self.assertEqual(pList[-3:], data[-3:])
+
     def test___getitem__w_slice_against_class_w_custom___getslice__(self):
+        import sys
+        test = self
         class Slicer(object):
             def __len__(self):
                 return 2
-            def __getslice__(self, start, end, step=None):
-                return (start, end, step)
+
+            def __getslice__(self, start, end):
+                return (start, end)
+
+            def __getitem__(self, a_slice): # pragma: no cover
+                test.assertTrue(PY3)
+                # On Python 3, we basically just return what the test expects.
+                # Mostly that's the computed indices (yay!) but there are
+                # a few special cases.
+                indices = a_slice.indices(len(self))
+                return (indices[0] if a_slice.start != -3 else -1,
+                        indices[-1] if a_slice.stop is not None else sys.maxsize)
 
         pSlicer = self._makeOne(Slicer())
         self.assertEqual(pSlicer[:1][0], 0)
@@ -364,9 +380,36 @@ class PyProxyBaseTestCase(unittest.TestCase):
         self.assertEqual(pSlicer[:-1][1], 1)
         self.assertEqual(pSlicer[-1:][0], 1)
         self.assertEqual(pSlicer[-2:][0], 0)
-        # Note that for non-lists and non-tuples the slice is computed
-        # differently
-        self.assertEqual(pSlicer[-3:][0], 1)
+        self.assertEqual(pSlicer[-3:], (-1, sys.maxsize))
+
+    def test___getslice___dne_uses_getitem(self):
+        class Missing(Exception):
+            pass
+        class Get(object):
+            def __getitem__(self, x):
+                raise Missing('__getitem__')
+
+        target = Get()
+        proxy = self._makeOne(target)
+        with self.assertRaisesRegexp(Missing,
+                                     '__getitem__'):
+            proxy[1:2]
+
+    def test___getslice___error_propagates(self):
+        test = self
+        class Missing(Exception):
+            pass
+        class Get(object):
+            def __getitem__(self, x): # pragma: no cover (only py3)
+                test.assertTrue(PY3)
+                raise Missing('__getitem__')
+            def __getslice__(self, start, stop):
+                raise Missing("__getslice__")
+        target = Get()
+        proxy = self._makeOne(target)
+        with self.assertRaisesRegexp(Missing,
+                                     self.getslice):
+            proxy[1:2]
 
     def test___setslice___against_list(self):
         # Lists have special slicing bahvior for assignment as well.
@@ -394,6 +437,34 @@ class PyProxyBaseTestCase(unittest.TestCase):
         pList = self._makeOne(DerivedList([1, 2]))
         pList[-3:] = [3, 4]
         self.assertEqual(pList, [3, 4])
+
+    def test___setslice___error_propagates(self):
+        class Missing(Exception):
+            pass
+        class Set(object):
+            def __setitem__(self, k, v):
+                raise Missing('__setitem__') # pragma: no cover (only py3)
+            def __setslice__(self, start, stop, value):
+                raise Missing("__setslice__")
+        target = Set()
+        proxy = self._makeOne(target)
+        with self.assertRaisesRegexp(Missing,
+                                     self.setslice):
+            proxy[1:2] = 1
+
+    def test___setslice___dne_uses_setitem(self):
+        class Missing(Exception):
+            pass
+        class Set(object):
+            def __setitem__(self, k, v):
+                raise Missing('__setitem__')
+
+        target = Set()
+        proxy = self._makeOne(target)
+        with self.assertRaisesRegexp(Missing,
+                                     '__setitem__'):
+            proxy[1:2] = 1
+
 
     def test___iter___w_wrapped_iterable(self):
         a = [1, 2, 3]
@@ -573,7 +644,7 @@ class PyProxyBaseTestCase(unittest.TestCase):
         a, b = coerce(x, y)
         self.assertTrue(isinstance(a, float)) # a was coerced
         self.assertFalse(a is x)
-        self.assertEqual(a,  float(x))
+        self.assertEqual(a, float(x))
         self.assertTrue(b is y)
 
         x = self._makeOne(1.1)
@@ -582,7 +653,7 @@ class PyProxyBaseTestCase(unittest.TestCase):
         self.assertTrue(a is x)
         self.assertTrue(isinstance(b, float)) # b was coerced
         self.assertFalse(b is y)
-        self.assertEqual(b,  float(y))
+        self.assertEqual(b, float(y))
 
         x = self._makeOne(1)
         y = 2
@@ -595,7 +666,7 @@ class PyProxyBaseTestCase(unittest.TestCase):
         a, b = coerce(x, y)
         self.assertTrue(isinstance(a, float)) # a was coerced
         self.assertFalse(a is x)
-        self.assertEqual(a,  float(x))
+        self.assertEqual(a, float(x))
         self.assertTrue(b is y)
 
         x = self._makeOne(1.1)
@@ -604,7 +675,7 @@ class PyProxyBaseTestCase(unittest.TestCase):
         self.assertTrue(a is x)
         self.assertTrue(isinstance(b, float)) # b was coerced
         self.assertFalse(b is y)
-        self.assertEqual(b,  float(y))
+        self.assertEqual(b,float(y))
 
         x = 1
         y = self._makeOne(2)
@@ -742,7 +813,7 @@ class PyProxyBaseTestCase(unittest.TestCase):
         self._check_wrapping_builtin_returns_correct_provided_by(Proxy, builtin_type)
         # Our new class did not gain an __implemented__ attribute, unless we're
         # the pure-python version
-        if hasattr(Proxy, '__implemented__'):
+        if hasattr(Proxy, '__implemented__'): # pragma: no cover
             from zope.proxy import PyProxyBase
             self.assertTrue(self._getTargetClass() is PyProxyBase)
 
@@ -842,14 +913,14 @@ class Test__module(Test_py__module):
 class Test_py_subclass__module(Test_py__module):
 
     def _getTargetClass(self):
-        class ProxySubclass(super(Test_py_subclass__module,self)._getTargetClass()):
+        class ProxySubclass(super(Test_py_subclass__module, self)._getTargetClass()):
             pass
         return ProxySubclass
 
 class Test_subclass__module(Test__module):
 
     def _getTargetClass(self):
-        class ProxySubclass(super(Test_subclass__module,self)._getTargetClass()):
+        class ProxySubclass(super(Test_subclass__module, self)._getTargetClass()):
             pass
         return ProxySubclass
 
