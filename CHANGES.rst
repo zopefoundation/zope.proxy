@@ -1,7 +1,7 @@
 Changes
 =======
 
-4.3.0 (unreleased)
+4.3.0 (2017-09-13)
 ------------------
 
 - Fix a potential rare crash when deallocating proxies. See `issue 20
