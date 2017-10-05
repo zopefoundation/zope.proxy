@@ -5,7 +5,7 @@
     :target: https://pypi.python.org/pypi/zope.proxy/
     :alt: Latest Version
 
-.. image:: https://travis-ci.org/zopefoundation/zope.proxy.png?branch=master
+.. image:: https://travis-ci.org/zopefoundation/zope.proxy.svg?branch=master
         :target: https://travis-ci.org/zopefoundation/zope.proxy
 
 .. image:: https://readthedocs.org/projects/zopeproxy/badge/?version=latest
