@@ -4,7 +4,8 @@ Changes
 4.3.1 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Simplify the internal C handling of attribute names in
+  ``__getattribute__`` and ``__setattr__``.
 
 
 4.3.0 (2017-09-13)

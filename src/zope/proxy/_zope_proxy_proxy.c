@@ -45,10 +45,6 @@ empty_tuple = NULL;
 
 // Compatibility with Python 2
 #if PY_MAJOR_VERSION < 3
-  #define IS_STRING PyString_Check
-
-  #define MAKE_STRING(name) PyString_AS_STRING(name)
-
   #define MOD_ERROR_VAL
 
   #define MOD_SUCCESS_VAL(val)
@@ -59,12 +55,6 @@ empty_tuple = NULL;
           ob = Py_InitModule3(name, methods, doc);
 
 #else
-
-  #define IS_STRING PyUnicode_Check
-
-  #define MAKE_STRING(name) PyBytes_AS_STRING( \
-          PyUnicode_AsUTF8String(name))
-
   #define MOD_ERROR_VAL NULL
 
   #define MOD_SUCCESS_VAL(val) val
@@ -244,26 +234,15 @@ wrap_getattro(PyObject *self, PyObject *name)
     const char *name_as_string;
     int maybe_special_name;
 
-#if PY_MAJOR_VERSION < 3 && defined(Py_USING_UNICODE)
-    /* The Unicode to string conversion is done here because the
-       existing tp_setattro slots expect a string object as name
-       (except under Python 3) and we wouldn't want to break those. */
-    if (PyUnicode_Check(name)) {
-        name = PyUnicode_AsEncodedString(name, NULL, NULL);
-        if (name == NULL)
-            return NULL;
-    }
-    else
+#if PY_MAJOR_VERSION < 3
+    name_as_string = PyString_AsString(name);
+#else
+    name_as_string = PyUnicode_AsUTF8(name);
 #endif
 
-    if (!IS_STRING(name)){
-        PyErr_SetString(PyExc_TypeError, "attribute name must be string");
+    if (name_as_string == NULL) {
         return NULL;
     }
-    else
-        Py_INCREF(name);
-
-    name_as_string = MAKE_STRING(name);
 
     wrapped = Proxy_GET_OBJECT(self);
     if (wrapped == NULL) {
@@ -315,7 +294,6 @@ wrap_getattro(PyObject *self, PyObject *name)
     res = PyObject_GetAttr(wrapped, name);
 
 finally:
-    Py_DECREF(name);
     return res;
 }
 
@@ -327,25 +305,15 @@ wrap_setattro(PyObject *self, PyObject *name, PyObject *value)
     const char *name_as_string;
     int res = -1;
 
-#if PY_MAJOR_VERSION < 3 && defined(Py_USING_UNICODE)
-    /* The Unicode to string conversion is done here because the
-       existing tp_setattro slots expect a string object as name
-       (except under Python 3) and we wouldn't want to break those. */
-
-    if (PyUnicode_Check(name)) {
-        name = PyUnicode_AsEncodedString(name, NULL, NULL);
-        if (name == NULL)
-            return -1;
-    }
-    else
+#if PY_MAJOR_VERSION < 3
+    name_as_string = PyString_AsString(name);
+#else
+    name_as_string = PyUnicode_AsUTF8(name);
 #endif
 
-    if (!IS_STRING(name)){
-        PyErr_SetString(PyExc_TypeError, "attribute name must be string");
-        return -1;
+    if (name_as_string == NULL) {
+        return NULL;
     }
-    else
-        Py_INCREF(name);
 
     descriptor = WrapperType_Lookup(self->ob_type, name);
 
@@ -359,8 +327,6 @@ wrap_setattro(PyObject *self, PyObject *name, PyObject *value)
         goto finally;
       }
 
-    name_as_string = MAKE_STRING(name);
-
     wrapped = Proxy_GET_OBJECT(self);
     if (wrapped == NULL) {
         PyErr_Format(PyExc_RuntimeError,
@@ -371,7 +337,6 @@ wrap_setattro(PyObject *self, PyObject *name, PyObject *value)
     res = PyObject_SetAttr(wrapped, name, value);
 
 finally:
-    Py_DECREF(name);
     return res;
 }
 
