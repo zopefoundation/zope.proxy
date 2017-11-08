@@ -18,6 +18,7 @@
 ##############################################################################
 """Setup for zope.proxy package
 """
+from __future__ import print_function
 import os
 import platform
 
