@@ -18,10 +18,45 @@
 ##############################################################################
 """Setup for zope.proxy package
 """
+from __future__ import print_function
 import os
 import platform
 
-from setuptools import setup, Extension, Feature
+
+from distutils.errors import CCompilerError
+from distutils.errors import DistutilsExecError
+from distutils.errors import DistutilsPlatformError
+
+from setuptools import Extension
+from setuptools.command.build_ext import build_ext
+from setuptools import setup
+from setuptools import Feature
+
+class optional_build_ext(build_ext):
+    """This class subclasses build_ext and allows
+       the building of C extensions to fail.
+    """
+    def run(self):
+        try:
+            build_ext.run(self)
+        except DistutilsPlatformError as e:
+            self._unavailable(e)
+
+    def build_extension(self, ext):
+        try:
+            build_ext.build_extension(self, ext)
+        except (CCompilerError, DistutilsExecError, OSError) as e:
+            self._unavailable(e)
+
+    def _unavailable(self, e):
+        print('*' * 80)
+        print("""WARNING:
+        An optional code optimization (C extension) could not be compiled.
+        Optimizations for this package will not be available!""")
+        print()
+        print(e)
+        print('*' * 80)
+
 
 def read(*rnames):
     with open(os.path.join(os.path.dirname(__file__), *rnames)) as f:
@@ -29,21 +64,19 @@ def read(*rnames):
 
 Cwrapper = Feature(
     "C wrapper",
-    standard = True,
+    standard=True,
     headers=[os.path.join('src', 'zope', 'proxy', 'proxy.h')],
-    ext_modules=[Extension("zope.proxy._zope_proxy_proxy",
-                            [os.path.join('src', 'zope', 'proxy',
-                                        "_zope_proxy_proxy.c")
-                            ],
-                            extra_compile_args=['-g']),
-                ],
+    ext_modules=[
+        Extension(
+            "zope.proxy._zope_proxy_proxy",
+            [os.path.join('src', 'zope', 'proxy', "_zope_proxy_proxy.c")],
+        ),
+    ],
 )
 
 # PyPy won't build the extension.
-py_impl = getattr(platform, 'python_implementation', lambda: None)
-is_pypy = py_impl() == 'PyPy'
-is_pure = os.environ.get('PURE_PYTHON')
-if is_pypy or is_pure:
+is_pypy = platform.python_implementation() == 'PyPy'
+if is_pypy:
     features = {}
 else:
     features = {'Cwrapper': Cwrapper}
@@ -60,7 +93,7 @@ setup(name='zope.proxy',
       ),
       url='http://github.com/zopefoundation/zope.proxy',
       license='ZPL 2.1',
-      classifiers = [
+      classifiers=[
           'Development Status :: 5 - Production/Stable',
           'Intended Audience :: Developers',
           'License :: OSI Approved :: Zope Public License',
@@ -81,6 +114,9 @@ setup(name='zope.proxy',
       packages=['zope', 'zope.proxy'],
       package_dir={'': 'src'},
       namespace_packages=['zope',],
+      cmdclass={
+          'build_ext': optional_build_ext,
+      },
       features=features,
       install_requires=[
           'zope.interface',
