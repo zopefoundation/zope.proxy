@@ -6,7 +6,11 @@ Changes
 
 - Simplify the internal C handling of attribute names in
   ``__getattribute__`` and ``__setattr__``.
-
+- Make building the C extension optional. We still attempt to build it
+  on supported platforms, but we allow it to fail in case of a missing
+  compiler or headers. See `issue 26
+  <https://github.com/zopefoundation/zope.proxy/issues/26>`_.
+- Test the PURE_PYTHON environment and PyPy3 on Travis CI.
 
 4.3.0 (2017-09-13)
 ------------------
