@@ -32,6 +32,7 @@ from setuptools.command.build_ext import build_ext
 from setuptools import setup
 from setuptools import Feature
 
+
 class optional_build_ext(build_ext):
     """This class subclasses build_ext and allows
        the building of C extensions to fail.
@@ -61,6 +62,7 @@ class optional_build_ext(build_ext):
 def read(*rnames):
     with open(os.path.join(os.path.dirname(__file__), *rnames)) as f:
         return f.read()
+
 
 Cwrapper = Feature(
     "C wrapper",
@@ -104,6 +106,7 @@ setup(name='zope.proxy',
           'Programming Language :: Python :: 3.4',
           'Programming Language :: Python :: 3.5',
           'Programming Language :: Python :: 3.6',
+          'Programming Language :: Python :: 3.7',
           'Programming Language :: Python :: Implementation :: CPython',
           'Programming Language :: Python :: Implementation :: PyPy',
           "Framework :: Zope3",
@@ -113,7 +116,7 @@ setup(name='zope.proxy',
       keywords='proxy generic transparent',
       packages=['zope', 'zope.proxy'],
       package_dir={'': 'src'},
-      namespace_packages=['zope',],
+      namespace_packages=['zope'],
       cmdclass={
           'build_ext': optional_build_ext,
       },
@@ -126,7 +129,7 @@ setup(name='zope.proxy',
       zip_safe=False,
       extras_require={
           'test': [
-              'zope.security', # We have a circular dependency for testing
+              'zope.security',  # We have a circular dependency for testing
               'zope.testrunner',
           ],
           'docs': [
