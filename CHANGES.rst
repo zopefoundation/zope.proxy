@@ -1,7 +1,7 @@
 Changes
 =======
 
-4.3.1 (unreleased)
+4.3.1 (2018-08-09)
 ------------------
 
 - Simplify the internal C handling of attribute names in

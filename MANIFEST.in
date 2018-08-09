@@ -13,3 +13,6 @@ global-exclude *.dll
 global-exclude *.pyc
 global-exclude *.pyo
 global-exclude *.so
+
+# added by check_manifest.py
+include *.yml
