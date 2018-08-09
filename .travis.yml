@@ -11,6 +11,9 @@ matrix:
     include:
         - python: "2.7"
           env: PURE_PYTHON=1
+        - python: "3.7"
+          dist: xenial
+          sudo: true
 install:
     - pip install -U pip
     - pip install -U setuptools
@@ -26,6 +29,7 @@ after_success:
 
 notifications:
     email: false
+
 cache: pip
 before_cache:
     - rm -f $HOME/.cache/pip/log/debug.log
