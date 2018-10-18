@@ -109,7 +109,7 @@ setup(name='zope.proxy',
           'Programming Language :: Python :: 3.7',
           'Programming Language :: Python :: Implementation :: CPython',
           'Programming Language :: Python :: Implementation :: PyPy',
-          "Framework :: Zope3",
+          "Framework :: Zope :: 3",
           'Natural Language :: English',
           'Operating System :: OS Independent'
       ],
