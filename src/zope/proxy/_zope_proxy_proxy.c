@@ -312,7 +312,7 @@ wrap_setattro(PyObject *self, PyObject *name, PyObject *value)
 #endif
 
     if (name_as_string == NULL) {
-        return NULL;
+        goto finally;
     }
 
     descriptor = WrapperType_Lookup(self->ob_type, name);

@@ -4,7 +4,10 @@ Changes
 4.3.2 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Fix error handling in ``ProxyBase.__setattr__``: any the exception raised by
+  ``PyString_AsString``/``PyUnicode_AsUTF8`` would be silently swallowed up
+  and ignored.  See `issue 31
+  <https://github.com/zopefoundation/zope.proxy/issues/31>`_.
 
 
 4.3.1 (2018-08-09)
