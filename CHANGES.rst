@@ -1,7 +1,7 @@
 Changes
 =======
 
-4.3.2 (unreleased)
+4.3.2 (2019-07-12)
 ------------------
 
 - Fix error handling in ``ProxyBase.__setattr__``: any the exception raised by
