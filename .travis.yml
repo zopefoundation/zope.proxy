@@ -1,4 +1,11 @@
 language: python
+
+env:
+  global:
+    TWINE_USERNAME: zope.wheelbuilder
+    TWINE_PASSWORD:
+      secure: "BWyhZtoO9jM3vatjfwdloThv7RY2p8AaN3D8T/8nEIupcgT5E6QKfLlIDibtlMNds2UU0q/HOJiSM/CwBsm5nzMke55m8OhfxfyHG+5TuBafwHtEkMyXe1VQtxnyB7Rlya2ylI9f4/3qXYqyLinBr3F+osE1g2nQmqQL2tpNmRA="
+
 python:
   - 2.7
   - 3.5
@@ -14,6 +21,47 @@ jobs:
       python: "2.7"
       env: PURE_PYTHON=1
 
+    # manylinux wheel builds
+    - name: 64-bit manylinux wheels (all Pythons)
+      services: docker
+      env: DOCKER_IMAGE=quay.io/pypa/manylinux2010_x86_64
+      install: docker pull $DOCKER_IMAGE
+      script: bash .manylinux.sh
+
+    - name: 32-bit manylinux wheels (all Pythons)
+      services: docker
+      env: DOCKER_IMAGE=quay.io/pypa/manylinux2010_i686 PRE_CMD=linux32
+      install: docker pull $DOCKER_IMAGE
+      script: bash .manylinux.sh
+
+    # It's important to use 'macpython' builds to get the least
+    # restrictive wheel tag. It's also important to avoid
+    # 'homebrew 3' because it floats instead of being a specific version.
+    - name: Python 2.7 wheels for MacOS
+      os: osx
+      language: generic
+      env: TERRYFY_PYTHON='macpython 2.7.17'
+    - name: Python 3.5 wheels for MacOS
+      os: osx
+      language: generic
+      env: TERRYFY_PYTHON='macpython 3.5'
+    - name: Python 3.6 wheels for MacOS
+      os: osx
+      language: generic
+      env: TERRYFY_PYTHON='macpython 3.6.0'
+    - name: Python 3.7 wheels for MacOS
+      os: osx
+      language: generic
+      env: TERRYFY_PYTHON='macpython 3.7.0'
+
+before_install:
+  - |
+    if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
+      git clone https://github.com/MacPython/terryfy
+      source terryfy/travis_tools.sh
+      get_python_environment $TERRYFY_PYTHON venv
+    fi
+
 install:
   - pip install -U pip
   - pip install -U setuptools
@@ -21,12 +69,34 @@ install:
   - pip install -e .[test,docs]
 
 script:
+  - python --version
   - coverage run -m zope.testrunner --test-path=src
   - sphinx-build              -b html    -d docs/_build/doctrees docs docs/_build/html
   - coverage run -a -m sphinx -b doctest -d docs/_build/doctrees docs docs/_build/doctest
+  - python setup.py bdist_wheel
 
 after_success:
   - coveralls
+  - |
+    if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
+      # macpython 3.5 doesn't support recent TLS protocols which causes twine
+      # upload to fail, so we use the system Python to run twine
+      /usr/bin/python -m ensurepip --user
+      /usr/bin/python -m pip install --user -U pip
+      /usr/bin/python -m pip install --user -U -I twine
+      /usr/bin/python -m twine check dist/*
+      if [[ $TRAVIS_TAG ]]; then
+        /usr/bin/python -m twine upload --skip-existing dist/*
+      fi
+    fi
+  - |
+    if [[ -n "$DOCKER_IMAGE" ]]; then
+      pip install twine
+      twine check wheelhouse/*
+      if [[ $TRAVIS_TAG ]]; then
+        twine upload --skip-existing wheelhouse/*
+      fi
+    fi
 
 notifications:
   email: false
