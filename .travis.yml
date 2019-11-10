@@ -66,6 +66,12 @@ install:
   - pip install -U pip
   - pip install -U setuptools
   - pip install -U coverage coveralls
+  # NB: let's install . (zope.proxy) first separately, because we have a nasty
+  # dependency loop: .[test] wants zope.security that setup_requires zope.proxy
+  # (and setup_requires is broken on Mac OS Python 3.5 due to TLS version
+  # compatibility issues that pip knows how to work around, but setuptools
+  # don't).
+  - pip install -e .
   - pip install -e .[test,docs]
 
 script:
