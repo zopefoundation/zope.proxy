@@ -1,35 +1,36 @@
 language: python
-sudo: false
 python:
-    - 2.7
-    - 3.4
-    - 3.5
-    - 3.6
-    - pypy
-    - pypy3
-matrix:
-    include:
-        - python: "2.7"
-          env: PURE_PYTHON=1
-        - python: "3.7"
-          dist: xenial
-          sudo: true
+  - 2.7
+  - 3.5
+  - 3.6
+  - 3.7
+  - 3.8
+  - pypy
+  - pypy3
+
+jobs:
+  include:
+    - name: "Python: 2.7, pure (no C extensions)"
+      python: "2.7"
+      env: PURE_PYTHON=1
+
 install:
-    - pip install -U pip
-    - pip install -U setuptools
-    - pip install -U coverage coveralls
-    - pip install -e .[test,docs]
+  - pip install -U pip
+  - pip install -U setuptools
+  - pip install -U coverage coveralls
+  - pip install -e .[test,docs]
+
 script:
-    - coverage run -m zope.testrunner --test-path=src
-    - sphinx-build                         -b html    -d docs/_build/doctrees docs docs/_build/html
-    - coverage run -a `which sphinx-build` -b doctest -d docs/_build/doctrees docs docs/_build/doctest
+  - coverage run -m zope.testrunner --test-path=src
+  - sphinx-build              -b html    -d docs/_build/doctrees docs docs/_build/html
+  - coverage run -a -m sphinx -b doctest -d docs/_build/doctrees docs docs/_build/doctest
 
 after_success:
-    - coveralls
+  - coveralls
 
 notifications:
-    email: false
+  email: false
 
 cache: pip
 before_cache:
-    - rm -f $HOME/.cache/pip/log/debug.log
+  - rm -f $HOME/.cache/pip/log/debug.log
