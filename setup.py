@@ -30,7 +30,7 @@ from distutils.errors import DistutilsPlatformError
 from setuptools import Extension
 from setuptools.command.build_ext import build_ext
 from setuptools import setup
-from setuptools import Feature
+
 
 
 class optional_build_ext(build_ext):
@@ -64,24 +64,19 @@ def read(*rnames):
         return f.read()
 
 
-Cwrapper = Feature(
-    "C wrapper",
-    standard=True,
-    headers=[os.path.join('src', 'zope', 'proxy', 'proxy.h')],
-    ext_modules=[
-        Extension(
-            "zope.proxy._zope_proxy_proxy",
-            [os.path.join('src', 'zope', 'proxy', "_zope_proxy_proxy.c")],
-        ),
-    ],
-)
+codeoptimization = [
+    Extension(
+        "zope.proxy._zope_proxy_proxy",
+        [os.path.join('src', 'zope', 'proxy', "_zope_proxy_proxy.c")],
+    ),
+]
 
 # PyPy won't build the extension.
 is_pypy = platform.python_implementation() == 'PyPy'
 if is_pypy:
-    features = {}
+    ext_modules = []
 else:
-    features = {'Cwrapper': Cwrapper}
+    ext_modules = codeoptimization
 
 setup(name='zope.proxy',
       version='4.3.4.dev0',
@@ -120,7 +115,7 @@ setup(name='zope.proxy',
       cmdclass={
           'build_ext': optional_build_ext,
       },
-      features=features,
+      ext_modules=ext_modules,
       install_requires=[
           'zope.interface',
           'setuptools',
