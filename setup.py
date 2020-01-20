@@ -115,6 +115,7 @@ setup(name='zope.proxy',
       cmdclass={
           'build_ext': optional_build_ext,
       },
+      headers=[os.path.join('src', 'zope', 'proxy', 'proxy.h')],
       ext_modules=ext_modules,
       install_requires=[
           'zope.interface',
