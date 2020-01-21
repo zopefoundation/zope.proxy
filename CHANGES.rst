@@ -1,14 +1,19 @@
-Changes
-=======
+=========
+ Changes
+=========
 
 4.3.4 (unreleased)
-------------------
+==================
 
-- Nothing changed yet.
+- Fix a compilation warning on Python 3.8. The slot ``tp_print``
+  changed to ``tp_vectorcall_offset`` in 3.8 and must not be set.
+  Prior to 3.8, it was reserved and ignored in all Python 3 versions.
+  See `issue 36
+  <https://github.com/zopefoundation/zope.proxy/issues/36>`_.
 
 
 4.3.3 (2019-11-11)
-------------------
+==================
 
 - Add support for Python 3.8.
 
@@ -16,7 +21,7 @@ Changes
 
 
 4.3.2 (2019-07-12)
-------------------
+==================
 
 - Fix error handling in ``ProxyBase.__setattr__``: any the exception raised by
   ``PyString_AsString``/``PyUnicode_AsUTF8`` would be silently swallowed up
@@ -25,7 +30,7 @@ Changes
 
 
 4.3.1 (2018-08-09)
-------------------
+==================
 
 - Simplify the internal C handling of attribute names in
   ``__getattribute__`` and ``__setattr__``.
@@ -40,7 +45,7 @@ Changes
 - Add support for Python 3.7.
 
 4.3.0 (2017-09-13)
-------------------
+==================
 
 - Fix a potential rare crash when deallocating proxies. See `issue 20
   <https://github.com/zopefoundation/zope.proxy/issues/20>`_.
@@ -59,7 +64,7 @@ Changes
   <https://github.com/zopefoundation/zope.proxy/issues/21>`_.
 
 4.2.1 (2017-04-23)
-------------------
+==================
 
 - Make the pure-Python implementation of ``sameProxiedObjects`` handle
   ``zope.security`` proxies. See `issue 15 <https://github.com/zopefoundation/zope.proxy/issues/15>`_.
@@ -67,7 +72,7 @@ Changes
 - Add support for Python 3.6.
 
 4.2.0 (2016-05-05)
-------------------
+==================
 
 - Correctly strip ``zope.security`` proxies in ``removeAllProxies``.
   See `issue 13 <https://github.com/zopefoundation/zope.proxy/pull/13>`_.
@@ -80,7 +85,7 @@ Changes
 - Add support for Python 3.5.
 
 4.1.6 (2015-06-02)
-------------------
+==================
 
 - Make subclasses of ProxyBase properly delegate ``__module__`` to the
   wrapped object. This fixes some ``zope.interface`` lookups under
@@ -91,7 +96,7 @@ Changes
   ``list``. This fixes some ``zope.interface`` lookups under PyPy.
 
 4.1.5 (2015-05-19)
-------------------
+==================
 
 - Make the C implementation proxy ``__unicode__`` correctly.
 
@@ -103,14 +108,14 @@ Changes
   https://github.com/zopefoundation/zope.proxy/issues/5.
 
 4.1.4 (2014-03-19)
-------------------
+==================
 
 - Add support for Python 3.4.
 
 - Update ``bootstrap.py`` to version 2.2.
 
 4.1.3 (2013-03-12)
-------------------
+==================
 
 - Fix interface object introspection in PyPy. For some reason PyPy makes
   attributes available despite the restrictive ``__slots__`` declaration.
@@ -118,7 +123,7 @@ Changes
 - Add a bunch of tests surrounding interface lookup and adaptation.
 
 4.1.2 (2013-03-11)
-------------------
+==================
 
 - Make ``PyProxyBase.__iter__()`` return the result of
   ``PyProxyBase._wrapped.__iter__`` if available, otherwise falling back to
@@ -129,12 +134,12 @@ Changes
   evidenced int he ``zope.security.decorator`` module.
 
 4.1.1 (2012-12-31)
-------------------
+==================
 
 - Fleshed out PyPI Trove classifiers.
 
 4.1.0 (2012-12-19)
-------------------
+==================
 
 - Enable compilation of dependent modules under Py3k.
 
@@ -146,12 +151,12 @@ Changes
         ``zope.proxy`` must be rebuilt.
 
 4.0.1 (2012-11-21)
-------------------
+==================
 
 - Add support for Python 3.3.
 
 4.0.0 (2012-06-06)
-------------------
+==================
 
 - Add support for PyPy.
 
@@ -185,31 +190,31 @@ Changes
 - Add Python 3.2 support.
 
 3.6.1 (2010-07-06)
-------------------
+==================
 
 - Make tests compatible with Python 2.7.
 
 3.6.0 (2010-04-30)
-------------------
+==================
 
 - Remove test extra and the remaining dependency on zope.testing.
 
 - Remove use of 'zope.testing.doctestunit' in favor of stdlib's 'doctest.
 
 3.5.0 (2009/01/31)
-------------------
+==================
 
 - Add support to bootstrap on Jython.
 
 - Use ``zope.container`` instead of ``zope.app.container``.
 
 3.4.2 (2008/07/27)
-------------------
+==================
 
 - Make C code compatible with Python 2.5 on 64bit architectures.
 
 3.4.1 (2008/06/24)
-------------------
+==================
 
 - Bug: Update ``setup.py`` script to conform to common layout. Also updated
   some of the fields.
@@ -219,27 +224,27 @@ Changes
   http://docs.python.org/ref/sequence-methods.html.
 
 3.4.0 (2007/07/12)
-------------------
+==================
 
 - Feature: Add a ``decorator`` module that supports declaring interfaces on
   proxies that get blended with the interfaces of the things they proxy.
 
 3.3.0 (2006/12/20)
-------------------
+==================
 
 - Corresponds to the verison of the ``zope.proxy`` package shipped as part of
   the Zope 3.3.0 release.
 
 
 3.2.0 (2006/01/05)
-------------------
+==================
 
 - Corresponds to the verison of the ``zope.proxy`` package shipped as part of
   the Zope 3.2.0 release.
 
 
 3.0.0 (2004/11/07)
-------------------
+==================
 
 - Corresponds to the verison of the ``zope.proxy`` package shipped as part of
   the Zope X3.0.0 release.

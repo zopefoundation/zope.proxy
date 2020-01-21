@@ -340,11 +340,14 @@ finally:
     return res;
 }
 
+#if PY_MAJOR_VERSION < 3
+// tp_print slot function; reserved and unused in Python 3
 static int
 wrap_print(PyObject *wrapper, FILE *fp, int flags)
 {
     return PyObject_Print(Proxy_GET_OBJECT(wrapper), fp, flags);
 }
+#endif
 
 static PyObject *
 wrap_str(PyObject *wrapper) {
@@ -865,7 +868,11 @@ ProxyType = {
     sizeof(ProxyObject),
     0,
     wrap_dealloc,                           /* tp_dealloc */
+#if PY_MAJOR_VERSION < 3
     wrap_print,                             /* tp_print */
+#else
+    0,                                      /* reserved 3.0--3.7; tp_vectorcall_offset 3.8+ */
+#endif
     0,                                      /* tp_getattr */
     0,                                      /* tp_setattr */
 #if PY_MAJOR_VERSION < 3
