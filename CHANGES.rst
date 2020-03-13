@@ -2,7 +2,7 @@
  Changes
 =========
 
-4.3.4 (unreleased)
+4.3.4 (2020-03-13)
 ==================
 
 - Fix a compilation warning on Python 3.8. The slot ``tp_print``
@@ -10,6 +10,9 @@
   Prior to 3.8, it was reserved and ignored in all Python 3 versions.
   See `issue 36
   <https://github.com/zopefoundation/zope.proxy/issues/36>`_.
+
+- Remove deprecated use of setuptools features.  See `issue 38
+  <https://github.com/zopefoundation/zope.proxy/issues/38>`_.
 
 
 4.3.3 (2019-11-11)
