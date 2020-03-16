@@ -2,7 +2,7 @@
  Changes
 =========
 
-4.3.5 (unreleased)
+4.3.5 (2020-03-16)
 ==================
 
 - Stop installing C header files on PyPy (which is what zope.proxy before 4.3.4
