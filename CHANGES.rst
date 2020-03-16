@@ -5,7 +5,9 @@
 4.3.5 (unreleased)
 ==================
 
-- Nothing changed yet.
+- Stop installing C header files on PyPy (which is what zope.proxy before 4.3.4
+  used to do), fixes `issue 39
+  <https://github.com/zopefoundation/zope.proxy/issues/39>`_.
 
 
 4.3.4 (2020-03-13)

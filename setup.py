@@ -32,7 +32,6 @@ from setuptools.command.build_ext import build_ext
 from setuptools import setup
 
 
-
 class optional_build_ext(build_ext):
     """This class subclasses build_ext and allows
        the building of C extensions to fail.
@@ -75,8 +74,10 @@ codeoptimization = [
 is_pypy = platform.python_implementation() == 'PyPy'
 if is_pypy:
     ext_modules = []
+    headers = []
 else:
     ext_modules = codeoptimization
+    headers = [os.path.join('src', 'zope', 'proxy', 'proxy.h')]
 
 setup(name='zope.proxy',
       version='4.3.5.dev0',
@@ -115,7 +116,7 @@ setup(name='zope.proxy',
       cmdclass={
           'build_ext': optional_build_ext,
       },
-      headers=[os.path.join('src', 'zope', 'proxy', 'proxy.h')],
+      headers=headers,
       ext_modules=ext_modules,
       install_requires=[
           'zope.interface',
