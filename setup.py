@@ -130,7 +130,7 @@ setup(name='zope.proxy',
               'zope.testrunner',
           ],
           'docs': [
-              'Sphinx',
+              'Sphinx<4', # Until repoze.sphinx.autointerface supports Sphinx 4.x we cannot use it
               'repoze.sphinx.autointerface',
           ],
       },
