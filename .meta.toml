@@ -25,3 +25,13 @@ additional-rules = [
     "recursive-include docs *.bat",
     "recursive-include src *.h",
     ]
+
+[appveyor]
+global-env-vars = [
+    "# Currently the builds use @mgedmin's Appveyor account.  The PyPI token belongs",
+    "# to zope.wheelbuilder, which is managed by @mgedmin and @dataflake.",
+    "global:",
+    "   TWINE_USERNAME: __token__",
+    "   TWINE_PASSWORD:",
+    "       secure: aoZC/+rvJKg8B5GMGIxd1bg9UDShk28EhfPQFKI9zy7kzygdgj0XuaK619sLe3s4B08bIJaIUAThxEvWq13IvdLb5Oyk8B9qubd+NnDiNuw8WCGy4owYnbl+61fUVVKJIf1ETQyGDooYrEuBo798/+ycQbilTpmncAHZb2KyZkmA210fcWr7OhwmlRtC4IiW7GPCaxU6qhzLlP5pnS2Tl+yy/qx2DiW2fKWqUqynrb1ZMsk6ygN4qV72glTY6wV0eYboAGlghrws1x5+Z10Yug==",
+    ]
