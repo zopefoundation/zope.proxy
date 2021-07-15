@@ -5,7 +5,9 @@
 4.3.6 (unreleased)
 ==================
 
-- Nothing changed yet.
+- Add support for Python 3.9.
+
+- Create aarch64 wheels.
 
 
 4.3.5 (2020-03-16)

@@ -17,12 +17,14 @@ import unittest
 
 try:
     import zope.security
-except ImportError: # pragma: no cover
+except ImportError:  # pragma: no cover
     _HAVE_ZOPE_SECURITY = False
 else:
     _HAVE_ZOPE_SECURITY = True
+    del zope.security
 
 from zope.proxy._compat import PY3
+
 
 class ModuleConformanceCase(unittest.TestCase):
 
@@ -39,6 +41,10 @@ class PyProxyBaseTestCase(unittest.TestCase):
     getslice = '__getitem__' if PY3 else '__getslice__'
     setslice = '__setitem__' if PY3 else '__setslice__'
 
+    # Avoid DeprecationWarning for assertRaisesRegexp on Python 3 while
+    # coping with Python 2 not having the Regex spelling variant
+    assertRaisesRegex = getattr(unittest.TestCase, 'assertRaisesRegex',
+                                unittest.TestCase.assertRaisesRegexp)
 
     def _getTargetClass(self):
         from zope.proxy import PyProxyBase
@@ -57,6 +63,7 @@ class PyProxyBaseTestCase(unittest.TestCase):
         class MyProxy(self._getTargetClass()):
             def __new__(cls, *args, **kwds):
                 return super(MyProxy, cls).__new__(cls, *args, **kwds)
+
             def __init__(self, *args, **kwds):
                 super(MyProxy, self).__init__(*args, **kwds)
         o1 = object()
@@ -115,30 +122,30 @@ class PyProxyBaseTestCase(unittest.TestCase):
         self.assertEqual(42.0, float(proxy))
 
     @unittest.skipIf(PY3, "Gone in Py3")
-    def test___unicode__of_unicode(self):
+    def test___unicode__of_unicode(self):  # pragma: no cover PY2
         s = u'Hello, \u2603'
         proxy = self._makeOne(s)
-        self.assertEqual(unicode(proxy), s)
+        self.assertEqual(unicode(proxy), s)  # noqa: F821 undef
 
     @unittest.skipIf(PY3, "Gone in Py3")
-    def test___unicode__of_custom_class(self):
+    def test___unicode__of_custom_class(self):  # pragma: no cover PY2
         class CustomClass(object):
             def __unicode__(self):
                 return u'Hello, \u2603'
         cc = CustomClass()
-        self.assertEqual(unicode(cc), u'Hello, \u2603')
+        self.assertEqual(unicode(cc), u'Hello, \u2603')  # noqa: F821 undef
         proxy = self._makeOne(cc)
-        self.assertEqual(unicode(proxy), u'Hello, \u2603')
+        self.assertEqual(unicode(proxy), u'Hello, \u2603')  # noqa: F821 undef
 
     @unittest.skipIf(PY3, "Gone in Py3")
-    def test___unicode__of_custom_class_no_unicode(self):
+    def test___unicode__of_custom_class_no_unicode(self):  # pragma: no cover
         class CustomClass(object):
             pass
         cc = CustomClass()
-        cc_unicode = unicode(cc)
-        self.assertEqual(type(cc_unicode), unicode)
+        cc_unicode = unicode(cc)  # noqa: F821 undef
+        self.assertEqual(type(cc_unicode), unicode)  # noqa: F821 undef
         proxy = self._makeOne(cc)
-        self.assertEqual(unicode(proxy), cc_unicode)
+        self.assertEqual(unicode(proxy), cc_unicode)  # noqa: F821 undef
 
     def test___call__(self):
         def _foo():
@@ -147,7 +154,7 @@ class PyProxyBaseTestCase(unittest.TestCase):
         self.assertEqual(proxy(), 'FOO')
 
     @unittest.skipIf(PY3, "Gone in Py3")
-    def test_callable(self):
+    def test_callable(self):  # pragma: no cover PY2
         w = self._makeOne({}.get)
         self.assertTrue(callable(w))
 
@@ -164,14 +171,15 @@ class PyProxyBaseTestCase(unittest.TestCase):
         self.assertEqual(str(proxy), str(_foo))
 
     @unittest.skipIf(PY3, "Gone in Py3")
-    def test___unicode__(self):
+    def test___unicode__(self):  # pragma: no cover PY2
         def _foo():
             raise AssertionError("Not called")
         proxy = self._makeOne(_foo)
-        self.assertTrue(unicode(proxy).startswith('<function _foo'))
+        self.assertTrue(
+            unicode(proxy).startswith('<function _foo'))  # noqa: F821 undef
 
     @unittest.skipIf(PY3, "No old-style classes in Python 3")
-    def test___reduce___via_pickling(self):
+    def test___reduce___via_pickling(self):  # pragma: no cover PY2
         import pickle
 
         # Proxies of old-style classes can't be pickled.
@@ -246,6 +254,7 @@ class PyProxyBaseTestCase(unittest.TestCase):
             pass
         o = Foo()
         w = self._makeOne(o)
+
         def _try():
             return w.nonesuch
         self.assertRaises(AttributeError, _try)
@@ -262,6 +271,7 @@ class PyProxyBaseTestCase(unittest.TestCase):
         class Proxy(self._getTargetClass()):
             def foo(self):
                 raise AssertionError("Not called")
+
         class Foo(object):
             def foo(self):
                 return 'FOO'
@@ -282,7 +292,8 @@ class PyProxyBaseTestCase(unittest.TestCase):
             bar = property(
                 lambda s: s.__dict__.get('_bar'),
                 lambda s, v: s.__dict__.__setitem__('_bar', v)
-                )
+            )
+
         class Foo(object):
             pass
         o = Foo()
@@ -297,6 +308,7 @@ class PyProxyBaseTestCase(unittest.TestCase):
         o = Foo()
         o.foo = 1
         w = self._makeOne(o)
+
         def _try():
             del w._wrapped
         self.assertRaises(AttributeError, _try)
@@ -311,10 +323,10 @@ class PyProxyBaseTestCase(unittest.TestCase):
         self.assertFalse('foo' in o.__dict__)
 
     def test___len__(self):
-        l = []
-        w = self._makeOne(l)
+        l_ = []
+        w = self._makeOne(l_)
         self.assertEqual(len(w), 0)
-        l.append(0)
+        l_.append(0)
         self.assertEqual(len(w), 1)
 
     def test___getitem_____setitem_____delitem__(self):
@@ -324,6 +336,7 @@ class PyProxyBaseTestCase(unittest.TestCase):
         self.assertEqual(w[1], 'a')
         del w[1]
         self.assertRaises(KeyError, lambda: w[1])
+
         def del_w_1():
             del w[1]
         self.assertRaises(KeyError, del_w_1)
@@ -344,8 +357,9 @@ class PyProxyBaseTestCase(unittest.TestCase):
 
     def test___getitem__w_slice_against_derived_list(self):
         data = [1, 2]
+
         class DerivedList(list):
-            def __getslice__(self, start, stop):
+            def __getslice__(self, start, stop):  # pragma: no cover PY2
                 return list.__getslice__(self, start, stop)
 
         pList = self._makeOne(DerivedList(data))
@@ -357,21 +371,23 @@ class PyProxyBaseTestCase(unittest.TestCase):
     def test___getitem__w_slice_against_class_w_custom___getslice__(self):
         import sys
         test = self
+
         class Slicer(object):
             def __len__(self):
                 return 2
 
-            def __getslice__(self, start, end):
+            def __getslice__(self, start, end):  # pragma: no cover PY2
                 return (start, end)
 
-            def __getitem__(self, a_slice): # pragma: no cover
+            def __getitem__(self, a_slice):
                 test.assertTrue(PY3)
                 # On Python 3, we basically just return what the test expects.
                 # Mostly that's the computed indices (yay!) but there are
                 # a few special cases.
                 indices = a_slice.indices(len(self))
-                return (indices[0] if a_slice.start != -3 else -1,
-                        indices[-1] if a_slice.stop is not None else sys.maxsize)
+                return (
+                    indices[0] if a_slice.start != -3 else -1,
+                    indices[-1] if a_slice.stop is not None else sys.maxsize)
 
         pSlicer = self._makeOne(Slicer())
         self.assertEqual(pSlicer[:1][0], 0)
@@ -385,25 +401,28 @@ class PyProxyBaseTestCase(unittest.TestCase):
     def test___getslice___dne_uses_getitem(self):
         class Missing(Exception):
             pass
+
         class Get(object):
             def __getitem__(self, x):
                 raise Missing('__getitem__')
 
         target = Get()
         proxy = self._makeOne(target)
-        with self.assertRaisesRegexp(Missing,
-                                     '__getitem__'):
+        with self.assertRaisesRegex(Missing, '__getitem__'):
             proxy[1:2]
 
     def test___getslice___error_propagates(self):
         test = self
+
         class Missing(Exception):
             pass
+
         class Get(object):
-            def __getitem__(self, x): # pragma: no cover (only py3)
+            def __getitem__(self, x):
                 test.assertTrue(PY3)
                 raise Missing('__getitem__')
-            def __getslice__(self, start, stop):
+
+            def __getslice__(self, start, stop):  # pragma: no cover PY2
                 raise Missing("__getslice__")
         target = Get()
         proxy = self._makeOne(target)
@@ -412,7 +431,7 @@ class PyProxyBaseTestCase(unittest.TestCase):
             proxy[1:2]
 
     def test___setslice___against_list(self):
-        # Lists have special slicing bahvior for assignment as well.
+        # Lists have special slicing behavior for assignment as well.
         pList = self._makeOne([1, 2])
         pList[-1:] = [3, 4]
         self.assertEqual(pList, [1, 3, 4])
@@ -441,10 +460,12 @@ class PyProxyBaseTestCase(unittest.TestCase):
     def test___setslice___error_propagates(self):
         class Missing(Exception):
             pass
+
         class Set(object):
             def __setitem__(self, k, v):
-                raise Missing('__setitem__') # pragma: no cover (only py3)
-            def __setslice__(self, start, stop, value):
+                raise Missing('__setitem__')
+
+            def __setslice__(self, start, stop, value):  # pragma: no cover PY2
                 raise Missing("__setslice__")
         target = Set()
         proxy = self._makeOne(target)
@@ -455,6 +476,7 @@ class PyProxyBaseTestCase(unittest.TestCase):
     def test___setslice___dne_uses_setitem(self):
         class Missing(Exception):
             pass
+
         class Set(object):
             def __setitem__(self, k, v):
                 raise Missing('__setitem__')
@@ -464,7 +486,6 @@ class PyProxyBaseTestCase(unittest.TestCase):
         with self.assertRaisesRegexp(Missing,
                                      '__setitem__'):
             proxy[1:2] = 1
-
 
     def test___iter___w_wrapped_iterable(self):
         a = [1, 2, 3]
@@ -489,6 +510,7 @@ class PyProxyBaseTestCase(unittest.TestCase):
         class MyIter(object):
             def __iter__(self):
                 return self
+
             def __next__(self):
                 raise AssertionError("Not called")
             next = __next__
@@ -506,6 +528,7 @@ class PyProxyBaseTestCase(unittest.TestCase):
             def __init__(self, test, data):
                 self.test = test
                 self.data = data
+
             def __iter__(self):
                 return self.test._makeOne(iter(self.data))
 
@@ -516,7 +539,7 @@ class PyProxyBaseTestCase(unittest.TestCase):
         self.assertEqual(a, b)
 
     # Python 2.7 won't let the C wrapper support __reversed__ :(
-    #def test___reversed__(self):
+    # def test___reversed__(self):
     #    w = self._makeOne([0, 1, 2, 3])
     #    self.assertEqual(list(reversed(w)), [3, 2, 1, 0])
 
@@ -543,8 +566,8 @@ class PyProxyBaseTestCase(unittest.TestCase):
             "float(x)",
             "complex(x)",
         ]
-        if not PY3: # long is gone in Python 3
-            ops.append("long(x)")
+        if not PY3:  # long is gone in Python 3
+            ops.append("long(x)")  # pragma: no cover PY2
         return ops
 
     def test_unops(self):
@@ -560,15 +583,15 @@ class PyProxyBaseTestCase(unittest.TestCase):
         # unops that don't return a proxy
         funcs = (lambda x: not x,)
         if not PY3:
-            funcs += (oct, hex)
+            funcs += (oct, hex)  # pragma: no cover PY2
         for func in funcs:
             self.assertEqual(func(self._makeOne(100)), func(100))
 
     binops = [
         "x+y", "x-y", "x*y", "x/y", "x//y", "x%y", "divmod(x, y)",
-        "x**y", #"pow(x,y,3)" (RHS coercion not supported w/ modulus)
+        "x**y",  # "pow(x,y,3)" (RHS coercion not supported w/ modulus)
         "x<<y", "x>>y", "x&y", "x|y", "x^y",
-        ]
+    ]
 
     def test_binops(self):
         for expr in self.binops:
@@ -631,72 +654,72 @@ class PyProxyBaseTestCase(unittest.TestCase):
         self.assertEqual(pa, 20)
 
     @unittest.skipIf(PY3, "No coercion in Py3")
-    def test_coerce(self):
+    def test_coerce(self):  # pragma: no cover PY2
         # Before 2.3, coerce() of two proxies returns them unchanged
 
         x = self._makeOne(1)
         y = self._makeOne(2)
-        a, b = coerce(x, y)
+        a, b = coerce(x, y)  # noqa: F821 undefined name
         self.assertTrue(a is x and b is y)
 
         x = self._makeOne(1)
         y = self._makeOne(2.1)
-        a, b = coerce(x, y)
-        self.assertTrue(isinstance(a, float)) # a was coerced
+        a, b = coerce(x, y)  # noqa: F821 undefined name
+        self.assertTrue(isinstance(a, float))  # a was coerced
         self.assertFalse(a is x)
         self.assertEqual(a, float(x))
         self.assertTrue(b is y)
 
         x = self._makeOne(1.1)
         y = self._makeOne(2)
-        a, b = coerce(x, y)
+        a, b = coerce(x, y)  # noqa: F821 undefined name
         self.assertTrue(a is x)
-        self.assertTrue(isinstance(b, float)) # b was coerced
+        self.assertTrue(isinstance(b, float))  # b was coerced
         self.assertFalse(b is y)
         self.assertEqual(b, float(y))
 
         x = self._makeOne(1)
         y = 2
-        a, b = coerce(x, y)
-        self.assertTrue(a is x) # neither was coerced
+        a, b = coerce(x, y)  # noqa: F821 undefined name
+        self.assertTrue(a is x)  # neither was coerced
         self.assertTrue(b is y)
 
         x = self._makeOne(1)
         y = 2.1
-        a, b = coerce(x, y)
-        self.assertTrue(isinstance(a, float)) # a was coerced
+        a, b = coerce(x, y)  # noqa: F821 undefined name
+        self.assertTrue(isinstance(a, float))  # a was coerced
         self.assertFalse(a is x)
         self.assertEqual(a, float(x))
         self.assertTrue(b is y)
 
         x = self._makeOne(1.1)
         y = 2
-        a, b = coerce(x, y)
+        a, b = coerce(x, y)  # noqa: F821 undefined name
         self.assertTrue(a is x)
-        self.assertTrue(isinstance(b, float)) # b was coerced
+        self.assertTrue(isinstance(b, float))  # b was coerced
         self.assertFalse(b is y)
-        self.assertEqual(b,float(y))
+        self.assertEqual(b, float(y))
 
         x = 1
         y = self._makeOne(2)
-        a, b = coerce(x, y)
-        self.assertTrue(a is x) # neither was coerced
+        a, b = coerce(x, y)  # noqa: F821 undefined name
+        self.assertTrue(a is x)  # neither was coerced
         self.assertTrue(b is y)
 
         x = 1.1
         y = self._makeOne(2)
-        a, b = coerce(x, y)
+        a, b = coerce(x, y)  # noqa: F821 undefined name
         self.assertTrue(a is x)
-        self.assertTrue(isinstance(b, float)) # b was coerced
+        self.assertTrue(isinstance(b, float))  # b was coerced
         self.assertFalse(b is y)
-        self.assertEqual(b,  float(y))
+        self.assertEqual(b, float(y))
 
         x = 1
         y = self._makeOne(2.1)
-        a, b = coerce(x, y)
-        self.assertTrue(isinstance(a, float)) # a was coerced
+        a, b = coerce(x, y)  # noqa: F821 undefined name
+        self.assertTrue(isinstance(a, float))  # a was coerced
         self.assertFalse(a is x)
-        self.assertEqual(a,  float(x))
+        self.assertEqual(a, float(x))
         self.assertTrue(b is y)
 
     def test___class__(self):
@@ -709,11 +732,13 @@ class PyProxyBaseTestCase(unittest.TestCase):
         class Descriptor(object):
             value = None
             instance = None
+
             def __set__(self, instance, value):
                 self.value = value
                 self.instance = instance
 
         descriptor = Descriptor()
+
         class Proxy(self._getTargetClass()):
             attr = descriptor
 
@@ -741,6 +766,7 @@ class PyProxyBaseTestCase(unittest.TestCase):
 
         descriptor = Descriptor()
         descriptor.value = "descriptor value"
+
         class Proxy(self._getTargetClass()):
             attr = descriptor
 
@@ -765,14 +791,14 @@ class PyProxyBaseTestCase(unittest.TestCase):
         self.assertRaises(AttributeError, setattr, proxy, 'attr', 42)
         self.assertEqual(proxy.attr, "constant value")
 
-    def _check_wrapping_builtin_returns_correct_provided_by(self, proxy_class, builtin_type):
+    def _check_wrapping_builtin_returns_correct_provided_by(
+            self, proxy_class, builtin_type):
         # We get the __implemented__ (fallback) of the type, not our own
         from zope.interface import Interface
         from zope.interface import classImplements
         from zope.interface import classImplementsOnly
         from zope.interface import implementedBy
         from zope.interface import providedBy
-        from zope.interface import implementedBy
 
         # Set up the builtin interface
         class IFoo(Interface):
@@ -794,31 +820,37 @@ class PyProxyBaseTestCase(unittest.TestCase):
             self.assertTrue(IFoo in list(provided_instance))
 
             proxy_type = proxy_class(builtin_type)
-            from zope.interface.declarations import BuiltinImplementationSpecifications
+            from zope.interface.declarations import \
+                BuiltinImplementationSpecifications
             self.assertIn(proxy_type, BuiltinImplementationSpecifications)
-            self.assertIsNot(BuiltinImplementationSpecifications.get(proxy_type, self),
-                             self)
+            self.assertIsNot(
+                BuiltinImplementationSpecifications.get(proxy_type, self),
+                self)
             provided_type = implementedBy(proxy_type)
             self.assertTrue(IFoo in list(provided_type))
         finally:
             classImplementsOnly(builtin_type, *impl_before)
 
     def test_wrapping_builtin_type_returns_correct_provided_by(self):
-        self._check_wrapping_builtin_returns_correct_provided_by(self._getTargetClass(), list)
+        self._check_wrapping_builtin_returns_correct_provided_by(
+            self._getTargetClass(), list)
 
-    def _check_wrapping_builtin_with_subclass_returns_correct_provided_by(self, builtin_type):
+    def _check_wrapping_builtin_with_subclass_returns_correct_provided_by(
+            self, builtin_type):
         class Proxy(self._getTargetClass()):
             pass
 
-        self._check_wrapping_builtin_returns_correct_provided_by(Proxy, builtin_type)
+        self._check_wrapping_builtin_returns_correct_provided_by(
+            Proxy, builtin_type)
         # Our new class did not gain an __implemented__ attribute, unless we're
         # the pure-python version
-        if hasattr(Proxy, '__implemented__'): # pragma: no cover
+        if hasattr(Proxy, '__implemented__'):  # pragma: no cover
             from zope.proxy import PyProxyBase
             self.assertTrue(self._getTargetClass() is PyProxyBase)
 
     def test_wrapping_builtin_with_subclass_returns_correct_provided_by(self):
-        self._check_wrapping_builtin_with_subclass_returns_correct_provided_by(list)
+        self._check_wrapping_builtin_with_subclass_returns_correct_provided_by(
+            list)
 
     def test_method_in_proxy_subclass(self):
         class Proxy(self._getTargetClass()):
@@ -836,19 +868,22 @@ class PyProxyBaseTestCase(unittest.TestCase):
         proxy = self._makeOne("14")
         self.assertEqual(14, int(proxy))
 
+
 class ProxyBaseTestCase(PyProxyBaseTestCase):
 
     def _getTargetClass(self):
         from zope.proxy import ProxyBase
         return ProxyBase
 
+
 class Test_py__module(unittest.TestCase):
     # Historically, proxying __module__ has been troublesome,
     # especially when subclasses of the proxy class are involved;
     # there was also a discrepancy between the C and Python implementations
-    # in that the C implementation only failed Test_subclass__module:test__module__in_instance,
+    # in that the C implementation only failed
+    # Test_subclass__module:test__module__in_instance,
     # whereas the Python version failed every test.
-    # See https://github.com/zopefoundation/zopetoolkit/pull/2#issuecomment-106075153
+    # See https://github.com/zopefoundation/zopetoolkit/pull/2#issuecomment-106075153  # noqa: E501 line too long
     # and https://github.com/zopefoundation/zope.proxy/pull/8
 
     def _getTargetClass(self):
@@ -856,7 +891,6 @@ class Test_py__module(unittest.TestCase):
         return PyProxyBase
 
     def _makeProxy(self, obj):
-        from zope.proxy import PyProxyBase
         return self._getTargetClass()(obj)
 
     def _check_module(self, obj, expected):
@@ -892,6 +926,7 @@ class Test_py__module(unittest.TestCase):
         class Module(object):
             def __init__(self):
                 self.__module__ = __name__
+
             def __eq__(self, other):
                 return self.__module__ == other.__module__
 
@@ -904,23 +939,28 @@ class Test_py__module(unittest.TestCase):
         self.assertEqual(module, self._makeProxy(module))
         self.assertEqual(self._makeProxy(module), module)
 
+
 class Test__module(Test_py__module):
 
     def _getTargetClass(self):
         from zope.proxy import ProxyBase
         return ProxyBase
 
+
 class Test_py_subclass__module(Test_py__module):
 
     def _getTargetClass(self):
-        class ProxySubclass(super(Test_py_subclass__module, self)._getTargetClass()):
+        class ProxySubclass(
+                super(Test_py_subclass__module, self)._getTargetClass()):
             pass
         return ProxySubclass
+
 
 class Test_subclass__module(Test__module):
 
     def _getTargetClass(self):
-        class ProxySubclass(super(Test_subclass__module, self)._getTargetClass()):
+        class ProxySubclass(
+                super(Test_subclass__module, self)._getTargetClass()):
             pass
         return ProxySubclass
 
@@ -955,6 +995,7 @@ class Test_py_getProxiedObject(unittest.TestCase):
         proxy = self._makeProxy(c)
         proxy2 = self._makeProxy(proxy)
         self.assertTrue(self._callFUT(proxy2) is proxy)
+
 
 class Test_getProxiedObject(Test_py_getProxiedObject):
 
@@ -1041,6 +1082,7 @@ class Test_py_isProxy(unittest.TestCase):
     def test_proxy_no_class(self):
         class P1(self._proxyClass()):
             pass
+
         class C(object):
             pass
         c = C()
@@ -1050,6 +1092,7 @@ class Test_py_isProxy(unittest.TestCase):
     def test_proxy_w_same_class(self):
         class P1(self._proxyClass()):
             pass
+
         class C(object):
             pass
         c = C()
@@ -1059,8 +1102,10 @@ class Test_py_isProxy(unittest.TestCase):
     def test_proxy_w_other_class(self):
         class P1(self._proxyClass()):
             pass
+
         class P2(self._proxyClass()):
             pass
+
         class C(object):
             pass
         c = C()
@@ -1126,6 +1171,7 @@ class Test_py_sameProxiedObjects(unittest.TestCase):
 
     def test_proxies_w_same_bare(self):
         _mP = self._makeProxy
+
         class C(object):
             pass
         c1 = C()
@@ -1133,6 +1179,7 @@ class Test_py_sameProxiedObjects(unittest.TestCase):
 
     def test_proxies_w_other_bare(self):
         _mP = self._makeProxy
+
         class C(object):
             pass
         c1 = C()
@@ -1142,6 +1189,7 @@ class Test_py_sameProxiedObjects(unittest.TestCase):
 
     def test_nested_proxy_and_same_bare(self):
         _mP = self._makeProxy
+
         class C(object):
             pass
         c1 = C()
@@ -1150,6 +1198,7 @@ class Test_py_sameProxiedObjects(unittest.TestCase):
 
     def test_nested_proxy_and_other_bare(self):
         _mP = self._makeProxy
+
         class C(object):
             pass
         c1 = C()
@@ -1172,6 +1221,7 @@ class Test_py_sameProxiedObjects(unittest.TestCase):
         proxy2 = self._makeSecurityProxy(c2)
         self.assertFalse(self._callFUT(proxy1, proxy2))
 
+
 class Test_sameProxiedObjects(Test_py_sameProxiedObjects):
 
     def _callFUT(self, *args):
@@ -1187,6 +1237,7 @@ class Test_sameProxiedObjects(Test_py_sameProxiedObjects):
         from zope.security.checker import Checker
         checker = Checker({})
         return Proxy(obj, checker)
+
 
 class Test_py_queryProxy(unittest.TestCase):
 
@@ -1207,6 +1258,7 @@ class Test_py_queryProxy(unittest.TestCase):
     def test_proxy_no_class(self):
         class P1(self._proxyClass()):
             pass
+
         class C(object):
             pass
         c = C()
@@ -1216,6 +1268,7 @@ class Test_py_queryProxy(unittest.TestCase):
     def test_proxy_w_same_class(self):
         class P1(self._proxyClass()):
             pass
+
         class C(object):
             pass
         c = C()
@@ -1226,8 +1279,10 @@ class Test_py_queryProxy(unittest.TestCase):
     def test_proxy_w_other_class(self):
         class P1(self._proxyClass()):
             pass
+
         class P2(self._proxyClass()):
             pass
+
         class C(object):
             pass
         c = C()
@@ -1238,8 +1293,10 @@ class Test_py_queryProxy(unittest.TestCase):
     def test_proxy_w_base_class(self):
         class P1(self._proxyClass()):
             pass
+
         class P2(self._proxyClass()):
             pass
+
         class C(object):
             pass
         c = C()
@@ -1278,6 +1335,7 @@ class Test_py_queryInnerProxy(unittest.TestCase):
     def test_proxy_no_class(self):
         class P1(self._proxyClass()):
             pass
+
         class C(object):
             pass
         c = C()
@@ -1287,6 +1345,7 @@ class Test_py_queryInnerProxy(unittest.TestCase):
     def test_proxy_w_same_class(self):
         class P1(self._proxyClass()):
             pass
+
         class C(object):
             pass
         c = C()
@@ -1297,8 +1356,10 @@ class Test_py_queryInnerProxy(unittest.TestCase):
     def test_nested_proxy(self):
         class P1(self._proxyClass()):
             pass
+
         class P2(self._proxyClass()):
             pass
+
         class C(object):
             pass
         c = C()
@@ -1312,8 +1373,10 @@ class Test_py_queryInnerProxy(unittest.TestCase):
     def test_re_nested_proxy(self):
         class P1(self._proxyClass()):
             pass
+
         class P2(self._proxyClass()):
             pass
+
         class C(object):
             pass
         c = C()
@@ -1381,6 +1444,7 @@ class Test_py_removeAllProxies(unittest.TestCase):
         proxy = self._makeSecurityProxy(c)
         self.assertIs(self._callFUT(proxy), c)
 
+
 class Test_removeAllProxies(Test_py_removeAllProxies):
 
     def _callFUT(self, *args):
@@ -1396,6 +1460,7 @@ class Test_removeAllProxies(Test_py_removeAllProxies):
         checker = object()
         return Proxy(obj, checker)
 
+
 class Test_ProxyIterator(unittest.TestCase):
 
     def _callFUT(self, *args):
@@ -1410,6 +1475,7 @@ class Test_ProxyIterator(unittest.TestCase):
 
     def test_w_simple_proxy(self):
         from zope.proxy import ProxyBase
+
         class C(object):
             pass
         c = C()
@@ -1418,6 +1484,7 @@ class Test_ProxyIterator(unittest.TestCase):
 
     def test_w_nested_proxies(self):
         from zope.proxy import ProxyBase
+
         class C(object):
             pass
         c = C()
@@ -1434,15 +1501,19 @@ class Test_nonOverridable(unittest.TestCase):
     def test_it(self):
         from zope.proxy import ProxyBase
         from zope.proxy import non_overridable
+
         class Proxy(ProxyBase):
             def who(self):
                 raise AssertionError("Not called")
+
             @non_overridable
             def what(self):
                 return 'PROXY'
+
         class Foo(object):
             def who(self):
                 return 'FOO'
+
             def what(self):
                 return 'FOO'
         p0 = ProxyBase(Foo())
@@ -1457,6 +1528,7 @@ class TestEmptyInterfaceDescriptor(unittest.TestCase):
 
     def _makeOne(self):
         from zope.proxy import _EmptyInterfaceDescriptor
+
         class It(object):
             feature = _EmptyInterfaceDescriptor()
         return It()
@@ -1500,7 +1572,7 @@ class Comparable(object):
     def __gt__(self, other):
         return not self.__le__(other)
 
-    def __repr__(self): # pragma: no cover
+    def __repr__(self):  # pragma: no cover
         return "<Comparable: %r>" % self.value
 
 

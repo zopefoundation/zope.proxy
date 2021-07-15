@@ -29,10 +29,13 @@ class DecoratorSpecificationDescriptorTests(unittest.TestCase):
         from zope.interface import Interface
         from zope.interface import implementer
         from zope.interface import provider
+
         class IContextFactory(Interface):
             pass
+
         class IContext(Interface):
             pass
+
         @provider(IContextFactory)
         @implementer(IContext)
         class Context(object):
@@ -44,10 +47,13 @@ class DecoratorSpecificationDescriptorTests(unittest.TestCase):
         from zope.interface import Interface
         from zope.interface import implementer
         from zope.interface import provider
+
         class IContextFactory(Interface):
             pass
+
         class IContext(Interface):
             pass
+
         @provider(IContextFactory)
         @implementer(IContext)
         class Context(object):
@@ -60,10 +66,13 @@ class DecoratorSpecificationDescriptorTests(unittest.TestCase):
         from zope.interface import implementer
         from zope.interface import provider
         from zope.proxy import ProxyBase
+
         class IContextFactory(Interface):
             pass
+
         class IContext(Interface):
             pass
+
         @provider(IContextFactory)
         @implementer(IContext)
         class Context(object):
@@ -78,18 +87,24 @@ class DecoratorSpecificationDescriptorTests(unittest.TestCase):
         from zope.interface import implementer
         from zope.interface import provider
         from zope.proxy import ProxyBase
+
         class IContextFactory(Interface):
             pass
+
         class IContext(Interface):
             pass
+
         @provider(IContextFactory)
         @implementer(IContext)
         class Context(object):
             pass
+
         class IProxyFactory(Interface):
             pass
+
         class IProxy(Interface):
             pass
+
         @provider(IProxyFactory)
         @implementer(IProxy)
         class Proxy(ProxyBase):
@@ -103,8 +118,10 @@ class DecoratorSpecificationDescriptorTests(unittest.TestCase):
     def test___set___not_allowed(self):
         from zope.interface import Interface
         from zope.interface import implementer
+
         class IFoo(Interface):
             pass
+
         @implementer(IFoo)
         class Foo(object):
             pass
@@ -126,8 +143,10 @@ class SpecificationDecoratorBaseTests(unittest.TestCase):
         from zope.interface import Interface
         from zope.interface import implementer
         from zope.interface import providedBy
+
         class IFoo(Interface):
             pass
+
         @implementer(IFoo)
         class Foo(object):
             pass
@@ -141,14 +160,17 @@ class SpecificationDecoratorBaseTests(unittest.TestCase):
         from zope.interface import Interface
         from zope.interface import implementer
         from zope.interface import providedBy
+
         class IFoo(Interface):
             pass
+
         @implementer(IFoo)
         class Foo(object):
             from_foo = 1
 
         class IWrapper(Interface):
             pass
+
         @implementer(IWrapper)
         class Proxy(self._getTargetClass()):
             pass
@@ -157,7 +179,7 @@ class SpecificationDecoratorBaseTests(unittest.TestCase):
         proxy = Proxy(foo)
 
         self.assertEqual(proxy.from_foo, 1)
-        self.assertEqual(list(providedBy(proxy)), [IFoo,IWrapper])
+        self.assertEqual(list(providedBy(proxy)), [IFoo, IWrapper])
 
 
 def test_suite():

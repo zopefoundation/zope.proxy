@@ -16,6 +16,7 @@
 
 from zope.interface import Interface
 
+
 class IProxyIntrospection(Interface):
     """Provides methods for indentifying proxies and extracting proxied objects
     """
