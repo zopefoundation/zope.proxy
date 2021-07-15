@@ -426,8 +426,7 @@ class PyProxyBaseTestCase(unittest.TestCase):
                 raise Missing("__getslice__")
         target = Get()
         proxy = self._makeOne(target)
-        with self.assertRaisesRegexp(Missing,
-                                     self.getslice):
+        with self.assertRaisesRegex(Missing, self.getslice):
             proxy[1:2]
 
     def test___setslice___against_list(self):
@@ -469,8 +468,7 @@ class PyProxyBaseTestCase(unittest.TestCase):
                 raise Missing("__setslice__")
         target = Set()
         proxy = self._makeOne(target)
-        with self.assertRaisesRegexp(Missing,
-                                     self.setslice):
+        with self.assertRaisesRegex(Missing, self.setslice):
             proxy[1:2] = 1
 
     def test___setslice___dne_uses_setitem(self):
@@ -483,8 +481,7 @@ class PyProxyBaseTestCase(unittest.TestCase):
 
         target = Set()
         proxy = self._makeOne(target)
-        with self.assertRaisesRegexp(Missing,
-                                     '__setitem__'):
+        with self.assertRaisesRegex(Missing, '__setitem__'):
             proxy[1:2] = 1
 
     def test___iter___w_wrapped_iterable(self):
