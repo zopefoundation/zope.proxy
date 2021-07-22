@@ -81,7 +81,7 @@ else:
     headers = [os.path.join('src', 'zope', 'proxy', 'proxy.h')]
 
 setup(name='zope.proxy',
-      version='4.4.0.dev',
+      version='4.4.0',
       author='Zope Foundation and Contributors',
       author_email='zope-dev@zope.org',
       description='Generic Transparent Proxies',
