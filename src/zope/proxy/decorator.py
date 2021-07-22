@@ -24,9 +24,11 @@ from zope.interface.declarations import getObjectSpecification
 from zope.interface.declarations import ObjectSpecification
 from zope.interface import providedBy
 
+
 class DecoratorSpecificationDescriptor(ObjectSpecificationDescriptor):
     """Support for interface declarations on decorators
     """
+
     def __get__(self, inst, cls=None):
         if inst is None:
             return getObjectSpecification(cls)
@@ -46,4 +48,3 @@ class SpecificationDecoratorBase(ProxyBase):
     """Base class for a proxy that provides additional interfaces."""
 
     __providedBy__ = DecoratorSpecificationDescriptor()
-

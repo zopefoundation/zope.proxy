@@ -1,18 +1,18 @@
+# Generated from:
+# https://github.com/zopefoundation/meta/tree/master/config/c-code
 include *.rst
 include *.txt
-include *.py
-include tox.ini
 include buildout.cfg
-include .travis.yml
+include tox.ini
+include appveyor.yml
 include .coveragerc
 
-recursive-include docs *
-recursive-include src *
+recursive-include docs *.py
+recursive-include docs *.rst
+recursive-include docs *.txt
+recursive-include docs Makefile
 
-global-exclude *.dll
-global-exclude *.pyc
-global-exclude *.pyo
-global-exclude *.so
-
-# added by check_manifest.py
-include *.yml
+recursive-include src *.py
+include *.sh
+recursive-include docs *.bat
+recursive-include src *.h

@@ -16,13 +16,13 @@
 import operator
 import os
 import pickle
-import sys
 
 from zope.interface import moduleProvides
 from zope.proxy.interfaces import IProxyIntrospection
 
 moduleProvides(IProxyIntrospection)
 __all__ = tuple(IProxyIntrospection)
+
 
 def ProxyIterator(p):
     yield p
@@ -32,6 +32,7 @@ def ProxyIterator(p):
 
 
 _MARKER = object()
+
 
 def _WrapperType_Lookup(type_, name):
     """
@@ -49,11 +50,13 @@ def _WrapperType_Lookup(type_, name):
             return res
     return _MARKER
 
+
 def _get_wrapped(self):
     """
     Helper method to access the wrapped object.
     """
     return super(AbstractPyProxyBase, self).__getattribute__('_wrapped')
+
 
 class _EmptyInterfaceDescriptor(object):
     """A descriptor for the attributes used on the class by the
@@ -79,10 +82,12 @@ class _EmptyInterfaceDescriptor(object):
         raise StopIteration()
     next = __next__
 
+
 class _ProxyMetaclass(type):
     # The metaclass is applied after the class definition
     # for Py2/Py3 compatibility.
     __implemented__ = _EmptyInterfaceDescriptor()
+
 
 class AbstractPyProxyBase(object):
     """
@@ -116,10 +121,10 @@ class AbstractPyProxyBase(object):
     def __str__(self):
         return str(self._wrapped)
 
-    def __unicode__(self):
-        return unicode(self._wrapped)
+    def __unicode__(self):  # pragma: no cover PY2
+        return unicode(self._wrapped)  # noqa: F821 undefined name
 
-    def __reduce__(self): # pragma: no cover  (__reduce_ex__ prevents normal)
+    def __reduce__(self):  # pragma: no cover  (__reduce_ex__ prevents normal)
         raise pickle.PicklingError
 
     def __reduce_ex__(self, proto):
@@ -146,7 +151,7 @@ class AbstractPyProxyBase(object):
 
     def __nonzero__(self):
         return bool(self._wrapped)
-    __bool__ = __nonzero__ # Python3 compat
+    __bool__ = __nonzero__  # Python3 compat
 
     def __hash__(self):
         return hash(self._wrapped)
@@ -240,18 +245,19 @@ class AbstractPyProxyBase(object):
         del self._wrapped[key]
 
     def __iter__(self):
-        # This handles a custom __iter__ and generator support at the same time.
+        # This handles a custom __iter__ and generator support at the same
+        # time.
         return iter(self._wrapped)
 
-    def next(self):
+    def next(self):  # pragma: no cover PY2
         # Called when we wrap an iterator itself.
         return self._wrapped.next()
 
-    def __next__(self): # pragma: no cover Python3
+    def __next__(self):
         return self._wrapped.__next__()
 
     # Python 2.7 won't let the C wrapper support __reversed__ :(
-    #def __reversed__(self):
+    # def __reversed__(self):
     #    return reversed(self._wrapped)
 
     def __contains__(self, item):
@@ -277,8 +283,8 @@ class AbstractPyProxyBase(object):
     def __int__(self):
         return int(self._wrapped)
 
-    def __long__(self):
-        return long(self._wrapped)
+    def __long__(self):  # pragma: no cover PY2
+        return long(self._wrapped)  # noqa: F821 undefined name
 
     def __float__(self):
         return float(self._wrapped)
@@ -293,9 +299,10 @@ class AbstractPyProxyBase(object):
         return operator.index(self._wrapped)
 
     # Numeric protocol:  binary coercion
-    def __coerce__(self, other):
-        left, right = coerce(self._wrapped, other)
-        if left == self._wrapped and type(left) is type(self._wrapped):
+    def __coerce__(self, other):  # pragma: no cover PY2
+        left, right = coerce(self._wrapped, other)  # noqa: F821 undefined name
+        if (left == self._wrapped
+                and type(left) is type(self._wrapped)):  # noqa: E721
             left = self
         return left, right
 
@@ -312,11 +319,11 @@ class AbstractPyProxyBase(object):
     def __floordiv__(self, other):
         return self._wrapped // other
 
-    def __truediv__(self, other): # pragma: no cover
+    def __truediv__(self, other):  # pragma: no cover
         # Only one of __truediv__ and __div__ is meaningful at any one time.
         return self._wrapped / other
 
-    def __div__(self, other): # pragma: no cover
+    def __div__(self, other):  # pragma: no cover
         # Only one of __truediv__ and __div__ is meaningful at any one time.
         return self._wrapped / other
 
@@ -343,11 +350,11 @@ class AbstractPyProxyBase(object):
     def __rfloordiv__(self, other):
         return other // self._wrapped
 
-    def __rtruediv__(self, other): # pragma: no cover
+    def __rtruediv__(self, other):  # pragma: no cover
         # Only one of __rtruediv__ and __rdiv__ is meaningful at any one time.
         return other / self._wrapped
 
-    def __rdiv__(self, other): # pragma: no cover
+    def __rdiv__(self, other):  # pragma: no cover
         # Only one of __rtruediv__ and __rdiv__ is meaningful at any one time.
         return other / self._wrapped
 
@@ -361,7 +368,7 @@ class AbstractPyProxyBase(object):
         if modulus is None:
             return pow(other, self._wrapped)
         # We can't actually get here, because we can't lie about our type()
-        return pow(other, self._wrapped, modulus) # pragma: no cover
+        return pow(other, self._wrapped, modulus)  # pragma: no cover
 
     # Numeric protocol:  binary bitwise operators
     def __lshift__(self, other):
@@ -407,12 +414,12 @@ class AbstractPyProxyBase(object):
         self._wrapped *= other
         return self
 
-    def __idiv__(self, other): # pragma: no cover
+    def __idiv__(self, other):  # pragma: no cover
         # Only one of __itruediv__ and __idiv__ is meaningful at any one time.
         self._wrapped /= other
         return self
 
-    def __itruediv__(self, other): # pragma: no cover
+    def __itruediv__(self, other):  # pragma: no cover
         # Only one of __itruediv__ and __idiv__ is meaningful at any one time.
         self._wrapped /= other
         return self
@@ -448,13 +455,15 @@ class AbstractPyProxyBase(object):
     def __ipow__(self, other, modulus=None):
         if modulus is None:
             self._wrapped **= other
-        else: # pragma: no cover
+        else:  # pragma: no cover
             # There is no syntax which triggers in-place pow w/ modulus
             self._wrapped = pow(self._wrapped, other, modulus)
         return self
 
+
 AbstractPyProxyBase = _ProxyMetaclass(str('AbstractPyProxyBase'), (),
                                       dict(AbstractPyProxyBase.__dict__))
+
 
 class PyProxyBase(AbstractPyProxyBase):
     """Reference implementation.
@@ -467,16 +476,19 @@ def py_getProxiedObject(obj):
         return obj._wrapped
     return obj
 
+
 def py_setProxiedObject(obj, new_value):
     if not isinstance(obj, PyProxyBase):
         raise TypeError('Not a proxy')
     old, obj._wrapped = obj._wrapped, new_value
     return old
 
+
 def py_isProxy(obj, klass=None):
     if klass is None:
         klass = PyProxyBase
     return isinstance(obj, klass)
+
 
 def py_sameProxiedObjects(lhs, rhs):
     while isinstance(lhs, PyProxyBase):
@@ -484,6 +496,7 @@ def py_sameProxiedObjects(lhs, rhs):
     while isinstance(rhs, PyProxyBase):
         rhs = super(PyProxyBase, rhs).__getattribute__('_wrapped')
     return lhs is rhs
+
 
 def py_queryProxy(obj, klass=None, default=None):
     if klass is None:
@@ -494,36 +507,42 @@ def py_queryProxy(obj, klass=None, default=None):
         return obj
     return default
 
+
 def py_queryInnerProxy(obj, klass=None, default=None):
     if klass is None:
         klass = PyProxyBase
     found = []
     while obj is not None:
         if isinstance(obj, klass):
-            found.append(obj) # stack
+            found.append(obj)  # stack
         obj = getattr(obj, '_wrapped', None)
     if found:
         return found[-1]
     return default
+
 
 def py_removeAllProxies(obj):
     while isinstance(obj, PyProxyBase):
         obj = super(PyProxyBase, obj).__getattribute__('_wrapped')
     return obj
 
+
 _c_available = False
 if 'PURE_PYTHON' not in os.environ:
-    try:
+    try:  # pragma: no cover
         from zope.proxy._zope_proxy_proxy import ProxyBase as _c_available
-    except ImportError: # pragma: no cover
+    except ImportError:
         pass
+
 
 class PyNonOverridable(object):
     "Deprecated, only for BWC."
-    def __init__(self, method_desc): # pragma: no cover PyPy
+
+    def __init__(self, method_desc):  # pragma: no cover PyPy
         self.desc = method_desc
 
-if _c_available:
+
+if _c_available:  # pragma: no cover
     # Python API:  not used in this module
     from zope.proxy._zope_proxy_proxy import ProxyBase
     from zope.proxy._zope_proxy_proxy import getProxiedObject
@@ -535,9 +554,9 @@ if _c_available:
     from zope.proxy._zope_proxy_proxy import removeAllProxies
 
     # API for proxy-using C extensions.
-    from zope.proxy._zope_proxy_proxy import _CAPI
+    from zope.proxy._zope_proxy_proxy import _CAPI  # noqa: F401 unused
 
-else: # pragma: no cover
+else:
     # no C extension available, fall back
     ProxyBase = PyProxyBase
     getProxiedObject = py_getProxiedObject
@@ -547,6 +566,7 @@ else: # pragma: no cover
     queryProxy = py_queryProxy
     queryInnerProxy = py_queryInnerProxy
     removeAllProxies = py_removeAllProxies
+
 
 def non_overridable(func):
     return property(lambda self: func.__get__(self))
