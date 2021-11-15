@@ -5,7 +5,7 @@
 4.4.1 (unreleased)
 ==================
 
-- Nothing changed yet.
+- Add support for Python 3.10.
 
 
 4.4.0 (2021-07-22)
