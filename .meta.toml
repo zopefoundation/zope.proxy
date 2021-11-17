@@ -2,7 +2,7 @@
 # https://github.com/zopefoundation/meta/tree/master/config/c-code
 [meta]
 template = "c-code"
-commit-id = "802ac12d0664dfaa42f1dcfe920f40a7aa3d0e14"
+commit-id = "aef18fe5ee64014d8b1b9de21f1e0a0991be874e"
 
 [python]
 with-appveyor = true
@@ -34,4 +34,12 @@ global-env-vars = [
     "   TWINE_USERNAME: __token__",
     "   TWINE_PASSWORD:",
     "       secure: aoZC/+rvJKg8B5GMGIxd1bg9UDShk28EhfPQFKI9zy7kzygdgj0XuaK619sLe3s4B08bIJaIUAThxEvWq13IvdLb5Oyk8B9qubd+NnDiNuw8WCGy4owYnbl+61fUVVKJIf1ETQyGDooYrEuBo798/+ycQbilTpmncAHZb2KyZkmA210fcWr7OhwmlRtC4IiW7GPCaxU6qhzLlP5pnS2Tl+yy/qx2DiW2fKWqUqynrb1ZMsk6ygN4qV72glTY6wV0eYboAGlghrws1x5+Z10Yug==",
+    ]
+
+[check-manifest]
+additional-ignores = [
+    "docs/_static",
+    "docs/_build",
+    "docs/_build/*",
+    "docs/_build/*/*",
     ]
