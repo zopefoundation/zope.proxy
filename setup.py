@@ -133,6 +133,7 @@ setup(name='zope.proxy',
               'zope.testrunner',
           ],
           'docs': [
+              'Sphinx',
               'repoze.sphinx.autointerface',
           ],
       },
