@@ -65,6 +65,7 @@ class DecoratorSpecificationDescriptorTests(unittest.TestCase):
         from zope.interface import Interface
         from zope.interface import implementer
         from zope.interface import provider
+
         from zope.proxy import ProxyBase
 
         class IContextFactory(Interface):
@@ -86,6 +87,7 @@ class DecoratorSpecificationDescriptorTests(unittest.TestCase):
         from zope.interface import Interface
         from zope.interface import implementer
         from zope.interface import provider
+
         from zope.proxy import ProxyBase
 
         class IContextFactory(Interface):

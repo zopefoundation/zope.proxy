@@ -18,7 +18,9 @@ import os
 import pickle
 
 from zope.interface import moduleProvides
+
 from zope.proxy.interfaces import IProxyIntrospection
+
 
 moduleProvides(IProxyIntrospection)
 __all__ = tuple(IProxyIntrospection)
@@ -544,17 +546,16 @@ class PyNonOverridable(object):
 
 if _c_available:  # pragma: no cover
     # Python API:  not used in this module
-    from zope.proxy._zope_proxy_proxy import ProxyBase
-    from zope.proxy._zope_proxy_proxy import getProxiedObject
-    from zope.proxy._zope_proxy_proxy import setProxiedObject
-    from zope.proxy._zope_proxy_proxy import isProxy
-    from zope.proxy._zope_proxy_proxy import sameProxiedObjects
-    from zope.proxy._zope_proxy_proxy import queryProxy
-    from zope.proxy._zope_proxy_proxy import queryInnerProxy
-    from zope.proxy._zope_proxy_proxy import removeAllProxies
-
     # API for proxy-using C extensions.
     from zope.proxy._zope_proxy_proxy import _CAPI  # noqa: F401 unused
+    from zope.proxy._zope_proxy_proxy import ProxyBase
+    from zope.proxy._zope_proxy_proxy import getProxiedObject
+    from zope.proxy._zope_proxy_proxy import isProxy
+    from zope.proxy._zope_proxy_proxy import queryInnerProxy
+    from zope.proxy._zope_proxy_proxy import queryProxy
+    from zope.proxy._zope_proxy_proxy import removeAllProxies
+    from zope.proxy._zope_proxy_proxy import sameProxiedObjects
+    from zope.proxy._zope_proxy_proxy import setProxiedObject
 
 else:
     # no C extension available, fall back

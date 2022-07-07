@@ -18,11 +18,13 @@ additional features.
 """
 __docformat__ = "reStructuredText"
 
-from zope.proxy import getProxiedObject, ProxyBase
+from zope.interface import providedBy
+from zope.interface.declarations import ObjectSpecification
 from zope.interface.declarations import ObjectSpecificationDescriptor
 from zope.interface.declarations import getObjectSpecification
-from zope.interface.declarations import ObjectSpecification
-from zope.interface import providedBy
+
+from zope.proxy import ProxyBase
+from zope.proxy import getProxiedObject
 
 
 class DecoratorSpecificationDescriptor(ObjectSpecificationDescriptor):

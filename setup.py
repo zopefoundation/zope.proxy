@@ -19,17 +19,16 @@
 """Setup for zope.proxy package
 """
 from __future__ import print_function
+
 import os
 import platform
-
-
 from distutils.errors import CCompilerError
 from distutils.errors import DistutilsExecError
 from distutils.errors import DistutilsPlatformError
 
 from setuptools import Extension
-from setuptools.command.build_ext import build_ext
 from setuptools import setup
+from setuptools.command.build_ext import build_ext
 
 
 class optional_build_ext(build_ext):
