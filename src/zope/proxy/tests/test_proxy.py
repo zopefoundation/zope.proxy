@@ -15,6 +15,7 @@
 """
 import unittest
 
+
 try:
     import zope.security
 except ImportError:  # pragma: no cover
@@ -30,6 +31,7 @@ class ModuleConformanceCase(unittest.TestCase):
 
     def test_module_conforms_to_IProxyIntrospection(self):
         from zope.interface.verify import verifyObject
+
         import zope.proxy
         from zope.proxy.interfaces import IProxyIntrospection
         verifyObject(IProxyIntrospection, zope.proxy)
@@ -1133,8 +1135,8 @@ class Test_py_sameProxiedObjects(unittest.TestCase):
         return PyProxyBase(obj)
 
     def _makeSecurityProxy(self, obj):
-        from zope.security.proxy import ProxyPy
         from zope.security.checker import CheckerPy
+        from zope.security.proxy import ProxyPy
         checker = CheckerPy({})
         return ProxyPy(obj, checker)
 
@@ -1231,8 +1233,8 @@ class Test_sameProxiedObjects(Test_py_sameProxiedObjects):
         return ProxyBase(obj)
 
     def _makeSecurityProxy(self, obj):
-        from zope.security.proxy import Proxy
         from zope.security.checker import Checker
+        from zope.security.proxy import Proxy
         checker = Checker({})
         return Proxy(obj, checker)
 
