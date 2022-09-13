@@ -5,7 +5,8 @@
 4.5.1 (unreleased)
 ==================
 
-- Nothing changed yet.
+- Disable unsafe math optimizations in C code.  See `pull request 53
+  <https://github.com/zopefoundation/zope.proxy/pull/53>`_.
 
 
 4.5.0 (2021-11-17)
