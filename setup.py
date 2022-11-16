@@ -80,7 +80,7 @@ else:
     headers = [os.path.join('src', 'zope', 'proxy', 'proxy.h')]
 
 setup(name='zope.proxy',
-      version='4.6.1.dev0',
+      version='4.6.1',
       author='Zope Foundation and Contributors',
       author_email='zope-dev@zope.org',
       description='Generic Transparent Proxies',
@@ -90,6 +90,11 @@ setup(name='zope.proxy',
           read('CHANGES.rst')
       ),
       url='http://github.com/zopefoundation/zope.proxy',
+      project_urls={
+        'Documentation': 'https://zopeproxy.readthedocs.io',
+        'Issue Tracker': 'https://github.com/zopefoundation/zope.proxy/issues',
+        'Sources': 'https://github.com/zopefoundation/zope.proxy',
+      },
       license='ZPL 2.1',
       classifiers=[
           'Development Status :: 5 - Production/Stable',
@@ -121,6 +126,7 @@ setup(name='zope.proxy',
       },
       headers=headers,
       ext_modules=ext_modules,
+      python_requires='>=2.7,!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*',
       install_requires=[
           'zope.interface',
           'setuptools',
