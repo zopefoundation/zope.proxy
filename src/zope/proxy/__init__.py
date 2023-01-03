@@ -60,7 +60,7 @@ def _get_wrapped(self):
     return super(AbstractPyProxyBase, self).__getattribute__('_wrapped')
 
 
-class _EmptyInterfaceDescriptor(object):
+class _EmptyInterfaceDescriptor:
     """A descriptor for the attributes used on the class by the
     Python implementation of `zope.interface`.
 
@@ -91,7 +91,7 @@ class _ProxyMetaclass(type):
     __implemented__ = _EmptyInterfaceDescriptor()
 
 
-class AbstractPyProxyBase(object):
+class AbstractPyProxyBase:
     """
     A reference implementation that cannot be instantiated. Most users
     will want to use :class:`PyProxyBase`.
@@ -123,8 +123,8 @@ class AbstractPyProxyBase(object):
     def __str__(self):
         return str(self._wrapped)
 
-    def __unicode__(self):  # pragma: no cover PY2
-        return unicode(self._wrapped)  # noqa: F821 undefined name
+    def __bytes__(self):
+        return bytes(self._wrapped)
 
     def __reduce__(self):  # pragma: no cover  (__reduce_ex__ prevents normal)
         raise pickle.PicklingError
@@ -251,16 +251,15 @@ class AbstractPyProxyBase(object):
         # time.
         return iter(self._wrapped)
 
-    def next(self):  # pragma: no cover PY2
+    def next(self):
         # Called when we wrap an iterator itself.
-        return self._wrapped.next()
+        return next(self._wrapped)
 
     def __next__(self):
         return self._wrapped.__next__()
 
-    # Python 2.7 won't let the C wrapper support __reversed__ :(
-    # def __reversed__(self):
-    #    return reversed(self._wrapped)
+    def __reversed__(self):
+        return reversed(self._wrapped)
 
     def __contains__(self, item):
         return item in self._wrapped
@@ -285,8 +284,8 @@ class AbstractPyProxyBase(object):
     def __int__(self):
         return int(self._wrapped)
 
-    def __long__(self):  # pragma: no cover PY2
-        return long(self._wrapped)  # noqa: F821 undefined name
+    def __long__(self):  # Must stick around until zope.security is fixed
+        return int(self._wrapped)
 
     def __float__(self):
         return float(self._wrapped)
@@ -299,14 +298,6 @@ class AbstractPyProxyBase(object):
 
     def __index__(self):
         return operator.index(self._wrapped)
-
-    # Numeric protocol:  binary coercion
-    def __coerce__(self, other):  # pragma: no cover PY2
-        left, right = coerce(self._wrapped, other)  # noqa: F821 undefined name
-        if (left == self._wrapped
-                and type(left) is type(self._wrapped)):  # noqa: E721
-            left = self
-        return left, right
 
     # Numeric protocol:  binary arithmetic operators
     def __add__(self, other):
@@ -463,7 +454,7 @@ class AbstractPyProxyBase(object):
         return self
 
 
-AbstractPyProxyBase = _ProxyMetaclass(str('AbstractPyProxyBase'), (),
+AbstractPyProxyBase = _ProxyMetaclass('AbstractPyProxyBase', (),
                                       dict(AbstractPyProxyBase.__dict__))
 
 
@@ -537,7 +528,7 @@ if 'PURE_PYTHON' not in os.environ:
         pass
 
 
-class PyNonOverridable(object):
+class PyNonOverridable:
     "Deprecated, only for BWC."
 
     def __init__(self, method_desc):  # pragma: no cover PyPy
