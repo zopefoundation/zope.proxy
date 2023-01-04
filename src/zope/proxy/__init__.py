@@ -123,9 +123,6 @@ class AbstractPyProxyBase:
     def __str__(self):
         return str(self._wrapped)
 
-    def __bytes__(self):
-        return bytes(self._wrapped)
-
     def __reduce__(self):  # pragma: no cover  (__reduce_ex__ prevents normal)
         raise pickle.PicklingError
 
@@ -258,8 +255,10 @@ class AbstractPyProxyBase:
     def __next__(self):
         return self._wrapped.__next__()
 
-    def __reversed__(self):
-        return reversed(self._wrapped)
+    # Python 2.7 won't let the C wrapper support __reversed__
+    # Uncomment this when the supported Python versions do
+    # def __reversed__(self):
+    #    return reversed(self._wrapped)
 
     def __contains__(self, item):
         return item in self._wrapped
@@ -284,8 +283,10 @@ class AbstractPyProxyBase:
     def __int__(self):
         return int(self._wrapped)
 
-    def __long__(self):  # Must stick around until zope.security is fixed
-        return int(self._wrapped)
+    # BBB Should go away after zope.security is fixed
+    # see https://github.com/zopefoundation/zope.security/issues/92
+    def __long__(self):
+        return long(self._wrapped)  # noqa: F821 undefined name
 
     def __float__(self):
         return float(self._wrapped)

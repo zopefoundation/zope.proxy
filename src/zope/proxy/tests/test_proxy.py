@@ -518,8 +518,7 @@ class PyProxyBaseTestCase(unittest.TestCase):
             y = eval(expr)
             x = self._makeOne(1)
             z = eval(expr)
-            self.assertEqual(z, y,
-                             "x={!r}; expr={!r}".format(x, expr))
+            self.assertEqual(z, y, f'x={x!r}; expr={expr!r}')
 
     def test_odd_unops(self):
         # unops that don't return a proxy
@@ -542,7 +541,7 @@ class PyProxyBaseTestCase(unittest.TestCase):
                         z = eval(expr)
                         first = 0
                     else:
-                        msg = "x={!r}; y={!r}; expr={!r}".format(x, y, expr)
+                        msg = f'x={x!r}; y={y!r}; expr={expr!r}'
                         self.assertEqual(eval(expr), z, msg)
 
     def test_pow_w_modulus(self):

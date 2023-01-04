@@ -187,11 +187,8 @@ WrapperType_Lookup(PyTypeObject *type, PyObject *name)
         base = PyTuple_GET_ITEM(mro, i);
 
         if (((PyTypeObject *)base) != &ProxyType) {
-            {
-                assert(PyType_Check(base));
-                dict = ((PyTypeObject *)base)->tp_dict;
-            }
-
+            assert(PyType_Check(base));
+            dict = ((PyTypeObject *)base)->tp_dict;
             assert(dict && PyDict_Check(dict));
             res = PyDict_GetItem(dict, name);
             if (res != NULL)
