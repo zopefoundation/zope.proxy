@@ -38,7 +38,7 @@ class DecoratorSpecificationDescriptorTests(unittest.TestCase):
 
         @provider(IContextFactory)
         @implementer(IContext)
-        class Context(object):
+        class Context:
             pass
         dsd = self._makeOne()
         self.assertEqual(list(dsd.__get__(None, Context)), [IContextFactory])
@@ -56,7 +56,7 @@ class DecoratorSpecificationDescriptorTests(unittest.TestCase):
 
         @provider(IContextFactory)
         @implementer(IContext)
-        class Context(object):
+        class Context:
             pass
         dsd = self._makeOne()
         self.assertEqual(list(dsd.__get__(Context(), None)), [IContext])
@@ -76,7 +76,7 @@ class DecoratorSpecificationDescriptorTests(unittest.TestCase):
 
         @provider(IContextFactory)
         @implementer(IContext)
-        class Context(object):
+        class Context:
             pass
         context = Context()
         proxy = ProxyBase(context)
@@ -98,7 +98,7 @@ class DecoratorSpecificationDescriptorTests(unittest.TestCase):
 
         @provider(IContextFactory)
         @implementer(IContext)
-        class Context(object):
+        class Context:
             pass
 
         class IProxyFactory(Interface):
@@ -125,7 +125,7 @@ class DecoratorSpecificationDescriptorTests(unittest.TestCase):
             pass
 
         @implementer(IFoo)
-        class Foo(object):
+        class Foo:
             pass
         foo = Foo()
         dsd = self._makeOne()
@@ -150,7 +150,7 @@ class SpecificationDecoratorBaseTests(unittest.TestCase):
             pass
 
         @implementer(IFoo)
-        class Foo(object):
+        class Foo:
             pass
         foo = Foo()
         proxy = self._makeOne(foo)
@@ -167,7 +167,7 @@ class SpecificationDecoratorBaseTests(unittest.TestCase):
             pass
 
         @implementer(IFoo)
-        class Foo(object):
+        class Foo:
             from_foo = 1
 
         class IWrapper(Interface):
@@ -186,6 +186,8 @@ class SpecificationDecoratorBaseTests(unittest.TestCase):
 
 def test_suite():
     return unittest.TestSuite((
-        unittest.makeSuite(DecoratorSpecificationDescriptorTests),
-        unittest.makeSuite(SpecificationDecoratorBaseTests),
+        unittest.defaultTestLoader.loadTestsFromTestCase(
+            DecoratorSpecificationDescriptorTests),
+        unittest.defaultTestLoader.loadTestsFromTestCase(
+            SpecificationDecoratorBaseTests),
     ))

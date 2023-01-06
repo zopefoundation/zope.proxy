@@ -38,34 +38,16 @@ static PyObject *
 empty_tuple = NULL;
 
 
-#if PY_VERSION_HEX <  0x02070000
-  #define PyCapsule_New(pointer, name, destr) \
-          PyCObject_FromVoidPtr(pointer, destr)
-#endif
+#define MOD_ERROR_VAL NULL
 
-// Compatibility with Python 2
-#if PY_MAJOR_VERSION < 3
-  #define MOD_ERROR_VAL
+#define MOD_SUCCESS_VAL(val) val
 
-  #define MOD_SUCCESS_VAL(val)
+#define MOD_INIT(name) PyMODINIT_FUNC PyInit_##name(void)
 
-  #define MOD_INIT(name) void init##name(void)
-
-  #define MOD_DEF(ob, name, doc, methods) \
-          ob = Py_InitModule3(name, methods, doc);
-
-#else
-  #define MOD_ERROR_VAL NULL
-
-  #define MOD_SUCCESS_VAL(val) val
-
-  #define MOD_INIT(name) PyMODINIT_FUNC PyInit_##name(void)
-
-  #define MOD_DEF(ob, name, doc, methods) \
-          static struct PyModuleDef moduledef = { \
-            PyModuleDef_HEAD_INIT, name, doc, -1, methods, }; \
-          ob = PyModule_Create(&moduledef);
-#endif
+#define MOD_DEF(ob, name, doc, methods) \
+        static struct PyModuleDef moduledef = { \
+          PyModuleDef_HEAD_INIT, name, doc, -1, methods, }; \
+        ob = PyModule_Create(&moduledef);
 
 
 
@@ -205,16 +187,8 @@ WrapperType_Lookup(PyTypeObject *type, PyObject *name)
         base = PyTuple_GET_ITEM(mro, i);
 
         if (((PyTypeObject *)base) != &ProxyType) {
-#if PY_MAJOR_VERSION < 3
-            if (PyClass_Check(base))
-                dict = ((PyClassObject *)base)->cl_dict;
-            else
-#endif
-            {
-                assert(PyType_Check(base));
-                dict = ((PyTypeObject *)base)->tp_dict;
-            }
-
+            assert(PyType_Check(base));
+            dict = ((PyTypeObject *)base)->tp_dict;
             assert(dict && PyDict_Check(dict));
             res = PyDict_GetItem(dict, name);
             if (res != NULL)
@@ -234,11 +208,7 @@ wrap_getattro(PyObject *self, PyObject *name)
     const char *name_as_string;
     int maybe_special_name;
 
-#if PY_MAJOR_VERSION < 3
-    name_as_string = PyString_AsString(name);
-#else
     name_as_string = PyUnicode_AsUTF8(name);
-#endif
 
     if (name_as_string == NULL) {
         return NULL;
@@ -262,9 +232,6 @@ wrap_getattro(PyObject *self, PyObject *name)
 
         if (descriptor != NULL) {
             if (descriptor->ob_type->tp_descr_get != NULL
-#if PY_MAJOR_VERSION < 3 // Always true in Python 3
-                && PyType_HasFeature(descriptor->ob_type, Py_TPFLAGS_HAVE_CLASS)
-#endif
             ){
               if (descriptor->ob_type->tp_descr_set == NULL)
                 {
@@ -305,11 +272,7 @@ wrap_setattro(PyObject *self, PyObject *name, PyObject *value)
     const char *name_as_string;
     int res = -1;
 
-#if PY_MAJOR_VERSION < 3
-    name_as_string = PyString_AsString(name);
-#else
     name_as_string = PyUnicode_AsUTF8(name);
-#endif
 
     if (name_as_string == NULL) {
         goto finally;
@@ -318,9 +281,6 @@ wrap_setattro(PyObject *self, PyObject *name, PyObject *value)
     descriptor = WrapperType_Lookup(self->ob_type, name);
 
     if (descriptor != NULL
-#if PY_MAJOR_VERSION < 3 // This is always true in Python 3 (I think)
-        && PyType_HasFeature(descriptor->ob_type, Py_TPFLAGS_HAVE_CLASS)
-#endif
         && descriptor->ob_type->tp_descr_set != NULL)
       {
         res = descriptor->ob_type->tp_descr_set(descriptor, self, value);
@@ -340,15 +300,6 @@ finally:
     return res;
 }
 
-#if PY_MAJOR_VERSION < 3
-// tp_print slot function; reserved and unused in Python 3
-static int
-wrap_print(PyObject *wrapper, FILE *fp, int flags)
-{
-    return PyObject_Print(Proxy_GET_OBJECT(wrapper), fp, flags);
-}
-#endif
-
 static PyObject *
 wrap_str(PyObject *wrapper) {
     return PyObject_Str(Proxy_GET_OBJECT(wrapper));
@@ -359,14 +310,6 @@ wrap_repr(PyObject *wrapper)
 {
     return PyObject_Repr(Proxy_GET_OBJECT(wrapper));
 }
-
-#if PY_MAJOR_VERSION < 3
-static int
-wrap_compare(PyObject *wrapper, PyObject *v)
-{
-    return PyObject_Compare(Proxy_GET_OBJECT(wrapper), v);
-}
-#endif
 
 static long
 wrap_hash(PyObject *self)
@@ -391,45 +334,9 @@ wrap_call(PyObject *self, PyObject *args, PyObject *kw)
 static PyObject *
 call_int(PyObject *self)
 {
-#if PY_MAJOR_VERSION < 3
-    return PyNumber_Int(self);
-#else
-    return PyNumber_Long(self);
-#endif
-}
-
-#if PY_MAJOR_VERSION < 3 // Python 3 has no long, oct or hex methods.
-static PyObject *
-call_long(PyObject *self)
-{
     return PyNumber_Long(self);
 }
 
-static PyObject *
-call_oct(PyObject *self)
-{
-    PyNumberMethods *nb = self->ob_type->tp_as_number;
-    if (nb == NULL || nb->nb_oct== NULL) {
-        PyErr_SetString(PyExc_TypeError,
-                        "object can't be converted to oct");
-        return NULL;
-    }
-    return nb->nb_oct(self);
-}
-
-static PyObject *
-call_hex(PyObject *self)
-{
-    PyNumberMethods *nb = self->ob_type->tp_as_number;
-    if (nb == NULL || nb->nb_hex == NULL) {
-        PyErr_SetString(PyExc_TypeError,
-                        "object can't be converted to hex");
-        return NULL;
-    }
-    return nb->nb_hex(self);
-}
-
-#endif
 
 static PyObject *
 call_index(PyObject *self)
@@ -449,14 +356,6 @@ call_ipow(PyObject *self, PyObject *other)
     /* PyNumber_InPlacePower has three args.  How silly. :-) */
     return PyNumber_InPlacePower(self, other, Py_None);
 }
-
-#if PY_MAJOR_VERSION < 3
-static PyObject *
-call_unicode(PyObject *self)
-{
-    return PyObject_Unicode(self);
-}
-#endif
 
 
 typedef PyObject *(*function1)(PyObject *);
@@ -540,9 +439,6 @@ check2i(ProxyObject *self, PyObject *other,
 BINOP(add, PyNumber_Add)
 BINOP(sub, PyNumber_Subtract)
 BINOP(mul, PyNumber_Multiply)
-#if PY_MAJOR_VERSION < 3 // Python 3 doesn't support the old integer division
-BINOP(div, PyNumber_Divide)
-#endif
 BINOP(mod, PyNumber_Remainder)
 BINOP(divmod, PyNumber_Divmod)
 
@@ -577,47 +473,6 @@ BINOP(and, PyNumber_And)
 BINOP(xor, PyNumber_Xor)
 BINOP(or, PyNumber_Or)
 
-#if PY_MAJOR_VERSION < 3 // Coercion is gone in Python 3
-static int
-wrap_coerce(PyObject **p_self, PyObject **p_other)
-{
-    PyObject *self = *p_self;
-    PyObject *other = *p_other;
-    PyObject *object;
-    PyObject *left;
-    PyObject *right;
-    int r;
-
-    assert(Proxy_Check(self));
-    object = Proxy_GET_OBJECT(self);
-
-    left = object;
-    right = other;
-    r = PyNumber_CoerceEx(&left, &right);
-    if (r != 0)
-        return r;
-    /* Now left and right have been INCREF'ed.  Any new value that
-       comes out is proxied; any unchanged value is left unchanged. */
-    if (left == object) {
-        /* Keep the old proxy */
-        Py_INCREF(self);
-        Py_DECREF(left);
-        left = self;
-    }
-#if 0
-    else {
-        /* ??? create proxy for left? */
-    }
-    if (right != other) {
-        /* ??? create proxy for right? */
-    }
-#endif
-    *p_self = left;
-    *p_other = right;
-    return 0;
-}
-#endif
-
 UNOP(neg, PyNumber_Negative)
 UNOP(pos, PyNumber_Positive)
 UNOP(abs, PyNumber_Absolute)
@@ -625,18 +480,10 @@ UNOP(invert, PyNumber_Invert)
 
 UNOP(int, call_int)
 UNOP(float, call_float)
-#if PY_MAJOR_VERSION < 3 // Python 3 has no long, oct or hex methods
-UNOP(long, call_long)
-UNOP(oct, call_oct)
-UNOP(hex, call_hex)
-#endif
 
 INPLACE(add, PyNumber_InPlaceAdd)
 INPLACE(sub, PyNumber_InPlaceSubtract)
 INPLACE(mul, PyNumber_InPlaceMultiply)
-#if PY_MAJOR_VERSION < 3 // The old integer division operator is gone in Python 3
-INPLACE(div, PyNumber_InPlaceDivide)
-#endif
 INPLACE(mod, PyNumber_InPlaceRemainder)
 INPLACE(pow, call_ipow)
 INPLACE(lshift, PyNumber_InPlaceLshift)
@@ -651,9 +498,6 @@ INPLACE(floordiv, PyNumber_InPlaceFloorDivide)
 INPLACE(truediv, PyNumber_InPlaceTrueDivide)
 UNOP(index, call_index)
 
-#if PY_MAJOR_VERSION < 3 // Python 3 has no __unicode__ method
-UNOP(unicode, call_unicode)
-#endif
 
 static int
 wrap_nonzero(PyObject *self)
@@ -681,14 +525,6 @@ wrap_slice(PyObject *self, Py_ssize_t start, Py_ssize_t end)
      * call the slice method the type provides.
      */
     PyObject *obj = Proxy_GET_OBJECT(self);
-#if PY_MAJOR_VERSION < 3
-    PySequenceMethods *m;
-
-    m = obj->ob_type->tp_as_sequence;
-    if (m && m->sq_slice) {
-        return m->sq_slice(obj, start, end);
-    }
-#endif
 	return PySequence_GetSlice(obj, start, end);
 }
 
@@ -766,9 +602,6 @@ wrap_as_number = {
     wrap_add,                               /* nb_add */
     wrap_sub,                               /* nb_subtract */
     wrap_mul,                               /* nb_multiply */
-#if PY_MAJOR_VERSION < 3
-    wrap_div,                               /* nb_divide */
-#endif
     wrap_mod,                               /* nb_remainder */
     wrap_divmod,                            /* nb_divmod */
     wrap_pow,                               /* nb_power */
@@ -782,29 +615,15 @@ wrap_as_number = {
     wrap_and,                               /* nb_and */
     wrap_xor,                               /* nb_xor */
     wrap_or,                                /* nb_or */
-#if PY_MAJOR_VERSION < 3
-    wrap_coerce,                            /* nb_coerce */
-#endif
     wrap_int,                               /* nb_int */
-#if PY_MAJOR_VERSION < 3
-    wrap_long,                              /* nb_long */
-#else
     0,                                      /* formerly known as nb_long */
-#endif
     wrap_float,                             /* nb_float */
-#if PY_MAJOR_VERSION < 3
-    wrap_oct,                               /* nb_oct */
-    wrap_hex,                               /* nb_hex */
-#endif
 
     /* Added in release 2.0 */
     /* These require the Py_TPFLAGS_HAVE_INPLACEOPS flag */
     wrap_iadd,                              /* nb_inplace_add */
     wrap_isub,                              /* nb_inplace_subtract */
     wrap_imul,                              /* nb_inplace_multiply */
-#if PY_MAJOR_VERSION < 3
-    wrap_idiv,                              /* nb_inplace_divide */
-#endif
     wrap_imod,                              /* nb_inplace_remainder */
     (ternaryfunc)wrap_ipow,                 /* nb_inplace_power */
     wrap_ilshift,                           /* nb_inplace_lshift */
@@ -844,9 +663,6 @@ wrap_as_mapping = {
 static PyMethodDef
 wrap_methods[] = {
     {"__reduce__", (PyCFunction)wrap_reduce, METH_NOARGS, reduce__doc__},
-#if PY_MAJOR_VERSION < 3
-    {"__unicode__", (PyCFunction)wrap_unicode, METH_NOARGS, "" },
-#endif
     {NULL, NULL},
 };
 
@@ -868,18 +684,10 @@ ProxyType = {
     sizeof(ProxyObject),
     0,
     wrap_dealloc,                           /* tp_dealloc */
-#if PY_MAJOR_VERSION < 3
-    wrap_print,                             /* tp_print */
-#else
     0,                                      /* reserved 3.0--3.7; tp_vectorcall_offset 3.8+ */
-#endif
     0,                                      /* tp_getattr */
     0,                                      /* tp_setattr */
-#if PY_MAJOR_VERSION < 3
-    wrap_compare,                           /* tp_compare */
-#else
     0,                                      /* tp_reserved */
-#endif
     wrap_repr,                              /* tp_repr */
     &wrap_as_number,                        /* tp_as_number */
     &wrap_as_sequence,                      /* tp_as_sequence */
@@ -890,16 +698,9 @@ ProxyType = {
     wrap_getattro,                          /* tp_getattro */
     wrap_setattro,                          /* tp_setattro */
     0,                                      /* tp_as_buffer */
-#if PY_MAJOR_VERSION < 3
-    Py_TPFLAGS_DEFAULT |
-    Py_TPFLAGS_HAVE_GC |
-    Py_TPFLAGS_CHECKTYPES |
-    Py_TPFLAGS_BASETYPE,                    /* tp_flags */
-#else // Py_TPFLAGS_CHECKTYPES is always true in Python 3 and removed.
     Py_TPFLAGS_DEFAULT |
     Py_TPFLAGS_HAVE_GC |
     Py_TPFLAGS_BASETYPE,                    /* tp_flags */
-#endif
     0,                                      /* tp_doc */
     wrap_traverse,                          /* tp_traverse */
     wrap_clear,                             /* tp_clear */
