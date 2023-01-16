@@ -148,9 +148,8 @@ class AbstractPyProxyBase:
     def __ge__(self, other):
         return self._wrapped >= other
 
-    def __nonzero__(self):
+    def __bool__(self):
         return bool(self._wrapped)
-    __bool__ = __nonzero__  # Python3 compat
 
     def __hash__(self):
         return hash(self._wrapped)
@@ -283,19 +282,8 @@ class AbstractPyProxyBase:
     def __int__(self):
         return int(self._wrapped)
 
-    # BBB Should go away after zope.security is fixed
-    # see https://github.com/zopefoundation/zope.security/issues/92
-    def __long__(self):
-        return long(self._wrapped)  # noqa: F821 undefined name
-
     def __float__(self):
         return float(self._wrapped)
-
-    def __oct__(self):
-        return oct(self._wrapped)
-
-    def __hex__(self):
-        return hex(self._wrapped)
 
     def __index__(self):
         return operator.index(self._wrapped)
@@ -314,11 +302,6 @@ class AbstractPyProxyBase:
         return self._wrapped // other
 
     def __truediv__(self, other):  # pragma: no cover
-        # Only one of __truediv__ and __div__ is meaningful at any one time.
-        return self._wrapped / other
-
-    def __div__(self, other):  # pragma: no cover
-        # Only one of __truediv__ and __div__ is meaningful at any one time.
         return self._wrapped / other
 
     def __mod__(self, other):
@@ -345,11 +328,6 @@ class AbstractPyProxyBase:
         return other // self._wrapped
 
     def __rtruediv__(self, other):  # pragma: no cover
-        # Only one of __rtruediv__ and __rdiv__ is meaningful at any one time.
-        return other / self._wrapped
-
-    def __rdiv__(self, other):  # pragma: no cover
-        # Only one of __rtruediv__ and __rdiv__ is meaningful at any one time.
         return other / self._wrapped
 
     def __rmod__(self, other):
@@ -408,13 +386,7 @@ class AbstractPyProxyBase:
         self._wrapped *= other
         return self
 
-    def __idiv__(self, other):  # pragma: no cover
-        # Only one of __itruediv__ and __idiv__ is meaningful at any one time.
-        self._wrapped /= other
-        return self
-
     def __itruediv__(self, other):  # pragma: no cover
-        # Only one of __itruediv__ and __idiv__ is meaningful at any one time.
         self._wrapped /= other
         return self
 

@@ -191,7 +191,7 @@ class PyProxyBaseTestCase(unittest.TestCase):
         self.assertTrue(o2 > w1)
         self.assertTrue(o2 >= w2)
 
-    def test___nonzero__(self):
+    def test___bool__(self):
         w = self._makeOne(None)
         self.assertFalse(w)
         self.assertTrue(not w)
