@@ -310,8 +310,7 @@ class PyProxyBaseTestCase(unittest.TestCase):
         data = [1, 2]
 
         class DerivedList(list):
-            def __getslice__(self, start, stop):  # pragma: no cover PY2
-                return list.__getslice__(self, start, stop)
+            pass
 
         pList = self._makeOne(DerivedList(data))
 
@@ -325,9 +324,6 @@ class PyProxyBaseTestCase(unittest.TestCase):
         class Slicer:
             def __len__(self):
                 return 2
-
-            def __getslice__(self, start, end):  # pragma: no cover PY2
-                return (start, end)
 
             def __getitem__(self, a_slice):
                 # On Python 3, we basically just return what the test expects.
@@ -369,8 +365,6 @@ class PyProxyBaseTestCase(unittest.TestCase):
             def __getitem__(self, x):
                 raise Missing('__getitem__')
 
-            def __getslice__(self, start, stop):  # pragma: no cover PY2
-                raise Missing("__getslice__")
         target = Get()
         proxy = self._makeOne(target)
         with self.assertRaisesRegex(Missing, self.getslice):
@@ -411,8 +405,6 @@ class PyProxyBaseTestCase(unittest.TestCase):
             def __setitem__(self, k, v):
                 raise Missing('__setitem__')
 
-            def __setslice__(self, start, stop, value):  # pragma: no cover PY2
-                raise Missing("__setslice__")
         target = Set()
         proxy = self._makeOne(target)
         with self.assertRaisesRegex(Missing, self.setslice):
