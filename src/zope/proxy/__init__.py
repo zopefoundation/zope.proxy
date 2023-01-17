@@ -301,7 +301,7 @@ class AbstractPyProxyBase:
     def __floordiv__(self, other):
         return self._wrapped // other
 
-    def __truediv__(self, other):  # pragma: no cover
+    def __truediv__(self, other):
         return self._wrapped / other
 
     def __mod__(self, other):
@@ -327,7 +327,7 @@ class AbstractPyProxyBase:
     def __rfloordiv__(self, other):
         return other // self._wrapped
 
-    def __rtruediv__(self, other):  # pragma: no cover
+    def __rtruediv__(self, other):
         return other / self._wrapped
 
     def __rmod__(self, other):
@@ -386,7 +386,7 @@ class AbstractPyProxyBase:
         self._wrapped *= other
         return self
 
-    def __itruediv__(self, other):  # pragma: no cover
+    def __itruediv__(self, other):
         self._wrapped /= other
         return self
 
