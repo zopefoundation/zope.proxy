@@ -13,7 +13,10 @@
 ##############################################################################
 """Test base proxy class.
 """
+import pickle
 import unittest
+
+from .. import _c_available
 
 
 try:
@@ -139,6 +142,18 @@ class PyProxyBaseTestCase(unittest.TestCase):
             raise AssertionError("Not called")
         proxy = self._makeOne(_foo)
         self.assertEqual(str(proxy), str(_foo))
+
+    def test__reduce__raises(self):
+        proxy = self._makeOne('foo')
+
+        with self.assertRaises(pickle.PicklingError):
+            proxy.__reduce__()
+
+    def test__reduce_ex__raises(self):
+        proxy = self._makeOne('foo')
+
+        with self.assertRaises(pickle.PicklingError):
+            proxy.__reduce_ex__(0)
 
     def test___eq___and___ne__(self):
         w = self._makeOne('foo')
@@ -731,11 +746,32 @@ class PyProxyBaseTestCase(unittest.TestCase):
         self.assertEqual(14, int(proxy))
 
 
+# When the C extension is not available the target class will be the same as
+# the Python implementation class. No need to run tests twice in that case.
+@unittest.skipUnless(_c_available, 'C extension not available')
 class ProxyBaseTestCase(PyProxyBaseTestCase):
 
     def _getTargetClass(self):
         from zope.proxy import ProxyBase
         return ProxyBase
+
+    def test__reduce__raises(self):
+        # With the C extension available the call to __reduce__
+        # is delegated to copyreg._reduce_ex from the standard library.
+        # That function raises TypeErrors and not pickle's exceptions
+        proxy = self._makeOne('foo')
+
+        with self.assertRaises(TypeError):
+            proxy.__reduce__()
+
+    def test__reduce_ex__raises(self):
+        # With the C extension available the call to __reduce_ex__
+        # is delegated to copyreg._reduce_ex from the standard library.
+        # That function raises TypeErrors and not pickle's exceptions
+        proxy = self._makeOne('foo')
+
+        with self.assertRaises(TypeError):
+            proxy.__reduce_ex__(0)
 
 
 class Test_py__module(unittest.TestCase):
