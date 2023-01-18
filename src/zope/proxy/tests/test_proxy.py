@@ -13,7 +13,10 @@
 ##############################################################################
 """Test base proxy class.
 """
+import pickle
 import unittest
+
+from .. import _c_available
 
 
 try:
@@ -140,6 +143,18 @@ class PyProxyBaseTestCase(unittest.TestCase):
         proxy = self._makeOne(_foo)
         self.assertEqual(str(proxy), str(_foo))
 
+    def test__reduce__raises(self):
+        proxy = self._makeOne('foo')
+
+        with self.assertRaises(pickle.PicklingError):
+            proxy.__reduce__()
+
+    def test__reduce_ex__raises(self):
+        proxy = self._makeOne('foo')
+
+        with self.assertRaises(pickle.PicklingError):
+            proxy.__reduce_ex__(0)
+
     def test___eq___and___ne__(self):
         w = self._makeOne('foo')
         self.assertEqual(w, 'foo')
@@ -191,7 +206,7 @@ class PyProxyBaseTestCase(unittest.TestCase):
         self.assertTrue(o2 > w1)
         self.assertTrue(o2 >= w2)
 
-    def test___nonzero__(self):
+    def test___bool__(self):
         w = self._makeOne(None)
         self.assertFalse(w)
         self.assertTrue(not w)
@@ -310,8 +325,7 @@ class PyProxyBaseTestCase(unittest.TestCase):
         data = [1, 2]
 
         class DerivedList(list):
-            def __getslice__(self, start, stop):  # pragma: no cover PY2
-                return list.__getslice__(self, start, stop)
+            pass
 
         pList = self._makeOne(DerivedList(data))
 
@@ -325,9 +339,6 @@ class PyProxyBaseTestCase(unittest.TestCase):
         class Slicer:
             def __len__(self):
                 return 2
-
-            def __getslice__(self, start, end):  # pragma: no cover PY2
-                return (start, end)
 
             def __getitem__(self, a_slice):
                 # On Python 3, we basically just return what the test expects.
@@ -369,8 +380,6 @@ class PyProxyBaseTestCase(unittest.TestCase):
             def __getitem__(self, x):
                 raise Missing('__getitem__')
 
-            def __getslice__(self, start, stop):  # pragma: no cover PY2
-                raise Missing("__getslice__")
         target = Get()
         proxy = self._makeOne(target)
         with self.assertRaisesRegex(Missing, self.getslice):
@@ -411,8 +420,6 @@ class PyProxyBaseTestCase(unittest.TestCase):
             def __setitem__(self, k, v):
                 raise Missing('__setitem__')
 
-            def __setslice__(self, start, stop, value):  # pragma: no cover PY2
-                raise Missing("__setslice__")
         target = Set()
         proxy = self._makeOne(target)
         with self.assertRaisesRegex(Missing, self.setslice):
@@ -739,11 +746,32 @@ class PyProxyBaseTestCase(unittest.TestCase):
         self.assertEqual(14, int(proxy))
 
 
+# When the C extension is not available the target class will be the same as
+# the Python implementation class. No need to run tests twice in that case.
+@unittest.skipUnless(_c_available, 'C extension not available')
 class ProxyBaseTestCase(PyProxyBaseTestCase):
 
     def _getTargetClass(self):
         from zope.proxy import ProxyBase
         return ProxyBase
+
+    def test__reduce__raises(self):
+        # With the C extension available the call to __reduce__
+        # is delegated to copyreg._reduce_ex from the standard library.
+        # That function raises TypeErrors and not pickle's exceptions
+        proxy = self._makeOne('foo')
+
+        with self.assertRaises(TypeError):
+            proxy.__reduce__()
+
+    def test__reduce_ex__raises(self):
+        # With the C extension available the call to __reduce_ex__
+        # is delegated to copyreg._reduce_ex from the standard library.
+        # That function raises TypeErrors and not pickle's exceptions
+        proxy = self._makeOne('foo')
+
+        with self.assertRaises(TypeError):
+            proxy.__reduce_ex__(0)
 
 
 class Test_py__module(unittest.TestCase):

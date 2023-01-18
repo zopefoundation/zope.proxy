@@ -500,7 +500,7 @@ UNOP(index, call_index)
 
 
 static int
-wrap_nonzero(PyObject *self)
+wrap_bool(PyObject *self)
 {
     return PyObject_IsTrue(Proxy_GET_OBJECT(self));
 }
@@ -513,31 +513,6 @@ static Py_ssize_t
 wrap_length(PyObject *self)
 {
     return PyObject_Length(Proxy_GET_OBJECT(self));
-}
-
-static PyObject *
-wrap_slice(PyObject *self, Py_ssize_t start, Py_ssize_t end)
-{
-    /*
-     * Note that we have arrived here through PySequence_GetSlice
-     * once already, which on Python 2 adjusted indices. We can't call
-     * PySequence_GetSlice again or they will be wrong. So we directly
-     * call the slice method the type provides.
-     */
-    PyObject *obj = Proxy_GET_OBJECT(self);
-	return PySequence_GetSlice(obj, start, end);
-}
-
-static int
-wrap_ass_slice(PyObject *self, Py_ssize_t i, Py_ssize_t j, PyObject *value)
-{
-    PyObject *obj = Proxy_GET_OBJECT(self);
-    if (PyList_Check(obj)) {
-        return PyList_SetSlice(obj, i, j, value);
-    }
-    else {
-        return PySequence_SetSlice(obj, i, j, value);
-    }
 }
 
 static int
@@ -608,7 +583,7 @@ wrap_as_number = {
     wrap_neg,                               /* nb_negative */
     wrap_pos,                               /* nb_positive */
     wrap_abs,                               /* nb_absolute */
-    wrap_nonzero,                           /* nb_nonzero */
+    wrap_bool,                              /* nb_bool, formerly nb_nonzero */
     wrap_invert,                            /* nb_invert */
     wrap_lshift,                            /* nb_lshift */
     wrap_rshift,                            /* nb_rshift */
@@ -647,9 +622,9 @@ wrap_as_sequence = {
     0,                                      /* sq_concat */
     0,                                      /* sq_repeat */
     0,                                      /* sq_item */
-    wrap_slice,                             /* sq_slice */
+    0,                                      /* sq_slice, unused in PY3 */
     0,                                      /* sq_ass_item */
-    wrap_ass_slice,                         /* sq_ass_slice */
+    0,                                      /* sq_ass_slice, unused in PY3 */
     wrap_contains,                          /* sq_contains */
 };
 

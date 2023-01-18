@@ -7,6 +7,10 @@
 
 - Drop support for Python 2.7, 3.5, 3.6.
 
+- Remove proxying code for names that no longer exist in Python 3
+  like ``__long__`` and some others.
+  (`#55 <https://github.com/zopefoundation/zope.proxy/issues/55>`_)
+
 
 4.6.1 (2022-11-16)
 ==================
