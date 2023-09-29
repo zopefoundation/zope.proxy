@@ -5,7 +5,7 @@
 5.1 (unreleased)
 ----------------
 
-- Add preliminary support for Python 3.12a5.
+- Add preliminary support for Python 3.12rc3.
 
 
 5.0.0 (2023-01-18)
