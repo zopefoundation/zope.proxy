@@ -79,7 +79,7 @@ else:
     headers = [os.path.join('src', 'zope', 'proxy', 'proxy.h')]
 
 setup(name='zope.proxy',
-      version='5.1.dev0',
+      version='5.1',
       author='Zope Foundation and Contributors',
       author_email='zope-dev@zope.org',
       description='Generic Transparent Proxies',
@@ -106,6 +106,7 @@ setup(name='zope.proxy',
           'Programming Language :: Python :: 3.9',
           'Programming Language :: Python :: 3.10',
           'Programming Language :: Python :: 3.11',
+          'Programming Language :: Python :: 3.12',
           'Programming Language :: Python :: Implementation :: CPython',
           'Programming Language :: Python :: Implementation :: PyPy',
           'Framework :: Zope :: 3',
@@ -136,6 +137,7 @@ setup(name='zope.proxy',
           'docs': [
               'Sphinx',
               'repoze.sphinx.autointerface',
+              'sphinx_rtd_theme',
           ],
       },
       )
