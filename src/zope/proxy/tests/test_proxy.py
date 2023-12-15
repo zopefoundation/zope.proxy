@@ -44,12 +44,6 @@ class PyProxyBaseTestCase(unittest.TestCase):
     getslice = '__getitem__'
     setslice = '__setitem__'
 
-    # Avoid DeprecationWarning for assertRaisesRegexp on Python 3 while
-    # coping with Python 2 not having the Regex spelling variant
-    assertRaisesRegex = getattr(
-        unittest.TestCase, 'assertRaisesRegex',
-        getattr(unittest.TestCase, 'assertRaisesRegexp', None))
-
     def _getTargetClass(self):
         from zope.proxy import PyProxyBase
         return PyProxyBase
