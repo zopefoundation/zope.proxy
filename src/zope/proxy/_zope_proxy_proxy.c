@@ -321,8 +321,7 @@ static PyObject *
 wrap_call(PyObject *self, PyObject *args, PyObject *kw)
 {
     if (kw)
-        return PyEval_CallObjectWithKeywords(Proxy_GET_OBJECT(self),
-                                             args, kw);
+        return PyObject_Call(Proxy_GET_OBJECT(self), args, kw);
     else
         return PyObject_CallObject(Proxy_GET_OBJECT(self), args);
 }
