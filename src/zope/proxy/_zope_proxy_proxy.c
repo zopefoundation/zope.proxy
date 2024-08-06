@@ -311,7 +311,7 @@ wrap_repr(PyObject *wrapper)
     return PyObject_Repr(Proxy_GET_OBJECT(wrapper));
 }
 
-static long
+static Py_hash_t
 wrap_hash(PyObject *self)
 {
     return PyObject_Hash(Proxy_GET_OBJECT(self));
