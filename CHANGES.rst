@@ -7,6 +7,9 @@
 
 - Build Windows wheels on GHA.
 
+- Correct return type for ``wrap_hash`` (fixes build on ``i386``).
+  (`#61 <https://github.com/zopefoundation/zope.proxy/issues/61>`_)
+
 
 5.2 (2024-02-09)
 ================
