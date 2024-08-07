@@ -2,7 +2,7 @@
  Changes
 =========
 
-5.3 (unreleased)
+5.3 (2024-08-07)
 ================
 
 - Build Windows wheels on GHA.
