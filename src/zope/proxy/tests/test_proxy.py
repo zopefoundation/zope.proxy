@@ -161,16 +161,16 @@ class PyProxyBaseTestCase(unittest.TestCase):
         w2 = self._makeOne(o2)
         w3 = self._makeOne(o3)
 
-        self.assertTrue(o1 == w1)
-        self.assertTrue(o1 == w2)
-        self.assertTrue(o2 == w1)
-        self.assertTrue(w1 == o2)
-        self.assertTrue(w2 == o1)
+        self.assertEqual(o1, w1)
+        self.assertEqual(o1, w2)
+        self.assertEqual(o2, w1)
+        self.assertEqual(w1, o2)
+        self.assertEqual(w2, o1)
 
-        self.assertTrue(o3 != w1)
-        self.assertTrue(w1 != o3)
-        self.assertTrue(w3 != o1)
-        self.assertTrue(o1 != w3)
+        self.assertNotEqual(o3, w1)
+        self.assertNotEqual(w1, o3)
+        self.assertNotEqual(w3, o1)
+        self.assertNotEqual(o1, w3)
 
     def test___lt___and___le__(self):
         o1 = Comparable(1)
@@ -179,12 +179,12 @@ class PyProxyBaseTestCase(unittest.TestCase):
         w1 = self._makeOne(o1)
         w2 = self._makeOne(o2)
 
-        self.assertTrue(w1 < w2)
-        self.assertTrue(w1 <= w2)
-        self.assertTrue(o1 < w2)
-        self.assertTrue(o1 <= w2)
-        self.assertTrue(w1 < o2)
-        self.assertTrue(w2 <= o2)
+        self.assertLess(w1, w2)
+        self.assertLessEqual(w1, w2)
+        self.assertLess(o1, w2)
+        self.assertLessEqual(o1, w2)
+        self.assertLess(w1, o2)
+        self.assertLessEqual(w2, o2)
 
     def test___gt___and___ge__(self):
         o1 = Comparable(1)
@@ -193,12 +193,12 @@ class PyProxyBaseTestCase(unittest.TestCase):
         w1 = self._makeOne(o1)
         w2 = self._makeOne(o2)
 
-        self.assertTrue(w2 > w1)
-        self.assertTrue(w2 >= w1)
-        self.assertTrue(w2 > o1)
-        self.assertTrue(w2 >= o1)
-        self.assertTrue(o2 > w1)
-        self.assertTrue(o2 >= w2)
+        self.assertGreater(w2, w1)
+        self.assertGreaterEqual(w2, w1)
+        self.assertGreater(w2, o1)
+        self.assertGreaterEqual(w2, o1)
+        self.assertGreater(o2, w1)
+        self.assertGreaterEqual(o2, w2)
 
     def test___bool__(self):
         w = self._makeOne(None)
@@ -280,7 +280,7 @@ class PyProxyBaseTestCase(unittest.TestCase):
         o.foo = 1
         w = self._makeOne(o)
         del w.foo
-        self.assertFalse('foo' in o.__dict__)
+        self.assertNotIn('foo', o.__dict__)
 
     def test___len__(self):
         l_ = []
@@ -462,7 +462,7 @@ class PyProxyBaseTestCase(unittest.TestCase):
         myIter = MyIter()
         p = self._makeOne(myIter)
         self.assertEqual(iter(p), p)
-        self.assertTrue(isinstance(iter(p), MyIter))
+        self.assertIsInstance(iter(p), MyIter)
 
     def test___iter___next_when_returned_by_iterable(self):
         # Wrap an iterator within the iteration protocol, expecting it
@@ -490,8 +490,8 @@ class PyProxyBaseTestCase(unittest.TestCase):
 
     def test___contains__(self):
         w = self._makeOne([0, 1, 2, 3])
-        self.assertTrue(1 in w)
-        self.assertFalse(4 in w)
+        self.assertIn(1, w)
+        self.assertNotIn(4, w)
 
     def test___index__(self):
         import operator
@@ -560,7 +560,7 @@ class PyProxyBaseTestCase(unittest.TestCase):
         a = [1, 2, 3]
         pa = qa = self._makeOne(a)
         pa += [4, 5, 6]
-        self.assertTrue(pa is qa)
+        self.assertIs(pa, qa)
         self.assertEqual(a, [1, 2, 3, 4, 5, 6])
 
         pa = self._makeOne(2)
@@ -596,7 +596,7 @@ class PyProxyBaseTestCase(unittest.TestCase):
     def test___class__(self):
         o = object()
         w = self._makeOne(o)
-        self.assertTrue(w.__class__ is o.__class__)
+        self.assertIs(w.__class__, o.__class__)
 
     def test_descriptor__set___only_in_proxy_subclass(self):
 
@@ -679,8 +679,8 @@ class PyProxyBaseTestCase(unittest.TestCase):
         classImplements(builtin_type, IFoo)
 
         builtin = builtin_type()
-        self.assertTrue(IFoo in list(providedBy(builtin)))
-        self.assertTrue(IFoo in list(implementedBy(builtin_type)))
+        self.assertIn(IFoo, list(providedBy(builtin)))
+        self.assertIn(IFoo, list(implementedBy(builtin_type)))
 
         try:
             # The asserts must be before we remove the interface
@@ -688,7 +688,7 @@ class PyProxyBaseTestCase(unittest.TestCase):
 
             proxy_instance = proxy_class(builtin)
             provided_instance = providedBy(proxy_instance)
-            self.assertTrue(IFoo in list(provided_instance))
+            self.assertIn(IFoo, list(provided_instance))
 
             proxy_type = proxy_class(builtin_type)
             from zope.interface.declarations import \
@@ -698,7 +698,7 @@ class PyProxyBaseTestCase(unittest.TestCase):
                 BuiltinImplementationSpecifications.get(proxy_type, self),
                 self)
             provided_type = implementedBy(proxy_type)
-            self.assertTrue(IFoo in list(provided_type))
+            self.assertIn(IFoo, list(provided_type))
         finally:
             classImplementsOnly(builtin_type, *impl_before)
 
@@ -717,7 +717,7 @@ class PyProxyBaseTestCase(unittest.TestCase):
         # the pure-python version
         if hasattr(Proxy, '__implemented__'):  # pragma: no cover
             from zope.proxy import PyProxyBase
-            self.assertTrue(self._getTargetClass() is PyProxyBase)
+            self.assertIs(self._getTargetClass(), PyProxyBase)
 
     def test_wrapping_builtin_with_subclass_returns_correct_provided_by(self):
         self._check_wrapping_builtin_with_subclass_returns_correct_provided_by(
@@ -871,14 +871,14 @@ class Test_py_getProxiedObject(unittest.TestCase):
         class C:
             pass
         c = C()
-        self.assertTrue(self._callFUT(c) is c)
+        self.assertIs(self._callFUT(c), c)
 
     def test_simple_proxy(self):
         class C:
             pass
         c = C()
         proxy = self._makeProxy(c)
-        self.assertTrue(self._callFUT(proxy) is c)
+        self.assertIs(self._callFUT(proxy), c)
 
     def test_nested_proxy(self):
         class C:
@@ -886,7 +886,7 @@ class Test_py_getProxiedObject(unittest.TestCase):
         c = C()
         proxy = self._makeProxy(c)
         proxy2 = self._makeProxy(proxy)
-        self.assertTrue(self._callFUT(proxy2) is proxy)
+        self.assertIs(self._callFUT(proxy2), proxy)
 
 
 class Test_getProxiedObject(Test_py_getProxiedObject):
@@ -926,7 +926,7 @@ class Test_py_setProxiedObject(unittest.TestCase):
         proxy = self._makeProxy(c1)
         self.assertEqual(proxy.name, 'c1')
         old = self._callFUT(proxy, c2)
-        self.assertTrue(old is c1)
+        self.assertIs(old, c1)
         self.assertEqual(proxy.name, 'c2')
 
     def test_w_nested_proxy(self):
@@ -940,7 +940,7 @@ class Test_py_setProxiedObject(unittest.TestCase):
         proxy = self._makeProxy(p1)
         self.assertEqual(proxy.name, 'c1')
         old = self._callFUT(proxy, proxy2)
-        self.assertTrue(old is p1)
+        self.assertIs(old, p1)
         self.assertEqual(proxy.name, 'c2')
 
 
@@ -1155,7 +1155,7 @@ class Test_py_queryProxy(unittest.TestCase):
             pass
         c = C()
         p1 = P1(c)
-        self.assertTrue(self._callFUT(p1) is p1)
+        self.assertIs(self._callFUT(p1), p1)
 
     def test_proxy_w_same_class(self):
         class P1(self._proxyClass()):
@@ -1165,8 +1165,8 @@ class Test_py_queryProxy(unittest.TestCase):
             pass
         c = C()
         p1 = P1(c)
-        self.assertTrue(self._callFUT(p1, P1) is p1)
-        self.assertTrue(self._callFUT(p1, P1, 42) is p1)
+        self.assertIs(self._callFUT(p1, P1), p1)
+        self.assertIs(self._callFUT(p1, P1, 42), p1)
 
     def test_proxy_w_other_class(self):
         class P1(self._proxyClass()):
@@ -1193,8 +1193,8 @@ class Test_py_queryProxy(unittest.TestCase):
             pass
         c = C()
         p1 = P1(c)
-        self.assertTrue(self._callFUT(p1, self._proxyClass()) is p1)
-        self.assertTrue(self._callFUT(p1, self._proxyClass(), 42) is p1)
+        self.assertIs(self._callFUT(p1, self._proxyClass()), p1)
+        self.assertIs(self._callFUT(p1, self._proxyClass(), 42), p1)
 
 
 class Test_queryProxy(Test_py_queryProxy):
@@ -1232,7 +1232,7 @@ class Test_py_queryInnerProxy(unittest.TestCase):
             pass
         c = C()
         p1 = P1(c)
-        self.assertTrue(self._callFUT(p1) is p1)
+        self.assertIs(self._callFUT(p1), p1)
 
     def test_proxy_w_same_class(self):
         class P1(self._proxyClass()):
@@ -1242,8 +1242,8 @@ class Test_py_queryInnerProxy(unittest.TestCase):
             pass
         c = C()
         p1 = P1(c)
-        self.assertTrue(self._callFUT(p1, P1) is p1)
-        self.assertTrue(self._callFUT(p1, P1, 42) is p1)
+        self.assertIs(self._callFUT(p1, P1), p1)
+        self.assertIs(self._callFUT(p1, P1, 42), p1)
 
     def test_nested_proxy(self):
         class P1(self._proxyClass()):
@@ -1257,10 +1257,10 @@ class Test_py_queryInnerProxy(unittest.TestCase):
         c = C()
         p1 = P1(c)
         proxy2 = P2(p1)
-        self.assertTrue(self._callFUT(proxy2, P1) is p1)
-        self.assertTrue(self._callFUT(proxy2, P1, 42) is p1)
-        self.assertTrue(self._callFUT(proxy2, P2) is proxy2)
-        self.assertTrue(self._callFUT(proxy2, P2, 42) is proxy2)
+        self.assertIs(self._callFUT(proxy2, P1), p1)
+        self.assertIs(self._callFUT(proxy2, P1, 42), p1)
+        self.assertIs(self._callFUT(proxy2, P2), proxy2)
+        self.assertIs(self._callFUT(proxy2, P2, 42), proxy2)
 
     def test_re_nested_proxy(self):
         class P1(self._proxyClass()):
@@ -1275,10 +1275,10 @@ class Test_py_queryInnerProxy(unittest.TestCase):
         p1 = P1(c)
         proxy2 = P2(p1)
         proxy3 = P1(proxy2)
-        self.assertTrue(self._callFUT(proxy3, P1) is p1)
-        self.assertTrue(self._callFUT(proxy3, P1, 42) is p1)
-        self.assertTrue(self._callFUT(proxy3, P2) is proxy2)
-        self.assertTrue(self._callFUT(proxy3, P2, 42) is proxy2)
+        self.assertIs(self._callFUT(proxy3, P1), p1)
+        self.assertIs(self._callFUT(proxy3, P1, 42), p1)
+        self.assertIs(self._callFUT(proxy3, P2), proxy2)
+        self.assertIs(self._callFUT(proxy3, P2, 42), proxy2)
 
 
 class Test_queryInnerProxy(Test_py_queryInnerProxy):
@@ -1311,14 +1311,14 @@ class Test_py_removeAllProxies(unittest.TestCase):
         class C:
             pass
         c = C()
-        self.assertTrue(self._callFUT(c) is c)
+        self.assertIs(self._callFUT(c), c)
 
     def test_simple_proxy(self):
         class C:
             pass
         c = C()
         proxy = self._makeProxy(c)
-        self.assertTrue(self._callFUT(proxy) is c)
+        self.assertIs(self._callFUT(proxy), c)
 
     def test_nested_proxy(self):
         class C:
@@ -1326,7 +1326,7 @@ class Test_py_removeAllProxies(unittest.TestCase):
         c = C()
         proxy = self._makeProxy(c)
         proxy2 = self._makeProxy(proxy)
-        self.assertTrue(self._callFUT(proxy2) is c)
+        self.assertIs(self._callFUT(proxy2), c)
 
     @unittest.skipUnless(_HAVE_ZOPE_SECURITY, 'zope.security missing')
     def test_security_proxy(self):
