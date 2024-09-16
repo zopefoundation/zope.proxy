@@ -5,6 +5,8 @@
 6.0 (unreleased)
 ================
 
+- Declare full support for Python 3.13.
+
 - Drop support for Python 3.7.
 
 
