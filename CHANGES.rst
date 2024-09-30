@@ -5,6 +5,8 @@
 6.1 (unreleased)
 ================
 
+- Respect ``PURE_PYTHON`` environment variable set to ``0``.
+
 
 6.0 (2024-09-17)
 ================
