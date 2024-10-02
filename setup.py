@@ -30,6 +30,9 @@ from setuptools import setup
 from setuptools.command.build_ext import build_ext
 
 
+version = '6.1'
+
+
 class optional_build_ext(build_ext):
     """This class subclasses build_ext and allows
        the building of C extensions to fail.
@@ -79,7 +82,7 @@ else:
     headers = [os.path.join('src', 'zope', 'proxy', 'proxy.h')]
 
 setup(name='zope.proxy',
-      version='6.1.dev0',
+      version=version,
       author='Zope Foundation and Contributors',
       author_email='zope-dev@zope.org',
       description='Generic Transparent Proxies',
