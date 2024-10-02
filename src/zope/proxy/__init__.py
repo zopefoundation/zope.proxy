@@ -480,7 +480,7 @@ def py_removeAllProxies(obj):
 
 
 _c_available = False
-if 'PURE_PYTHON' not in os.environ:
+if not int(os.environ.get('PURE_PYTHON', '0')):
     try:  # pragma: no cover
         from zope.proxy._zope_proxy_proxy import ProxyBase as _c_available
     except ImportError:
