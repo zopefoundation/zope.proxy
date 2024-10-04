@@ -5,6 +5,8 @@
 6.2 (unreleased)
 ================
 
+- Adjust minimal required version of ``zope.security`` test dependency to ``7.3``.
+
 
 6.1 (2024-10-02)
 ================

@@ -135,7 +135,8 @@ setup(name='zope.proxy',
       zip_safe=False,
       extras_require={
           'test': [
-              'zope.security',  # We have a circular dependency for testing
+              # We have a circular dependency with zope.security for testing
+              'zope.security >= 7.3',
               'zope.testrunner',
           ],
           'docs': [
