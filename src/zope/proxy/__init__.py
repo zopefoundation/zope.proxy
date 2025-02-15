@@ -107,7 +107,7 @@ class AbstractPyProxyBase:
 
     def __new__(cls, value=None):
         # Some subclasses (zope.security.proxy) fail to pass the object
-        inst = super(AbstractPyProxyBase, cls).__new__(cls)
+        inst = super().__new__(cls)
         inst._wrapped = value
         return inst
 
@@ -197,7 +197,7 @@ class AbstractPyProxyBase:
 
     def __setattr__(self, name, value):
         if name == '_wrapped':
-            return super(AbstractPyProxyBase, self).__setattr__(name, value)
+            return super().__setattr__(name, value)
 
         # First, look for descriptors in this object's type
         type_self = type(self)

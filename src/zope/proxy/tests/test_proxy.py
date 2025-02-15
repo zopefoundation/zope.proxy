@@ -21,7 +21,7 @@ from .. import _c_available
 
 try:
     import zope.security
-except ImportError:  # pragma: no cover
+except ModuleNotFoundError:  # pragma: no cover
     _HAVE_ZOPE_SECURITY = False
 else:
     _HAVE_ZOPE_SECURITY = True
@@ -335,7 +335,7 @@ class PyProxyBaseTestCase(unittest.TestCase):
                 return 2
 
             def __getitem__(self, a_slice):
-                # On Python 3, we basically just return what the test expects.
+                # We basically just return what the test expects.
                 # Mostly that's the computed indices (yay!) but there are
                 # a few special cases.
                 indices = a_slice.indices(len(self))
