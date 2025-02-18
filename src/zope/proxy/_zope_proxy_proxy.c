@@ -621,9 +621,9 @@ wrap_as_sequence = {
     0,                                      /* sq_concat */
     0,                                      /* sq_repeat */
     0,                                      /* sq_item */
-    0,                                      /* sq_slice, unused in PY3 */
+    0,                                      /* sq_slice, unused */
     0,                                      /* sq_ass_item */
-    0,                                      /* sq_ass_slice, unused in PY3 */
+    0,                                      /* sq_ass_slice, unused */
     wrap_contains,                          /* sq_contains */
 };
 
@@ -658,7 +658,7 @@ ProxyType = {
     sizeof(ProxyObject),
     0,
     wrap_dealloc,                           /* tp_dealloc */
-    0,                                      /* reserved 3.0--3.7; tp_vectorcall_offset 3.8+ */
+    0,                                      /* tp_vectorcall_offset */
     0,                                      /* tp_getattr */
     0,                                      /* tp_setattr */
     0,                                      /* tp_reserved */

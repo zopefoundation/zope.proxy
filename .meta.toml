@@ -2,21 +2,18 @@
 # https://github.com/zopefoundation/meta/tree/master/config/c-code
 [meta]
 template = "c-code"
-commit-id = "cc25c7e0"
+commit-id = "781caa51"
 
 [python]
 with-windows = true
 with-pypy = true
-with-future-python = false
+with-future-python = true
 with-docs = true
 with-sphinx-doctests = true
 with-macos = false
 
 [tox]
 use-flake8 = true
-testenv-deps = [
-    "py37: urllib3 < 2",
-    ]
 
 [coverage]
 fail-under = 99
@@ -36,3 +33,6 @@ additional-ignores = [
     "docs/_build/*",
     "docs/_build/*/*",
     ]
+
+[pre-commit]
+pyupgrade-exclude = "^src/zope/proxy/__init__\\.py$"

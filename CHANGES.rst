@@ -5,6 +5,10 @@
 6.2 (unreleased)
 ================
 
+- Add preliminary support for Python 3.14.
+
+- Drop support for Python 3.8.
+
 - Adjust minimal required version of ``zope.security`` test dependency to ``7.3``.
 
 
