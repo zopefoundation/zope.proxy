@@ -2,7 +2,7 @@
 # https://github.com/zopefoundation/meta/tree/master/config/c-code
 [meta]
 template = "c-code"
-commit-id = "e78b9550"
+commit-id = "781caa51"
 
 [python]
 with-windows = true
@@ -33,3 +33,6 @@ additional-ignores = [
     "docs/_build/*",
     "docs/_build/*/*",
     ]
+
+[pre-commit]
+pyupgrade-exclude = "^src/zope/proxy/__init__\\.py$"
