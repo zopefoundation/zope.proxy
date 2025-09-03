@@ -117,9 +117,6 @@ setup(name='zope.proxy',
           'Operating System :: OS Independent',
       ],
       keywords='proxy generic transparent',
-      packages=['zope', 'zope.proxy'],
-      package_dir={'': 'src'},
-      namespace_packages=['zope'],
       cmdclass={
           'build_ext': optional_build_ext,
       },
@@ -136,7 +133,7 @@ setup(name='zope.proxy',
           'test': [
               # We have a circular dependency with zope.security for testing
               'zope.security >= 7.3',
-              'zope.testrunner',
+              'zope.testrunner >= 6.4',
           ],
           'docs': [
               'Sphinx',
