@@ -117,6 +117,10 @@ setup(name='zope.proxy',
           'Operating System :: OS Independent',
       ],
       keywords='proxy generic transparent',
+      # we need the following two parameters because we compile C code,
+      # otherwise only the shared library is installed:
+      package_dir={'': 'src'},
+      packages=['zope.proxy'],
       cmdclass={
           'build_ext': optional_build_ext,
       },
