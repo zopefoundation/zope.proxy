@@ -30,7 +30,7 @@ from setuptools import setup
 from setuptools.command.build_ext import build_ext
 
 
-version = '6.2.dev0'
+version = '7.0.dev0'
 
 
 class optional_build_ext(build_ext):
@@ -117,9 +117,10 @@ setup(name='zope.proxy',
           'Operating System :: OS Independent',
       ],
       keywords='proxy generic transparent',
-      packages=['zope', 'zope.proxy'],
+      # we need the following two parameters because we compile C code,
+      # otherwise only the shared library is installed:
       package_dir={'': 'src'},
-      namespace_packages=['zope'],
+      packages=['zope.proxy'],
       cmdclass={
           'build_ext': optional_build_ext,
       },
@@ -136,7 +137,7 @@ setup(name='zope.proxy',
           'test': [
               # We have a circular dependency with zope.security for testing
               'zope.security >= 7.3',
-              'zope.testrunner',
+              'zope.testrunner >= 6.4',
           ],
           'docs': [
               'Sphinx',
