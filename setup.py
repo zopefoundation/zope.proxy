@@ -127,9 +127,11 @@ setup(name='zope.proxy',
       headers=headers,
       ext_modules=ext_modules,
       python_requires='>=3.9',
+      setup_requires=[
+          'setuptools',
+      ],
       install_requires=[
           'zope.interface',
-          'setuptools',
       ],
       include_package_data=True,
       zip_safe=False,
