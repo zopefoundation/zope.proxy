@@ -129,7 +129,6 @@ setup(name='zope.proxy',
       python_requires='>=3.9',
       install_requires=[
           'zope.interface',
-          'setuptools',
       ],
       include_package_data=True,
       zip_safe=False,
