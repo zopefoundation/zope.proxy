@@ -9,6 +9,56 @@ requires = [
 ]
 build-backend = "setuptools.build_meta"
 
+[project]
+name = "zope.proxy"
+version = "7.1.dev0"
+description = "Generic Transparent Proxies"
+keywords = ["zope", "proxy", "generic", "transparent"]
+readme = "README.rst"
+requires-python = ">=3.10"
+license = "ZPL-2.1"
+authors = [
+  { name = "Zope Foundation and contributors", email = "zope-dev@zope.dev" },
+]
+maintainers = [
+  { name = "Plone Foundation and contributors", email = "zope-dev@zope.dev" },
+]
+classifiers = [
+  "Development Status :: 5 - Production/Stable",
+  "Framework :: Zope :: 3",
+  "Intended Audience :: Developers",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
+  "Programming Language :: Python :: Implementation :: CPython",
+  "Programming Language :: Python :: Implementation :: PyPy",
+]
+dependencies = ["zope.interface"]
+
+[project.optional-dependencies]
+docs = [
+  "Sphinx",
+  "repoze.sphinx.autointerface",
+  "furo",
+]
+# We have a circular dependency with zope.security for testing
+test = [
+  "zope.security >= 7.3",
+  "zope.testrunner >= 6.4",
+]
+
+[project.urls]
+Documentation = "https://zopeproxy.readthedocs.io"
+Issues = "https://github.com/zopefoundation/zope.proxy/issues"
+Source = "https://github.com/zopefoundation/zope.proxy"
+Changelog = "https://github.com/zopefoundation/zope.proxy/blob/master/CHANGES.rst"
+
 [tool.coverage.run]
 branch = true
 source = ["zope.proxy"]
