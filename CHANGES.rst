@@ -4,11 +4,11 @@ Change log
 7.1 (unreleased)
 ----------------
 
-- Move all supported package metadata into ``pyproject.toml``.
-
 - Drop support for Python 3.9.
 
 - Add support for Python 3.14.
+
+- Move all supported package metadata into ``pyproject.toml``.
 
 - Remove no longer necessary ``setuptools`` runtime dependency.
 
