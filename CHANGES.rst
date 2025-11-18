@@ -1,7 +1,7 @@
 Change log
 ==========
 
-7.1 (unreleased)
+7.1 (2025-11-18)
 ----------------
 
 - Drop support for Python 3.9.
