@@ -14,7 +14,7 @@ name = "zope.proxy"
 version = "7.2.dev0"
 description = "Generic Transparent Proxies"
 keywords = ["zope", "proxy", "generic", "transparent"]
-readme = "README.rst"
+dynamic = ["readme"]
 requires-python = ">=3.10"
 license = "ZPL-2.1"
 authors = [
@@ -89,3 +89,6 @@ source = [
     ".tox/*/lib/python*/site-packages/",
     ".tox/pypy*/site-packages/",
 ]
+
+[tool.setuptools.dynamic]
+readme = {file = ["README.rst", "CHANGES.rst"]}

@@ -32,6 +32,7 @@ additional-ignores = [
     "docs/_build",
     "docs/_build/*",
     "docs/_build/*/*",
+    "docs/_build/html/_static/scripts/*",
     ]
 
 [pre-commit]
