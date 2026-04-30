@@ -1,7 +1,7 @@
 Change log
 ==========
 
-7.2 (unreleased)
+7.2 (2026-04-30)
 ----------------
 
 - Add support for automatically building and publishing Windows/ARM64 wheels.
