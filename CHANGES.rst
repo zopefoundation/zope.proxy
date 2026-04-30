@@ -4,7 +4,9 @@ Change log
 7.2 (unreleased)
 ----------------
 
-- Nothing changed yet.
+- Add support for automatically building and publishing Windows/ARM64 wheels.
+
+- Add support for automatically building and publishing source distributions.
 
 
 7.1 (2025-11-18)
