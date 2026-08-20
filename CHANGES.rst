@@ -4,7 +4,7 @@ Change log
 7.3 (unreleased)
 ----------------
 
-- Nothing changed yet.
+- Add support for Python 3.15.
 
 
 7.2 (2026-04-30)
