@@ -9,7 +9,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "zope.proxy"
-version = "7.3.dev0"
+version = "7.3"
 description = "Generic Transparent Proxies"
 keywords = ["zope", "proxy", "generic", "transparent"]
 dynamic = ["readme"]
