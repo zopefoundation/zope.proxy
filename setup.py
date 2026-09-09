@@ -61,7 +61,7 @@ codeoptimization = [
     Extension(
         "zope.proxy._zope_proxy_proxy",
         [os.path.join('src', 'zope', 'proxy', "_zope_proxy_proxy.c")],
-        define_macros=[("Py_LIMITED_API", 0x030a0000)], # 3.10 ABI
+        define_macros=[("Py_LIMITED_API", 0x030a0000)],  # 3.10 ABI
         py_limited_api=True,
     ),
 ]
