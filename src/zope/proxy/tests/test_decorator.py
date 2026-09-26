@@ -131,6 +131,54 @@ class DecoratorSpecificationDescriptorTests(unittest.TestCase):
         dsd = self._makeOne()
         self.assertRaises(TypeError, dsd.__set__, foo, object())
 
+    def test___get___w_nested_decorators_sharing_a_base(self):
+        # Wrapping a decorated object with a second decorator whose
+        # class shares a common base with the first decorator's class
+        # (and hence shares an implemented interface) must not raise
+        # an InconsistentResolutionOrderError, even when zope.interface
+        # is running with strict interface resolution order checking.
+        # See https://github.com/zopefoundation/zope.proxy/issues/41
+        from zope.interface import Interface
+        from zope.interface import implementer
+        from zope.interface import providedBy
+
+        from zope.proxy.decorator import SpecificationDecoratorBase
+
+        class IBase(Interface):
+            pass
+
+        class I1(Interface):
+            pass
+
+        class I2(Interface):
+            pass
+
+        class IContext(Interface):
+            pass
+
+        @implementer(IBase)
+        class BaseDecorator(SpecificationDecoratorBase):
+            pass
+
+        @implementer(I1)
+        class D1(BaseDecorator):
+            pass
+
+        @implementer(I2)
+        class D2(BaseDecorator):
+            pass
+
+        @implementer(IContext)
+        class Context:
+            pass
+
+        context = Context()
+        # This should not raise, and I2 should come before the
+        # interfaces contributed by the shared base class.
+        result = list(providedBy(D2(D1(context))))
+        self.assertEqual(
+            result, [IContext, I1, I2, IBase])
+
 
 class SpecificationDecoratorBaseTests(unittest.TestCase):
 

@@ -4,6 +4,13 @@ Change log
 7.4 (unreleased)
 ----------------
 
+- Fix ``DecoratorSpecificationDescriptor`` producing an inconsistent
+  interface resolution order (and raising
+  ``InconsistentResolutionOrderError`` under strict IRO checking) when
+  nesting two decorators whose classes share a common base that
+  implements an interface. See `issue 41
+  <https://github.com/zopefoundation/zope.proxy/issues/41>`_.
+
 
 7.3 (2026-08-20)
 ----------------
