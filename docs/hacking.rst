@@ -67,9 +67,9 @@ Then, you canrun the tests using the build-in ``setuptools`` testrunner:
    ...................................................................................................................................................
    ----------------------------------------------------------------------
    Ran 147 tests in 0.010s
-   
+
    OK
-   
+
 
 If you have the :mod:`nose` package installed in the virtualenv, you can
 use its testrunner too:
@@ -82,7 +82,7 @@ use its testrunner too:
    .....................................................................................................................................................
    ----------------------------------------------------------------------
    Ran 149 tests in 0.107s
-   
+
    OK
 
 If you have the :mod:`coverage` pacakge installed in the virtualenv,
@@ -96,15 +96,15 @@ you can see how well the tests cover the code:
    .....................................................................................................................................................
    Name                    Stmts   Miss  Cover   Missing
    -----------------------------------------------------
-   zope.proxy                271      0   100%   
-   zope.proxy._compat          2      0   100%   
-   zope.proxy.decorator       18      0   100%   
-   zope.proxy.interfaces      10      0   100%   
+   zope.proxy                271      0   100%
+   zope.proxy._compat          2      0   100%
+   zope.proxy.decorator       18      0   100%
+   zope.proxy.interfaces      10      0   100%
    -----------------------------------------------------
-   TOTAL                     301      0   100%   
+   TOTAL                     301      0   100%
    ----------------------------------------------------------------------
    Ran 149 tests in 0.148s
-   
+
    OK
 
 
@@ -206,7 +206,7 @@ tool designed to run tests against multiple Python versions.  It creates
 a ``virtualenv`` for each configured version, installs the current package
 and configured dependencies into each ``virtualenv``, and then runs the
 configured commands.
-   
+
 :mod:`zope.proxy` configures the following :mod:`tox` environments via
 its ``tox.ini`` file:
 
