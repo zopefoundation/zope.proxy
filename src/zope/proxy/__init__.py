@@ -86,12 +86,10 @@ class _EmptyInterfaceDescriptor:
 
 
 class _ProxyMetaclass(type):
-    # The metaclass is applied after the class definition
-    # for Py2/Py3 compatibility.
     __implemented__ = _EmptyInterfaceDescriptor()
 
 
-class AbstractPyProxyBase:
+class AbstractPyProxyBase(metaclass=_ProxyMetaclass):
     """
     A reference implementation that cannot be instantiated. Most users
     will want to use :class:`PyProxyBase`.
@@ -411,10 +409,6 @@ class AbstractPyProxyBase:
             # There is no syntax which triggers in-place pow w/ modulus
             self._wrapped = pow(self._wrapped, other, modulus)
         return self
-
-
-AbstractPyProxyBase = _ProxyMetaclass('AbstractPyProxyBase', (),
-                                      dict(AbstractPyProxyBase.__dict__))
 
 
 class PyProxyBase(AbstractPyProxyBase):
