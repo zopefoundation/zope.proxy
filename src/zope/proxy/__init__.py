@@ -86,12 +86,10 @@ class _EmptyInterfaceDescriptor:
 
 
 class _ProxyMetaclass(type):
-    # The metaclass is applied after the class definition
-    # for Py2/Py3 compatibility.
     __implemented__ = _EmptyInterfaceDescriptor()
 
 
-class AbstractPyProxyBase:
+class AbstractPyProxyBase(metaclass=_ProxyMetaclass):
     """
     A reference implementation that cannot be instantiated. Most users
     will want to use :class:`PyProxyBase`.
@@ -107,7 +105,7 @@ class AbstractPyProxyBase:
 
     def __new__(cls, value=None):
         # Some subclasses (zope.security.proxy) fail to pass the object
-        inst = super(AbstractPyProxyBase, cls).__new__(cls)
+        inst = super().__new__(cls)
         inst._wrapped = value
         return inst
 
@@ -197,7 +195,7 @@ class AbstractPyProxyBase:
 
     def __setattr__(self, name, value):
         if name == '_wrapped':
-            return super(AbstractPyProxyBase, self).__setattr__(name, value)
+            return super().__setattr__(name, value)
 
         # First, look for descriptors in this object's type
         type_self = type(self)
@@ -411,10 +409,6 @@ class AbstractPyProxyBase:
             # There is no syntax which triggers in-place pow w/ modulus
             self._wrapped = pow(self._wrapped, other, modulus)
         return self
-
-
-AbstractPyProxyBase = _ProxyMetaclass('AbstractPyProxyBase', (),
-                                      dict(AbstractPyProxyBase.__dict__))
 
 
 class PyProxyBase(AbstractPyProxyBase):
